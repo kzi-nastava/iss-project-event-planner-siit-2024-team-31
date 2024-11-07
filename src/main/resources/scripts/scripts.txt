@@ -1,0 +1,5 @@
+1. Роли
+INSERT INTO roles (version, name)
+VALUES (0, 'ROLE_ADMIN'),
+       (0, 'ROLE_SUPPLIER'),
+       (0, 'ROLE_CUSTOMER');
