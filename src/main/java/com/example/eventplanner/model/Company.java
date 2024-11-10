@@ -10,26 +10,17 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "companies")
 @Getter
 @Setter
 @NoArgsConstructor
-public class AppUser extends EntityBase {
+public class Company extends EntityBase {
+
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "email")
     private String email;
-
-    @Column(name = "password", nullable = false, unique = true)
-    private String password;
-
-    @Column(name = "first_name")
-    private String firstName;
-
-    @Column(name = "last_name")
-    private String lastName;
-
-    @Column(name = "photo")
-    private String photo;
 
     @Column(name = "address")
     private String address;
@@ -40,14 +31,17 @@ public class AppUser extends EntityBase {
     @Column(name = "registration_date")
     private Date registrationDate;
 
+    @Column(name = "photo")
+    private String photo;
+
     @Column(name = "is_active")
     private boolean isActive = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
-            name = "users_roles",
+            name = "company_roles",
             joinColumns = @JoinColumn(
-                    name = "user_id", referencedColumnName = "id"),
+                    name = "company_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "id"))
     private List<Role> roles = new ArrayList<>();
@@ -56,4 +50,3 @@ public class AppUser extends EntityBase {
         this.roles.add(role);
     }
 }
-

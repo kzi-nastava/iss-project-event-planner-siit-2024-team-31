@@ -24,3 +24,6 @@ public class AppUserService {
         appUserRepository.saveAndFlush(appUser);
     }
 }
+
+//@AutoWired
+// private UserService userService;
