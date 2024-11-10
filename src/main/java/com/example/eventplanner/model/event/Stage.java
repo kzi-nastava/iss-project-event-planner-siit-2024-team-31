@@ -1,21 +1,11 @@
-package com.example.eventplanner.model;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+package com.example.eventplanner.model.event;
 
-import java.util.ArrayList;
+import jakarta.persistence.Column;
+
 import java.util.Date;
-import java.util.List;
-
-@Entity
-@Table(name = "services")
-@Getter
-@Setter
-@NoArgsConstructor
 
 
-public class Service extends EntityBase{
+public class Stage {
 
 
     // Category Enum class 3.1
@@ -72,16 +62,4 @@ public class Service extends EntityBase{
     // ■ Автоматическое — для услуг с фиксированным временем.
     // ■ Ручное — для услуг с фиксированным временем или услуг с гибким временем.
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "service_roles",
-            joinColumns = @JoinColumn(
-                    name = "service_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(
-                    name = "role_id", referencedColumnName = "id"))
-    private List<Role> roles = new ArrayList<>();
-
-    public void addRole(Role role) {
-        this.roles.add(role);
-    }
 }
