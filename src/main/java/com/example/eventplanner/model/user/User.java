@@ -18,10 +18,10 @@ import java.util.List;
 @NoArgsConstructor
 public class User extends EntityBase {
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false, unique = true)
+    @Column(name = "password", nullable = false, unique = false)
     private String password;
 
     @Column(name = "first_name")
@@ -30,9 +30,8 @@ public class User extends EntityBase {
     @Column(name = "last_name")
     private String lastName;
 
-//    @Column(name = "photo")
-//    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER) // Создать зависимость (как создать связь OneToOne Hibernate)
-//    private Photo photo;
+    @OneToOne// Зависимость (связь OneToOne Hibernate)
+    private Photo photo;
 
     @Column(name = "address")
     private String address;
@@ -41,7 +40,7 @@ public class User extends EntityBase {
     private String phoneNumber;
 
     @Column(name = "registration_date")
-    private Date registrationDate;
+    private Date registrationDate = new Date();
 
     @Column(name = "is_active")
     private boolean active = false;

@@ -12,7 +12,7 @@ public class UserDto {
     private String password;
     private String firstName;
     private String lastName;
-    private String photo;
+    private PhotoDto photo;
     private String address;
     private String phoneNumber;
 }

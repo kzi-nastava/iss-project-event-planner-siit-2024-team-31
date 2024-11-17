@@ -1,7 +1,10 @@
 package com.example.eventplanner.dto.userDto;
 
-import java.io.File;
-// смотреть ТГ / как сохранять фото в БД
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class PhotoDto  {
-    private File photo;
+    private byte[] photo;
 }
