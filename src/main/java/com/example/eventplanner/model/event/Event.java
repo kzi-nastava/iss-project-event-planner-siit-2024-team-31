@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-//@Entity
-//@Table(name = "events")
+@Entity
+@Table(name = "events")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Event //extends EntityBase
+public class Event extends EntityBase
 {
     // conference / concert / seminar / lection
     @Column(name = "event_type")
@@ -26,14 +26,15 @@ public class Event //extends EntityBase
     @Column(name = "name")
     private String name;
 
-    @Column(name = "maximux_number_of_guests")
-    private int maxNumberOfGuests;
-
     @Column(name = "description")
     private String description;
 
-    @Column(name = "address")
-    private String address;
+    @Column(name = "maximux_number_of_guests")
+    private int maxNumberOfGuests;
+
+    @Column(name = "is_private")
+    private boolean isPrivate = false;
+
 //    Если мероприятие закрытого типа у пользователя
 //    должна быть возможность отправлять приглашения определенной группе людей.
 //    Определенная группа людей может увидеть и добавить это событие
@@ -41,24 +42,27 @@ public class Event //extends EntityBase
     @Column(name = "who_can_come_to_event")
     private String whoCanComeToEvent;
 
+    @Column(name = "address")
+    private String address;
+
+    //Если событие является бессрочным, то Событие будет видно всем пользователям приложения.
+    @Column(name = "date_of_event") //can be indefinitely
+    private Date dateOfEvent;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name = "budget")
     private int budget;
 
+    @Column(name = "full_description")
+    private String fullDescription;
+
     @Column(name = "product")
     private String product;
 
     @Column(name = "service")
     private String service;
-
-    //Если событие является бессрочным, то Событие будет видно всем пользователям приложения.
-    @Column(name = "date_of_event") //can be indefinitely
-    private Date dateOfEvent;
-
-    @Column(name = "is_private")
-    private boolean isPrivate = false;
 
     @Column(name = "is_active")
     private boolean isActive = false;

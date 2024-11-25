@@ -1,26 +1,23 @@
 package com.example.eventplanner.service;
 
-import com.example.eventplanner.dto.userDto.PhotoDto;
+import com.example.eventplanner.dto.userDto.PhotoUserDto;
 import com.example.eventplanner.dto.userDto.UserDto;
 import com.example.eventplanner.model.user.Photo;
 import com.example.eventplanner.model.user.User;
-import com.example.eventplanner.repository.PhotoRepository;
-import com.example.eventplanner.repository.UserRepository;
+import com.example.eventplanner.repository.user.UserPhotoRepository;
+import com.example.eventplanner.repository.user.UserRepository;
 import com.example.eventplanner.validator.UserValidator;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final PhotoRepository photoRepository;
+    private final UserPhotoRepository userPhotoRepository;
 
     public UserService(UserRepository userRepository,
-                       PhotoRepository photoRepository) {
+                       UserPhotoRepository userPhotoRepository) {
         this.userRepository = userRepository;
-        this.photoRepository = photoRepository;
+        this.userPhotoRepository = userPhotoRepository;
     }
 
     public User registration(UserDto userDto) {
@@ -37,9 +34,9 @@ public class UserService {
         return user;
     }
 
-    private Photo createPhoto(PhotoDto photoDto) {
-        Photo photo = new Photo(photoDto.getPhoto());
-        photoRepository.saveAndFlush(photo);
+    private Photo createPhoto(PhotoUserDto photoUserDto) {
+        Photo photo = new Photo(photoUserDto.getPhoto());
+        userPhotoRepository.saveAndFlush(photo);
         return photo;
     }
 //    public void update(UserDto userDto) {

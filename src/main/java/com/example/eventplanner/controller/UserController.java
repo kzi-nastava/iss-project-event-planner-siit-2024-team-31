@@ -52,8 +52,6 @@ public class UserController {
         userService.deactivateUser(id);
         return ResponseEntity.ok().body(String.format("User with id %s has been deactivated", id));
     }
-
-
 }
 //Контролерры на все entity н
 // event controller

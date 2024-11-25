@@ -1,10 +1,10 @@
-package com.example.eventplanner.dto.userDto;
+package com.example.eventplanner.dto.companyDto;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class PhotoDto  {
+public class PhotoCompanyDto {
     private byte[] photo;
 }

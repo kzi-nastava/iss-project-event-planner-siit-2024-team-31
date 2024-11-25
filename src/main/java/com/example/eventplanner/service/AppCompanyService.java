@@ -1,8 +1,6 @@
 package com.example.eventplanner.service;
 
-import com.example.eventplanner.dto.AppCompanyDto;
-import com.example.eventplanner.model.Company;
-//import com.example.eventplanner.repository.CompanyRepository;
+//import com.example.eventplanner.repository.company.CompanyRepository;
 
 //public class AppCompanyService {
 //    private final CompanyRepository companyRepository;

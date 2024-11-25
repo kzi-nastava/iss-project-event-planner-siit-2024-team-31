@@ -1,6 +1,8 @@
 package com.example.eventplanner.model.event;
 
+import com.example.eventplanner.model.user.Photo;
 import jakarta.persistence.Column;
+import jakarta.persistence.OneToOne;
 
 import java.util.Date;
 
@@ -31,8 +33,8 @@ public class Stage {
     @Column(name = "discount")
     private double discount;
 
-    @Column(name = "photo")
-    private String photo;
+    @OneToOne// Зависимость (связь OneToOne Hibernate)
+    private Photo photo;
 
     @Column(name = "type_of_events_where_its_applicable")
     private double typeOfEventsWhereItsApplicable;
