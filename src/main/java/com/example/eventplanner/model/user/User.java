@@ -2,6 +2,7 @@ package com.example.eventplanner.model.user;
 
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.Role;
+import com.example.eventplanner.model.product.Product;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,6 +54,16 @@ public class User extends EntityBase {
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "id"))
     private List<Role> roles = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(
+                    name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "role_id", referencedColumnName = "id"))
+    private List<Product> favourites = new ArrayList<>();
+
 
     public void addRole(Role role) {
         this.roles.add(role);

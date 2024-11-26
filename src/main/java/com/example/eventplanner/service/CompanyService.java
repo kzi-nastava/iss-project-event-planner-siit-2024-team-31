@@ -6,10 +6,12 @@ import com.example.eventplanner.model.company.Company;
 import com.example.eventplanner.model.user.Photo;
 import com.example.eventplanner.repository.company.CompanyPhotoRepository;
 import com.example.eventplanner.repository.company.CompanyRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class CompanyService {
-        private final CompanyRepository companyRepository;
-        private final CompanyPhotoRepository companyPhotoRepository;
+    private final CompanyRepository companyRepository;
+    private final CompanyPhotoRepository companyPhotoRepository;
 
     public CompanyService(CompanyRepository companyRepository,
                           CompanyPhotoRepository companyPhotoRepository) {
@@ -23,7 +25,7 @@ public class CompanyService {
         company.setCompanyEmail(companyDto.getCompanyEmail());
         company.setCompanyPassword(companyDto.getCompanyPassword());
         company.setCompanyName(companyDto.getCompanyName());
-        company.setCompanyPhoto(companyDto.getCompanyPhoto());
+     //   company.setCompanyPhoto(companyDto.getCompanyPhoto());
         company.setCompanyAddress(companyDto.getCompanyAddress());
         company.setCompanyPhoneNumber(companyDto.getCompanyPhoneNumber());
         company.setCompanyCity(companyDto.getCompanyCity());
@@ -31,18 +33,21 @@ public class CompanyService {
         companyRepository.saveAndFlush(company);
         return company;
     }
+
     private Photo createCompanyPhoto(CompanyPhotoDto companyPhotoDto) {
         Photo photo = new Photo(companyPhotoDto.getPhoto());
         companyPhotoRepository.saveAndFlush(photo);
         return photo;
     }
 
-    public void delete(CompanyDto companyDto) {
+    public void delete(Long companyDto) {
         Company company = new Company();
-         // company.isActive(companyDto.activeCompany(false));
+        // company.isActive(companyDto.activeCompany(false));
         companyRepository.saveAndFlush(company);
     }
-    public void update(CompanyDto companyDto) {    }
+
+    public void update(CompanyDto companyDto) {
+    }
 
     public void activateCompany(Long id) {
         companyRepository.findById(id).ifPresent(company -> company.setActive(true));

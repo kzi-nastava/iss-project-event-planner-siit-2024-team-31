@@ -1,6 +1,7 @@
 package com.example.eventplanner.model.event;
 
 
+import com.example.eventplanner.model.Comment;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.Role;
 import jakarta.persistence.*;
@@ -55,14 +56,13 @@ public class Event extends EntityBase
     @Column(name = "budget")
     private int budget;
 
+    @Column(name = "comment")
+    private List<Comment> comment;
+    //настроить mapping ManyToOne
+
     @Column(name = "full_description")
     private String fullDescription;
 
-    @Column(name = "product")
-    private String product;
-
-    @Column(name = "service")
-    private String service;
 
     @Column(name = "is_active")
     private boolean isActive = false;

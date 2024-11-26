@@ -1,5 +1,6 @@
 package com.example.eventplanner.model.product;
 
+import com.example.eventplanner.model.Comment;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.Role;
 import jakarta.persistence.*;
@@ -10,14 +11,12 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-//@Entity
-//@Table(name = "products")
+@Entity
+@Table(name = "products")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Product //extends EntityBase
-{
-
+public class Product extends EntityBase {
     // Category Enum class 3.1
     @Column(name = "category")
     private String category;
@@ -43,6 +42,10 @@ public class Product //extends EntityBase
 
     @Column(name = "photo")
     private String photo;
+
+    @Column(name = "comment")
+    private List<Comment> comment;
+    //настроить mapping ManyToOne
 
     @Column(name = "type_of_events_where_its_applicable")
     private double typeOfEventsWhereItsApplicable;
