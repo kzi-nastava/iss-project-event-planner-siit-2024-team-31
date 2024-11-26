@@ -1,6 +1,6 @@
 package com.example.eventplanner.service;
 
-import com.example.eventplanner.dto.userDto.PhotoUserDto;
+import com.example.eventplanner.dto.userDto.UserPhotoDto;
 import com.example.eventplanner.dto.userDto.UserDto;
 import com.example.eventplanner.model.user.Photo;
 import com.example.eventplanner.model.user.User;
@@ -34,8 +34,8 @@ public class UserService {
         return user;
     }
 
-    private Photo createPhoto(PhotoUserDto photoUserDto) {
-        Photo photo = new Photo(photoUserDto.getPhoto());
+    private Photo createPhoto(UserPhotoDto userPhotoDto) {
+        Photo photo = new Photo(userPhotoDto.getPhoto());
         userPhotoRepository.saveAndFlush(photo);
         return photo;
     }

@@ -10,7 +10,7 @@ public class UserDto {
     private String password;
     private String firstName;
     private String lastName;
-    private PhotoUserDto photo;
+    private UserPhotoDto photo;
     private String phoneNumber;
     private String address;
     private String city;

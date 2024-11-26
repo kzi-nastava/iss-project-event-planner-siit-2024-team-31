@@ -1,6 +1,6 @@
 package com.example.eventplanner.repository.company;
 
-import com.example.eventplanner.model.Company;
+import com.example.eventplanner.model.company.Company;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

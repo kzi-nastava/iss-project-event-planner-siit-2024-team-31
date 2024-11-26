@@ -5,6 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PhotoUserDto {
+public class UserPhotoDto {
     private byte[] photo;
 }
