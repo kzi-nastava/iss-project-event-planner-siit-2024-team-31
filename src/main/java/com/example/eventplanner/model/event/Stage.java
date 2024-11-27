@@ -1,6 +1,6 @@
 package com.example.eventplanner.model.event;
 
-import com.example.eventplanner.model.user.Photo;
+import com.example.eventplanner.model.Photo;
 import jakarta.persistence.Column;
 import jakarta.persistence.OneToOne;
 

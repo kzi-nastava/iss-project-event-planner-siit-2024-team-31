@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-
+@RequestMapping("/company")
 
 public class CompanyController {
 
@@ -37,7 +37,7 @@ public class CompanyController {
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteCompany(@RequestParam(value = "id") Long id) {
         companyService.delete(id);
-        return ResponseEntity.ok(204).body(String.format("Company with id %s have not been found", id));
+        return ResponseEntity.status(204).body(String.format("Company with id %s have not been found", id));
     }
 
     // метод activate

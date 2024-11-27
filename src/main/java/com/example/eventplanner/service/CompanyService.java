@@ -1,43 +1,33 @@
 package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.companyDto.CompanyDto;
-import com.example.eventplanner.dto.companyDto.CompanyPhotoDto;
 import com.example.eventplanner.model.company.Company;
-import com.example.eventplanner.model.user.Photo;
-import com.example.eventplanner.repository.company.CompanyPhotoRepository;
-import com.example.eventplanner.repository.company.CompanyRepository;
+import com.example.eventplanner.repository.CompanyRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CompanyService {
     private final CompanyRepository companyRepository;
-    private final CompanyPhotoRepository companyPhotoRepository;
+    private final PhotoService photoService;
 
     public CompanyService(CompanyRepository companyRepository,
-                          CompanyPhotoRepository companyPhotoRepository) {
+                          PhotoService photoService) {
         this.companyRepository = companyRepository;
-        this.companyPhotoRepository = companyPhotoRepository;
+        this.photoService = photoService;
     }
 
     public Company registration(CompanyDto companyDto) {
-
         Company company = new Company();
         company.setCompanyEmail(companyDto.getCompanyEmail());
         company.setCompanyPassword(companyDto.getCompanyPassword());
         company.setCompanyName(companyDto.getCompanyName());
-     //   company.setCompanyPhoto(companyDto.getCompanyPhoto());
+        company.setPhoto(photoService.createPhoto(companyDto.getPhoto()));
         company.setCompanyAddress(companyDto.getCompanyAddress());
         company.setCompanyPhoneNumber(companyDto.getCompanyPhoneNumber());
         company.setCompanyCity(companyDto.getCompanyCity());
         company.setCompanyDescription(companyDto.getCompanyDescription());
         companyRepository.saveAndFlush(company);
         return company;
-    }
-
-    private Photo createCompanyPhoto(CompanyPhotoDto companyPhotoDto) {
-        Photo photo = new Photo(companyPhotoDto.getPhoto());
-        companyPhotoRepository.saveAndFlush(photo);
-        return photo;
     }
 
     public void delete(Long companyDto) {

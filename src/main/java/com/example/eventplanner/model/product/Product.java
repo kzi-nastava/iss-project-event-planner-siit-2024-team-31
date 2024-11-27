@@ -1,58 +1,67 @@
 package com.example.eventplanner.model.product;
 
-import com.example.eventplanner.model.Comment;
-import com.example.eventplanner.model.EntityBase;
-import com.example.eventplanner.model.Role;
+import com.example.eventplanner.model.*;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "products")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Product extends EntityBase {
+@DiscriminatorValue("products")
+
+
+//        ProductCategory
+//        ProductName
+//        ProductDescription
+//        ProductPrice
+//        ProductDiscount
+//        ProductPhoto
+//        productTypeOfEventsWhereItsApplicable Типы событий, к которым продукт привязан (0 или более).
+//        productIsActiveForOD
+//        productIsActiveForUsers
+//        comment
+
+
+public class Product extends Commentable {
     // Category Enum class 3.1
-    @Column(name = "category")
-    private String category;
+    @Column(name = "product_category")
+    private String productCategory;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "product_name")
+    private String productName;
 
-    // Number of guest for this product
-    @Column(name = "maximux_number_of_guests")
-    private int maxNumberOfGuests;
+    @Column(name = "product_description")
+    private String productDescription;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "product_price")
+    private int productPrice;
 
-    @Column(name = "issue")
-    private String issue;
+    @Column(name = "product_discount")
+    private int productDiscount;
 
-    @Column(name = "price")
-    private int price;
+    @OneToOne // Зависимость Hibernate
+    private Photo photo;
 
-    @Column(name = "discount")
-    private double discount;
+    // Типы событий, к которым продукт привязан (0 или более).
+    @Column(name = "product_type_of_events_where_its_applicable")
+    private double productTypeOfEventsWhereItsApplicable;
 
-    @Column(name = "photo")
-    private String photo;
+    @Column(name = "product_is_active_for_OD")
+    private boolean productIsActiveForOD = false;
 
-    @Column(name = "comment")
-    private List<Comment> comment;
-    //настроить mapping ManyToOne
+    @Column(name = "product_is_active_for_users")
+    private boolean productIsActiveForUsers = false;
 
-    @Column(name = "type_of_events_where_its_applicable")
-    private double typeOfEventsWhereItsApplicable;
+    @Column(name = "product_registration_date")
+    private Date ProductRegistrationDate = new Date();
 
-    @Column(name = "is_active_for_OD")
-    private boolean isActiveForOD = false;
 
-    @Column(name = "is_active_for_users")
-    private boolean isActiveForUsers = false;
 }

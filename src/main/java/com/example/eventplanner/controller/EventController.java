@@ -33,27 +33,14 @@ public class EventController {
     //метод update
     @PatchMapping("/update")
     public ResponseEntity<?> updateEvent(@RequestBody EventDto eventDto){
-        eventService.update(eventDto);
+        eventService.updateEvent(eventDto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping()
     public ResponseEntity<?> deleteEvent(@RequestParam(value = "id") Long id){
-        eventService.delete(eventDto);
-        return ResponseEntity.ok(204).body(String.format("Event with id %s have not been found", id));
-    }
-
-    // метод activate
-    @PatchMapping("/active")
-    public ResponseEntity<?> activateEvent(@RequestParam(value = "id") Long id){
-        eventService.activateEvent(id);
-        return ResponseEntity.ok().body(String.format("Event with id %s has been activated", id));
-    }
-
-    @PatchMapping("/deactivate")
-    public ResponseEntity<?> deactivateEvent(@RequestParam(value = "id") Long id){
-        eventService.deactivateEvent(id);
-        return ResponseEntity.ok().body(String.format("Event with id %s has been deactivated", id));
+        eventService.deleteEvent(id);
+        return ResponseEntity.ok().body(String.format("Event with id %s have not been found", id));
     }
 
     //filter

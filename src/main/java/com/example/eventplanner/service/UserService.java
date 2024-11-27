@@ -1,60 +1,53 @@
 package com.example.eventplanner.service;
 
-import com.example.eventplanner.dto.userDto.UserPhotoDto;
 import com.example.eventplanner.dto.userDto.UserDto;
-import com.example.eventplanner.model.user.Photo;
 import com.example.eventplanner.model.user.User;
-import com.example.eventplanner.repository.user.UserPhotoRepository;
-import com.example.eventplanner.repository.user.UserRepository;
-import com.example.eventplanner.validator.UserValidator;
+import com.example.eventplanner.repository.UserRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private final UserPhotoRepository userPhotoRepository;
+    private final PhotoService photoService;
 
     public UserService(UserRepository userRepository,
-                       UserPhotoRepository userPhotoRepository) {
+                       PhotoService photoService) {
         this.userRepository = userRepository;
-        this.userPhotoRepository = userPhotoRepository;
+        this.photoService = photoService;
     }
 
     public User registration(UserDto userDto) {
-        UserValidator.validate(userDto);
+        //    UserValidator.validate(userDto);
         User user = new User();
         user.setEmail(userDto.getEmail());
         user.setPassword(userDto.getPassword());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
-        user.setPhoto(createPhoto(userDto.getPhoto()));
+        user.setPhoto(photoService.createPhoto(userDto.getPhotoDto()));
         user.setAddress(userDto.getAddress());
         user.setPhoneNumber(userDto.getPhoneNumber());
         userRepository.saveAndFlush(user);
         return user;
     }
 
-    private Photo createPhoto(UserPhotoDto userPhotoDto) {
-        Photo photo = new Photo(userPhotoDto.getPhoto());
-        userPhotoRepository.saveAndFlush(photo);
-        return photo;
-    }
-//    public void update(UserDto userDto) {
-//        User user = new User();
-//        user.setPassword(userDto.getPassword());
-//        user.setFirstName(userDto.getFirstName());
-//        user.setLastName(userDto.getLastName());
-//       // user.setPhoto(userDto.getPhoto());
-//        user.setAddress(userDto.getAddress());
-//        user.setPhoneNumber(userDto.getPhoneNumber());
-//        user.setRegistrationDate(new Date());
-//        //     appUser.isActive();
-//        userRepository.saveAndFlush(user);
-//    }
-    public void delete(UserDto userDto) {
+    public void update(UserDto userDto) {
         User user = new User();
-      //  appUser.isActive(appUserDto.isActive(false));
+        user.setPassword(userDto.getPassword());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        //   user.setPhoto(photoService.createPhoto(userDto.getPhotoDto()));
+        user.setAddress(userDto.getAddress());
+        user.setPhoneNumber(userDto.getPhoneNumber());
+        user.setRegistrationDate(new Date());
+        //     appUser.isActive();
         userRepository.saveAndFlush(user);
+    }
+
+    public void delete(Long userDto) {
+        User user = new User();
+        userRepository.delete(user);
     }
 
     public void activateUser(Long id) {
@@ -67,5 +60,4 @@ public class UserService {
 
 }
 
-//@AutoWired
-// private UserService userService;
+

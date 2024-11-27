@@ -2,6 +2,7 @@ package com.example.eventplanner.model.event;
 
 
 import com.example.eventplanner.model.Comment;
+import com.example.eventplanner.model.Commentable;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.Role;
 import jakarta.persistence.*;
@@ -14,12 +15,11 @@ import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "events")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Event extends EntityBase
-{
+@DiscriminatorValue("events")
+public class Event extends Commentable {
     // conference / concert / seminar / lection
     @Column(name = "event_type")
     private String eventType;
@@ -56,10 +56,6 @@ public class Event extends EntityBase
     @Column(name = "budget")
     private int budget;
 
-    @Column(name = "comment")
-    private List<Comment> comment;
-    //настроить mapping ManyToOne
-
     @Column(name = "full_description")
     private String fullDescription;
 
@@ -67,16 +63,4 @@ public class Event extends EntityBase
     @Column(name = "is_active")
     private boolean isActive = false;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "event_roles",
-            joinColumns = @JoinColumn(
-                    name = "event_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(
-                    name = "event_id", referencedColumnName = "id"))
-    private List<Role> roles = new ArrayList<>();
-
-    public void addRole(Role role) {
-        this.roles.add(role);
-    }
 }

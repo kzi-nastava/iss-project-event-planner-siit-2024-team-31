@@ -1,4 +1,4 @@
-package com.example.eventplanner.repository.company;
+package com.example.eventplanner.repository;
 
 import com.example.eventplanner.model.company.Company;
 import org.springframework.data.jpa.repository.JpaRepository;

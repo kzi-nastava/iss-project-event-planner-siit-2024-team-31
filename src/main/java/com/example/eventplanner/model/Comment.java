@@ -1,7 +1,6 @@
 package com.example.eventplanner.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,5 +14,11 @@ public class Comment extends EntityBase {
     // комментарии о продукте feedback
     // Дата создания, автор, текст (поля) и оценка
 
+    @Column(name = "description")
+    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "commentable_id")
+    private Commentable commentable;
 
 }

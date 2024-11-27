@@ -1,21 +1,23 @@
 package com.example.eventplanner.model.company;
 
-import com.example.eventplanner.model.user.Photo;
+import com.example.eventplanner.model.EntityBase;
+import com.example.eventplanner.model.Photo;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
 
-//@Entity
-//@Table(name = "company")
+@Entity
+@Table(name = "company")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Company //extends EntityBase
-{
+public class Company extends EntityBase {
 
     @Column(name = "company_email")
     private String companyEmail;
@@ -27,7 +29,7 @@ public class Company //extends EntityBase
     private String companyName;
 
     @OneToOne// Зависимость (связь OneToOne Hibernate)
-    private CompanyPhoto companyPhoto;
+    private Photo photo;
 
     @Column(name = "company_address")
     private String companyAddress;

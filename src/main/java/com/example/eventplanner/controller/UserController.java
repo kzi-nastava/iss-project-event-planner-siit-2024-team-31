@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-
+@RequestMapping("/user")
 public class UserController {
     private final UserService userService;
 
@@ -32,11 +32,13 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    //метод remove
+
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteUser(@RequestParam(value = "id") Long id) {
-        //  appUserService.delete(userDto);
-        return ResponseEntity.status(204).body(String.format("User with id %s have not been found ", id));
+         // userService.delete(id);
+       // return ResponseEntity.status(204).body(String.format("User with id %s have not been found ", id));
+        return ResponseEntity.ok().body(String.format("User with id %s has been deleted", id));
+
     }
 
     // метод activate
@@ -53,7 +55,4 @@ public class UserController {
         return ResponseEntity.ok().body(String.format("User with id %s has been deactivated", id));
     }
 }
-//Контролерры на все entity н
-// event controller
-// company controller
 
