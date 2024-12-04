@@ -20,9 +20,11 @@ import java.util.List;
 @NoArgsConstructor
 @DiscriminatorValue("events")
 public class Event extends Commentable {
-    // conference / concert / seminar / lection
+    // conference / concert / seminar / lecture
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "event_type")
-    private String eventType;
+    private EventType eventType;
 
     @Column(name = "name")
     private String name;
@@ -31,7 +33,7 @@ public class Event extends Commentable {
     private String description;
 
     @Column(name = "maximux_number_of_guests")
-    private int maxNumberOfGuests;
+    private Integer maxNumberOfGuests;
 
     @Column(name = "is_private")
     private boolean isPrivate = false;

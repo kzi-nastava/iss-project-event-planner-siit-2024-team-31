@@ -15,7 +15,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PutMapping("/registration")
+    @PostMapping("/registration")
     public ResponseEntity<?> registrationUser(@RequestBody UserDto userDto) {
         try {
             User user = userService.registration(userDto);
@@ -26,7 +26,7 @@ public class UserController {
     }
 
     //метод update
-    @PatchMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestBody UserDto userDto) {
         //   appUserService.update(userDto);
         return ResponseEntity.ok().build();

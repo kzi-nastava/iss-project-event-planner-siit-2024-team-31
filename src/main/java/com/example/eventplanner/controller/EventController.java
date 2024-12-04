@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/event")
@@ -15,38 +16,48 @@ import java.util.ArrayList;
 public class EventController {
     private final EventService eventService;
 
-    public EventController(EventService eventService) {this.eventService = eventService;}
+    public EventController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     // поиск с фильтром, активация event
 
+
+    // этот метод возвращает конкретное событие
+    @GetMapping()
+    public ResponseEntity<List<EventDto>> findAll(@PathVariable Long eventID) {
+
+        return null;
+    }
+
     @PutMapping()
-    public ResponseEntity<?> registrationEvent(@RequestBody EventDto eventDto){
+    public ResponseEntity<?> registrationEvent(@RequestBody EventDto eventDto) {
         try {
-              Event event = eventService.registration(eventDto);
+            Event event = eventService.registration(eventDto);
             return ResponseEntity.ok().body(event); // возвращать DTO а не entity
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     //метод update
-    @PatchMapping("/update")
-    public ResponseEntity<?> updateEvent(@RequestBody EventDto eventDto){
+    @PatchMapping
+    public ResponseEntity<?> updateEvent(@RequestBody EventDto eventDto) {
         eventService.updateEvent(eventDto);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping()
-    public ResponseEntity<?> deleteEvent(@RequestParam(value = "id") Long id){
+    @DeleteMapping
+    public ResponseEntity<?> deleteEvent(@RequestParam(value = "id") Long id) {
         eventService.deleteEvent(id);
         return ResponseEntity.ok().body(String.format("Event with id %s have not been found", id));
     }
 
-    //filter
-    @PostMapping("/all")
-    public ResponseEntity<?> getAllEvents(@RequestBody EventFilterInput eventFilterInput) {
-        return ResponseEntity.ok().body(new ArrayList<>());
+    //метод с filter, возвращает лист избранное
+    @PostMapping
+    public ResponseEntity<List<Event>> getEventsFiltered(@RequestBody EventFilterInput eventFilterInput) {
+        List<Event> events = eventService.findBy(eventFilterInput);
+        return ResponseEntity.ok().body(events);
     }
 
 }

@@ -8,18 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductDto {
-//        ProductCategory
-//        ProductName
-//        ProductDescription
-//        ProductPrice
-//        ProductDiscount
-//        ProductPhoto
-//        productTypeOfEventsWhereItsApplicable Типы событий, к которым продукт привязан (0 или более).
-//        productIsActiveForOD
-//        productIsActiveForUsers
-//        comment
-
-
     private String ProductCategory;
     private String ProductName;
     private String ProductDescription;
