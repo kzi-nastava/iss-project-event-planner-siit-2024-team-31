@@ -1,5 +1,6 @@
 package com.example.eventplanner.model.product;
 
+import com.example.eventplanner.dto.product.CommentProductDto;
 import com.example.eventplanner.model.*;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -30,7 +31,7 @@ import java.util.List;
 //        comment
 
 
-public class Product extends Commentable {
+public class Product extends EntityBase {
     // Category Enum class 3.1
     @Column(name = "product_category")
     private String productCategory;
@@ -63,5 +64,11 @@ public class Product extends Commentable {
     @Column(name = "product_registration_date")
     private Date ProductRegistrationDate = new Date();
 
+    @OneToMany
+    @Column(name = "comment")
+    @JoinColumn
+    private List<CommentProduct> comment;
 
+    @Column(name = "likes")
+    private Long likes;
 }

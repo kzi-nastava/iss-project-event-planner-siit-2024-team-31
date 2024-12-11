@@ -1,11 +1,14 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.dto.product.ProductDto;
 import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.repository.ProductRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 // Категорию продукта (из выбранных категорий PUP-а, на которые он зарегистрирован).
 // Если подходящей категории для продукта нет,
@@ -66,4 +69,11 @@ public class ProductService {
            productRepository.findById(productId).ifPresent(product -> product.setProductIsActiveForUsers(false));
        }
 
+    public List<ProductDto> findAll(PageRequest of) {
+           return productRepository.findAll(of).stream().map(ProductDto::fromProduct).toList();
+    }
+
+    public List<ProductDto> findTop5() {
+        return productRepository.findAll().stream().map(ProductDto::fromProduct).toList();
+}
 }

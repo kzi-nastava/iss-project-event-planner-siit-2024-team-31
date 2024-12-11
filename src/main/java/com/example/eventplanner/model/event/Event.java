@@ -1,33 +1,29 @@
 package com.example.eventplanner.model.event;
 
 
-import com.example.eventplanner.model.Comment;
-import com.example.eventplanner.model.Commentable;
 import com.example.eventplanner.model.EntityBase;
-import com.example.eventplanner.model.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @DiscriminatorValue("events")
-public class Event extends Commentable {
+public class Event extends EntityBase {
     // conference / concert / seminar / lecture
-
+//выпускные торжества, дни рождения, свадьбы,
+// крестины, конференции, тимбилдинги и т.д.
     @Enumerated(EnumType.STRING)
     @Column(name = "event_type")
     private EventType eventType;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "event_name")
+    private String eventName;
 
     @Column(name = "description")
     private String description;
@@ -61,8 +57,11 @@ public class Event extends Commentable {
     @Column(name = "full_description")
     private String fullDescription;
 
-
     @Column(name = "is_active")
     private boolean isActive = false;
+
+    @Column(name = "likes")
+    private Long likes;
+
 
 }
