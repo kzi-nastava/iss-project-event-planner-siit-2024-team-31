@@ -39,7 +39,7 @@ public class ProductController {
     }
 
     @GetMapping("/top")
-    public ResponseEntity<List<productDto>> findTopFive() {
+    public ResponseEntity<List<ProductDto>> findTopFive() {
         return ResponseEntity.ok(productService.findTopFive());
     }
 

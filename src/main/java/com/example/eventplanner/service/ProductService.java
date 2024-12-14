@@ -73,7 +73,9 @@ public class ProductService {
            return productRepository.findAll(of).stream().map(ProductDto::fromProduct).toList();
     }
 
-    public List<ProductDto> findTop5() {
+    public List<ProductDto> findTopFive() {
         return productRepository.findAll().stream().map(ProductDto::fromProduct).toList();
 }
+
+
 }

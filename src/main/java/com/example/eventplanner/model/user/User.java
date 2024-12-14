@@ -8,8 +8,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -18,14 +21,16 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User extends EntityBase {
+public class User extends EntityBase implements UserDetails {
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", nullable = false, unique = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
+
+    // сделать поля обязательными  nullable = false
     @Column(name = "first_name")
     private String firstName;
 
@@ -65,7 +70,15 @@ public class User extends EntityBase {
                     name = "role_id", referencedColumnName = "id"))
     private List<Product> favourites = new ArrayList<>();
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
 
+    @Override
+    public String getUsername() {
+        return  email;
+    }
     public void addRole(Role role) {
         this.roles.add(role);
     }

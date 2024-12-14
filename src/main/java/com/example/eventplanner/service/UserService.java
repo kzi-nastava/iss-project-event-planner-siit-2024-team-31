@@ -29,6 +29,9 @@ public class UserService {
         user.setAddress(userDto.getAddress());
         user.setPhoneNumber(userDto.getPhoneNumber());
         userRepository.saveAndFlush(user);
+
+
+
         return user;
     }
 
@@ -52,6 +55,7 @@ public class UserService {
 
     public void activateUser(Long id) {
         userRepository.findById(id).ifPresent(user -> user.setActive(true));
+        userRepository.flush();
     }
 
     public void deactivateUser(Long id) {

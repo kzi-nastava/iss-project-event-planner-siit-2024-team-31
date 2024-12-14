@@ -60,9 +60,7 @@ public class EventService {
         event.setFullDescription(eventDto.getFullDescription());
         event.setActive(eventDto.isActive());
         event.setLikes(eventDto.getLikes());
-        return eventRepository.save(event);
-
-
+        return eventRepository.saveAndFlush(event);
 
     }
 }

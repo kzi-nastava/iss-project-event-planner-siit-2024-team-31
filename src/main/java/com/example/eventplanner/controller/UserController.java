@@ -15,15 +15,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/registration")
-    public ResponseEntity<?> registrationUser(@RequestBody UserDto userDto) {
-        try {
-            User user = userService.registration(userDto);
-            return ResponseEntity.ok().body(user); // возвращать DTO а не entity
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     //метод update
     @PutMapping("/update")
@@ -42,11 +33,11 @@ public class UserController {
     }
 
     // метод activate
-    @PatchMapping("/activate")
-    public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
-        userService.activateUser(id);
-        return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
-    }
+//    @PatchMapping("/activate")
+//    public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
+//        userService.activateUser(id);
+//        return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
+//    }
 
     // метод activate
     @PatchMapping("/deactivate")
