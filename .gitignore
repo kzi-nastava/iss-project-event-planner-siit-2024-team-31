@@ -33,5 +33,6 @@ build/
 .vscode/
 local.properties
 
+.DS_Store
 .env
 app.log*
