@@ -2,9 +2,6 @@ package com.example.eventplanner.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.*;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
@@ -16,7 +13,6 @@ public class BeanConfig {
     private final int port;
     private final String username;
     private final String password;
-
 
     public BeanConfig(@Value("${spring.mail.host}") String host,
                       @Value("${spring.mail.port}") int port,
