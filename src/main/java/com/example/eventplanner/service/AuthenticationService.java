@@ -39,6 +39,7 @@ public class AuthenticationService {
                 user.setPassword(passwordEncoder.encode(input.getPassword()));
                 userRepository.saveAndFlush(user);
 
+
         //Testing email sending
         emailService.sendTestEmail(new SMTPEmailDetails(null, user.getEmail(), "TEST", "TEST", null));
         //TODO: Add confirmation link
