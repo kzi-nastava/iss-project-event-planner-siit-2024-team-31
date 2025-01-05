@@ -24,13 +24,26 @@ public class EmailService {
     public String sendTestEmail(SMTPEmailDetails details) {
         try {
 
-            SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(sender);
-            message.setTo(details.getTo());
-            message.setSubject(details.getSubject());
-            message.setText(details.getBody());
+//            SimpleMailMessage message = new SimpleMailMessage();
+//            message.setFrom(sender);
+//            message.setTo(details.getTo());
+//            message.setSubject(details.getSubject());
+//            message.setText(details.getBody());
+//
 
+
+            MimeMessage message = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
+        //    String htmlMsg = "<h3>Hello World!</h3>";
+//mimeMessage.setContent(htmlMsg, "text/html"); /** Use this or below line **/
+            helper.setText(details.getBody(), true); // Use this or above line.
+            helper.setTo(details.getTo());
+            helper.setSubject(details.getSubject());
+            helper.setFrom(sender);
             emailSender.send(message);
+
+
+      //      emailSender.send(message);
             return "Mail sent successfully";
 
         } catch (Exception e) {

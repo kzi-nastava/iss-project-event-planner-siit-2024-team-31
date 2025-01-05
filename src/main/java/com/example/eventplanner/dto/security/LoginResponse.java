@@ -1,12 +1,12 @@
-package com.example.eventplanner.dto.security;
-
-
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-public class LoginResponse {
-    private String token;
-    private long expiresIn;
-}
+//package com.example.eventplanner.dto.security;
+//
+//
+//import lombok.Getter;
+//import lombok.Setter;
+//
+//@Getter
+//@Setter
+//public class LoginResponse {
+//    private String token;
+//    private long expiresIn;
+//}

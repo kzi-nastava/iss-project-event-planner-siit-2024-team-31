@@ -1,6 +1,5 @@
 package com.example.eventplanner.controller;
 
-import com.example.eventplanner.dto.security.LoginResponse;
 import com.example.eventplanner.dto.userDto.*;
 import com.example.eventplanner.exception.EmailAlreadyUsedException;
 import com.example.eventplanner.exception.UserNotFoundException;
@@ -22,10 +21,11 @@ public class AuthenticationController {
     private final UserService userService;
     private final AuthenticationService authenticationService;
 
-    @PatchMapping("/activate")
+    @GetMapping("/activate")
     public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
         userService.activateUser(id);
         return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
+        // TODO redirect web UI if have time.
     }
 
     @PostMapping("/signup")
