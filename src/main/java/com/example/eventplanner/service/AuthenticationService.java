@@ -5,6 +5,7 @@ import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
 import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
 import com.example.eventplanner.exception.UserNotActivatedException;
 import com.example.eventplanner.model.user.User;
+import com.example.eventplanner.repository.RoleRepository;
 import com.example.eventplanner.repository.UserRepository;
 import com.example.eventplanner.utils.types.SMTPEmailDetails;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -26,6 +29,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
+    private final RoleRepository roleRepository;
 
     public void signup(UserRegisterRequestDTO input) {
         User user = new User();
@@ -35,6 +39,7 @@ public class AuthenticationService {
         // как передать patchmentod заместо ссылки
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
+        user.setRoles(List.of(roleRepository.findByName("ROLE_AK")));
         userRepository.saveAndFlush(user);
 
 
