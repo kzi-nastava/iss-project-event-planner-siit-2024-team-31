@@ -23,21 +23,6 @@ public class AuthenticationController {
     private final UserService userService;
     private final AuthenticationService authenticationService;
 
-    @GetMapping("/activate")
-    public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
-        try {
-            userService.activateUser(id);
-            return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
-        } catch (ConfirmationExpirationException e) {
-            return ResponseEntity.badRequest().body("The link has expired. Please fill registration form again");
-            //ToDo add link to registration page
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-        // TODO redirect web UI if have time.
-    }
 
     @PostMapping("/signup")
     public ResponseEntity<UserRegisterResponseDTO> register(@RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
@@ -63,12 +48,28 @@ public class AuthenticationController {
         }
     }
 
+    @GetMapping("/activate")
+    public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
+        try {
+            userService.activateUser(id);
+            return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
+        } catch (ConfirmationExpirationException e) {
+            return ResponseEntity.badRequest().body("The link has expired. Please fill registration form again");
+            //ToDo add link to registration page
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+        // TODO redirect web UI if have time.
+    }
+
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO userLoginRequestDTO) {
         UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
         try {
 
-            //Check if the user with given email exisits
+            //Check if the user with given email exists
             if (!authenticationService.isEmailUsed(userLoginRequestDTO.getEmail())) {
                 throw new UserNotFoundException("User with email: " + userLoginRequestDTO.getEmail() + " not found");
             }

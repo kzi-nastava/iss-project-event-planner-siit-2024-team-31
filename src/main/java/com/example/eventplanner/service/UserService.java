@@ -1,6 +1,7 @@
 package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.userDto.UserDto;
+import com.example.eventplanner.exception.ConfirmationExpirationException;
 import com.example.eventplanner.exception.UserNotFoundException;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.UserRepository;
@@ -49,9 +50,8 @@ public class UserService {
         userRepository.saveAndFlush(user);
     }
 
-    public void delete(Long userDto) {
-        User user = new User();
-        userRepository.delete(user);
+    public void delete(Long id) {
+        userRepository.deleteById(id);
     }
 
     public void activateUser(Long id) {
@@ -59,11 +59,12 @@ public class UserService {
         if (userOptional.isEmpty()) {
             throw new UserNotFoundException("User with id " + id + " not found");
         }
-           var user = userOptional.get();
-//                if(( (long) user.getRegistrationDate() - (long) LocalDate.now()) >=  ) {}){
-//
-//                }
-
+        var user = userOptional.get();
+        var oneDayAgo = LocalDateTime.now().minusDays(1);
+        if (oneDayAgo.isAfter(user.getRegistrationDate())) {
+            delete(user.getId());
+            throw new ConfirmationExpirationException("User with email " + user.getEmail() + " has expired." );
+        }
         user.setActive(true);
         userRepository.flush();
     }
