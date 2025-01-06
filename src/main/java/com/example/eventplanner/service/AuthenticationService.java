@@ -3,6 +3,7 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
 import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
+import com.example.eventplanner.exception.UserNotActivatedException;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.UserRepository;
 import com.example.eventplanner.utils.types.SMTPEmailDetails;
@@ -32,9 +33,9 @@ public class AuthenticationService {
 //                user.setLastName(input.getLastName());
 //        добавить остальные обязательные поля с ДТО
         // как передать patchmentod заместо ссылки
-                user.setEmail(input.getEmail());
-                user.setPassword(passwordEncoder.encode(input.getPassword()));
-                userRepository.saveAndFlush(user);
+        user.setEmail(input.getEmail());
+        user.setPassword(passwordEncoder.encode(input.getPassword()));
+        userRepository.saveAndFlush(user);
 
 
         //Testing email sending
@@ -43,16 +44,19 @@ public class AuthenticationService {
 
     }
 
-    public User authenticate(UserLoginRequestDTO input) {
+    public User login(UserLoginRequestDTO input) {
+        var user = userRepository.findByEmail(input.getEmail())
+                .orElseThrow();
+        if (!user.isActive()) {
+            throw new UserNotActivatedException("User is not activated. Please activate the user first.");
+        }
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getEmail(),
                         input.getPassword()
                 )
         );
-
-        return userRepository.findByEmail(input.getEmail())
-                .orElseThrow();
+        return user;
     }
 
     public boolean isEmailUsed(String email) {

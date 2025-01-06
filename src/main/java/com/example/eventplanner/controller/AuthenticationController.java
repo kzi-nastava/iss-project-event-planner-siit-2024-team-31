@@ -1,7 +1,9 @@
 package com.example.eventplanner.controller;
 
 import com.example.eventplanner.dto.userDto.*;
+import com.example.eventplanner.exception.ConfirmationExpirationException;
 import com.example.eventplanner.exception.EmailAlreadyUsedException;
+import com.example.eventplanner.exception.UserNotActivatedException;
 import com.example.eventplanner.exception.UserNotFoundException;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.service.AuthenticationService;
@@ -23,8 +25,17 @@ public class AuthenticationController {
 
     @GetMapping("/activate")
     public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
-        userService.activateUser(id);
-        return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
+        try {
+            userService.activateUser(id);
+            return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
+        } catch (ConfirmationExpirationException e) {
+            return ResponseEntity.badRequest().body("The link has expired. Please fill registration form again");
+            //ToDo add link to registration page
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
         // TODO redirect web UI if have time.
     }
 
@@ -36,7 +47,8 @@ public class AuthenticationController {
             //Check if the given email is used already
             if (authenticationService.isEmailUsed(userRegisterRequestDTO.getEmail())) {
                 throw new EmailAlreadyUsedException("Email already used. Please choose another email.");
-            };
+            }
+            ;
 
             authenticationService.signup(userRegisterRequestDTO);
             userRegisterResponseDTO.setMessage("We have sent you an activation link to your email.");
@@ -61,13 +73,12 @@ public class AuthenticationController {
                 throw new UserNotFoundException("User with email: " + userLoginRequestDTO.getEmail() + " not found");
             }
 
-            User authenticatedUser = authenticationService.authenticate(userLoginRequestDTO);
+            User authenticatedUser = authenticationService.login(userLoginRequestDTO);
             String jwtToken = jwtService.generateToken(authenticatedUser);
             userLoginResponseDTO.setToken(jwtToken);
             userLoginResponseDTO.setTokenExpiresIn(jwtService.getExpirationTime());
             return ResponseEntity.ok(userLoginResponseDTO);
-
-        } catch (UserNotFoundException e) {
+        } catch (UserNotActivatedException | UserNotFoundException e) {
             userLoginResponseDTO.setMessage(e.getMessage());
             return ResponseEntity.badRequest().body(userLoginResponseDTO);
         } catch (Exception e) {

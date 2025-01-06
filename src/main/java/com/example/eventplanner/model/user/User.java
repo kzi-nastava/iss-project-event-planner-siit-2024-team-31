@@ -11,6 +11,8 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -47,7 +49,7 @@ public class User extends EntityBase implements UserDetails {
     private String phoneNumber;
 
     @Column(name = "registration_date")
-    private Date registrationDate = new Date();
+    private LocalDateTime registrationDate = LocalDateTime.now();
 
     @Column(name = "is_active")
     private boolean active = false;
