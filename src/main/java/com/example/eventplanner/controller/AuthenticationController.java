@@ -33,7 +33,6 @@ public class AuthenticationController {
             if (authenticationService.isEmailUsed(userRegisterRequestDTO.getEmail())) {
                 throw new EmailAlreadyUsedException("Email already used. Please choose another email.");
             }
-            ;
 
             authenticationService.signup(userRegisterRequestDTO);
             userRegisterResponseDTO.setMessage("We have sent you an activation link to your email.");
@@ -76,6 +75,7 @@ public class AuthenticationController {
 
             User authenticatedUser = authenticationService.login(userLoginRequestDTO);
             String jwtToken = jwtService.generateToken(authenticatedUser);
+            userLoginResponseDTO.setRole("ROLE_USER");
             userLoginResponseDTO.setToken(jwtToken);
             userLoginResponseDTO.setTokenExpiresIn(jwtService.getExpirationTime());
             return ResponseEntity.ok(userLoginResponseDTO);

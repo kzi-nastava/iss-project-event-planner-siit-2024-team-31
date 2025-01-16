@@ -1,15 +1,13 @@
 package com.example.eventplanner.model.product;
 
-import com.example.eventplanner.dto.product.CommentProductDto;
 import com.example.eventplanner.model.*;
+import com.example.eventplanner.model.user.User;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -17,57 +15,71 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @DiscriminatorValue("products")
-
-
-//        ProductCategory
-//        ProductName
-//        ProductDescription
-//        ProductPrice
-//        ProductDiscount
-//        ProductPhoto
-//        productTypeOfEventsWhereItsApplicable Типы событий, к которым продукт привязан (0 или более).
-//        productIsActiveForOD
-//        productIsActiveForUsers
-//        comment
-
-
 public class Product extends EntityBase {
-    // Category Enum class 3.1
-    @Column(name = "product_category")
-    private String productCategory;
 
-    @Column(name = "product_name")
-    private String productName;
+    @ManyToOne
+    @JoinColumn(name = "pup_id", nullable = false)
+    private User pup;
 
-    @Column(name = "product_description")
-    private String productDescription;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "product_price")
-    private int productPrice;
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
-    @Column(name = "product_discount")
-    private int productDiscount;
+    @Column(name = "description")
+    private String description;
 
-    @OneToOne // Зависимость Hibernate
-    private Photo photo;
+    @Column(name = "peculiarities")
+    private String peculiarities;
 
-    // Типы событий, к которым продукт привязан (0 или более).
-    @Column(name = "product_type_of_events_where_its_applicable")
-    private double productTypeOfEventsWhereItsApplicable;
+    //price per 60 minutes
+    @Column(name = "price")
+    private Double price;
 
-    @Column(name = "product_is_active_for_OD")
-    private boolean productIsActiveForOD = false;
+    @Column(name = "discount")
+    private Double discount;
 
-    @Column(name = "product_is_active_for_users")
-    private boolean productIsActiveForUsers = false;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductPhoto> photos = new ArrayList<>();
 
-    @Column(name = "product_registration_date")
-    private Date ProductRegistrationDate = new Date();
+    // Suitable event types with this product
+    // if list.isEmpty() => product suitable for ALL types
+    @OneToMany(mappedBy = "product")
+    private List<EventTypeProductLink> suitableEventTypeLinks = new ArrayList<>();
 
-    @OneToMany
-    @Column(name = "comment")
-    @JoinColumn
-    private List<CommentProduct> comment;
+    //visibility status for OD
+    @Column(name = "isVisible")
+    private boolean isVisible;
+
+    //Availability for booking
+    @Column(name = "isAvailable")
+    private boolean isAvailable;
+
+    //When PUP deletes his Product make this flag true
+    @Column(name = "isDeleted")
+    private boolean isDeleted = false;
+
+    //true - Manual, false - Fixed
+    @Column(name = "time_management")
+    private Boolean timeManagement;
+
+    //In minutes
+    @Column(name = "service_duration_min_minutes")
+    private Integer serviceDurationMinMinutes;
+
+    @Column(name = "service_duration_max_minutes")
+    @Nullable //is timeManagement - Fixed => Null
+    private Integer serviceDurationMaxMinutes = null;
+
+    //true - Manual, false - Automatic
+    @Column(name = "booking_confirmation")
+    private Boolean bookingConfirmation;
+
+    //In hours
+    @Column(name = "booking_decline_deadline_hours")
+    private Integer bookingDeclineDeadlineHours;
 
     @Column(name = "likes")
     private Long likes;

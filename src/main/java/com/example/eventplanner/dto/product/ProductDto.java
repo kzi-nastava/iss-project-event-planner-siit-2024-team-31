@@ -23,18 +23,7 @@ public class ProductDto {
     private List<CommentProductDto> commentProductDto;
 
     public static ProductDto fromProduct(Product product){
-        ProductDto dto = new ProductDto();
-        dto.ProductCategory = product.getProductCategory();
-        dto.ProductName = product.getProductName();
-        dto.ProductDescription = product.getProductDescription();
-        dto.ProductPrice = product.getProductPrice();
-        dto.ProductDiscount = product.getProductDiscount();
-        // dto.photoDto = product.getPhoto();
-        dto.productTypeOfEventsWhereItsApplicable = product.getProductTypeOfEventsWhereItsApplicable();
-        dto.productIsActiveForOD = product.isProductIsActiveForOD();
-        dto.productIsActiveForUsers = product.isProductIsActiveForUsers();
-        dto.commentProductDto = product.getComment().stream().map(CommentProductDto::fromComment).toList();
-        return dto;
+       return null;
     }
 
 

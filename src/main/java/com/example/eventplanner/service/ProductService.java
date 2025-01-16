@@ -1,9 +1,11 @@
 package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.eventDto.EventDto;
+import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.ProductDto;
 import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.repository.ProductRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -21,61 +23,22 @@ import java.util.List;
 
 
 @Service
+@AllArgsConstructor
 public class ProductService {
        private final ProductRepository productRepository;
        private final PhotoService photoService;
 
-       public ProductService(ProductRepository productRepository,
-                             PhotoService photoService) {
-           this.productRepository = productRepository;
-           this.photoService = photoService;
+       public Product create(CreateProductRequestDTO createProductRequestDTO) {
+           return null;
        }
 
-       public Product registration(ProductDto productDto) {
-           Product product = new Product();
-           product.setProductCategory(productDto.getProductCategory());
-           product.setProductName(productDto.getProductName());
-           product.setProductDescription(productDto.getProductDescription());
-           product.setProductPrice(productDto.getProductPrice());
-           product.setProductDiscount(productDto.getProductDiscount());
-           product.setPhoto(photoService.createPhoto(productDto.getPhotoDto()));
-           product.setProductTypeOfEventsWhereItsApplicable(productDto.getProductTypeOfEventsWhereItsApplicable());
-//           product.setProductIsActiveForOD(productDto.getProductIsActiveForOD());
-//           product.setProductIsActiveForUsers(productDto.getProductIsActiveForUsers());
-           productRepository.saveAndFlush(product);
-           return product;
-       }
+//       public void update (ProductDto productDto) {
+//           Product product = new Product();
+//           productRepository.saveAndFlush(product);
+//       }
 
-       public void update (ProductDto productDto) {
-           Product product = new Product();
-           product.setProductCategory(productDto.getProductCategory());
-           product.setProductName(productDto.getProductName());
-           product.setProductDescription(productDto.getProductDescription());
-           product.setProductPrice(productDto.getProductPrice());
-           product.setProductDiscount(productDto.getProductDiscount());
-//           product.setPhoto(photoService.createPhoto(productDto.getPhotoDto()));
-           product.setProductTypeOfEventsWhereItsApplicable(productDto.getProductTypeOfEventsWhereItsApplicable());
-//           product.setProductIsActiveForOD(productDto.getProductIsActiveForOD());
-//           product.setProductIsActiveForUsers(productDto.getProductIsActiveForUsers());
-           product.setProductRegistrationDate(new Date());
-           productRepository.saveAndFlush(product);
-       }
+       public List<ProductDto> findAll(PageRequest of) { return productRepository.findAll(of).stream().map(ProductDto::fromProduct).toList();}
 
-       public void productIsActiveForOD(Long productId) {
-           productRepository.findById(productId).ifPresent(product -> product.setProductIsActiveForOD(true));
-       }
-
-       public void productIsActiveForUsers(Long productId) {
-           productRepository.findById(productId).ifPresent(product -> product.setProductIsActiveForUsers(false));
-       }
-
-    public List<ProductDto> findAll(PageRequest of) {
-           return productRepository.findAll(of).stream().map(ProductDto::fromProduct).toList();
-    }
-
-    public List<ProductDto> findTopFive() {
-        return productRepository.findAll().stream().map(ProductDto::fromProduct).toList();
-}
-
+       public List<ProductDto> findTopFive() { return productRepository.findAll().stream().map(ProductDto::fromProduct).toList();}
 
 }

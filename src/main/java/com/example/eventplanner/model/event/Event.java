@@ -2,12 +2,15 @@ package com.example.eventplanner.model.event;
 
 
 import com.example.eventplanner.model.EntityBase;
+import com.example.eventplanner.model.ProductCategoryEventLink;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Getter
@@ -15,11 +18,9 @@ import java.util.Date;
 @NoArgsConstructor
 @DiscriminatorValue("events")
 public class Event extends EntityBase {
-    // conference / concert / seminar / lecture
-//выпускные торжества, дни рождения, свадьбы,
-// крестины, конференции, тимбилдинги и т.д.
-    @Enumerated(EnumType.STRING)
-    @Column(name = "event_type")
+
+    @OneToOne
+    @JoinColumn(name = "event_type")
     private EventType eventType;
 
     @Column(name = "event_name")
@@ -63,5 +64,7 @@ public class Event extends EntityBase {
     @Column(name = "likes")
     private Long likes;
 
+    @OneToMany(mappedBy = "event")
+    private List<ProductCategoryEventLink> categoryLinks = new ArrayList<>();
 
 }
