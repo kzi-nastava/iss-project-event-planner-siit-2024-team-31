@@ -15,4 +15,22 @@ public class UserDto {
     private String phoneNumber;
     private String address;
     private String city;
+
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("UserDto{");
+        builder.append("email='").append(email).append('\'');
+        builder.append(", password='").append(password).append('\'');
+        builder.append(", firstName='").append(firstName).append('\'');
+        builder.append(", lastName='").append(lastName).append('\'');
+        builder.append(", photoDto=").append(photoDto);
+        builder.append(", phoneNumber='").append(phoneNumber).append('\'');
+        builder.append(", address='").append(address).append('\'');
+        builder.append(", city='").append(city).append('\'');
+        builder.append("}");
+        return builder.toString();
+    }
+
 }

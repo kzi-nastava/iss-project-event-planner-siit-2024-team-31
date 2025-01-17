@@ -9,25 +9,40 @@ import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.service.AuthenticationService;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @RequestMapping("/auth")
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticationController {
 
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationService authenticationService;
 
+    @Value("${frontend.port}")
+    private static String FRONTEND_PORT;
+
+    private final static String FRONTEND_LOGIN_URL = "http://localhost::" + FRONTEND_PORT + "/login";
+    private final static String FRONTEND_EXPIRED_LINK_URL = "http://localhost::" + FRONTEND_PORT + "/login";
+    private final static String FRONTEND_USER_NOT_FOUND = "http://localhost::" + FRONTEND_PORT + "/login";
+    private final static String FRONTEND_UNHANDLED_ERROR = "http://localhost::" + FRONTEND_PORT + "/login";
 
     @PostMapping("/signup")
     public ResponseEntity<UserRegisterResponseDTO> register(@RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
         UserRegisterResponseDTO userRegisterResponseDTO = new UserRegisterResponseDTO();
         try {
+
+            System.out.printf("userRegisterRequestDTO=%s", userRegisterRequestDTO.toString());
 
             //Check if the given email is used already
             if (authenticationService.isEmailUsed(userRegisterRequestDTO.getEmail())) {
@@ -48,19 +63,23 @@ public class AuthenticationController {
     }
 
     @GetMapping("/activate")
-    public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
+    public void activateUser(@RequestParam(value = "id") Long id, HttpServletResponse response) throws IOException {
         try {
             userService.activateUser(id);
-            return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
+            ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
+            response.sendRedirect(FRONTEND_LOGIN_URL);
         } catch (ConfirmationExpirationException e) {
-            return ResponseEntity.badRequest().body("The link has expired. Please fill registration form again");
+            ResponseEntity.badRequest().body("The link has expired. Please fill registration form again");
+            response.sendRedirect(FRONTEND_EXPIRED_LINK_URL);
             //ToDo add link to registration page
         } catch (UserNotFoundException e) {
-            return ResponseEntity.notFound().build();
+            ResponseEntity.notFound().build();
+            response.sendRedirect(FRONTEND_USER_NOT_FOUND);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            response.sendRedirect(FRONTEND_UNHANDLED_ERROR);
         }
-        // TODO redirect web UI if have time.
+
     }
 
     @PostMapping("/login")
@@ -78,6 +97,7 @@ public class AuthenticationController {
             userLoginResponseDTO.setRole("ROLE_USER");
             userLoginResponseDTO.setToken(jwtToken);
             userLoginResponseDTO.setTokenExpiresIn(jwtService.getExpirationTime());
+
             return ResponseEntity.ok(userLoginResponseDTO);
         } catch (UserNotActivatedException | UserNotFoundException e) {
             userLoginResponseDTO.setMessage(e.getMessage());

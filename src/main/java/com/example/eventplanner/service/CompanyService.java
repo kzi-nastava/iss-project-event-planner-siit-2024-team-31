@@ -21,7 +21,7 @@ public class CompanyService {
         company.setCompanyEmail(companyDto.getCompanyEmail());
         company.setCompanyPassword(companyDto.getCompanyPassword());
         company.setCompanyName(companyDto.getCompanyName());
-        company.setPhoto(photoService.createPhoto(companyDto.getPhoto()));
+        //company.setPhoto(photoService.createPhoto(companyDto.getPhoto()));
         company.setCompanyAddress(companyDto.getCompanyAddress());
         company.setCompanyPhoneNumber(companyDto.getCompanyPhoneNumber());
         company.setCompanyCity(companyDto.getCompanyCity());

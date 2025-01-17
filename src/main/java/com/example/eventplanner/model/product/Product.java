@@ -50,15 +50,15 @@ public class Product extends EntityBase {
     private List<EventTypeProductLink> suitableEventTypeLinks = new ArrayList<>();
 
     //visibility status for OD
-    @Column(name = "isVisible")
+    @Column(name = "is_visible")
     private boolean isVisible;
 
     //Availability for booking
-    @Column(name = "isAvailable")
+    @Column(name = "is_available")
     private boolean isAvailable;
 
     //When PUP deletes his Product make this flag true
-    @Column(name = "isDeleted")
+    @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
     //true - Manual, false - Fixed

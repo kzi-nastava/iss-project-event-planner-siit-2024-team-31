@@ -9,8 +9,10 @@ import com.example.eventplanner.repository.RoleRepository;
 import com.example.eventplanner.repository.UserRepository;
 import com.example.eventplanner.utils.types.SMTPEmailDetails;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,9 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AuthenticationService {
 
     private static final Logger log = LoggerFactory.getLogger(AuthenticationService.class);
@@ -31,6 +32,9 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final RoleRepository roleRepository;
 
+    @Value("${server.port}")
+    private String springPort;
+
     public void signup(UserRegisterRequestDTO input) {
         User user = new User();
 //                user.setFirstName(input.getFirstName());
@@ -39,13 +43,15 @@ public class AuthenticationService {
         // как передать patchmentod заместо ссылки
         user.setEmail(input.getEmail());
         user.setPassword(passwordEncoder.encode(input.getPassword()));
-        user.setRoles(List.of(roleRepository.findByName("ROLE_AK")));
+
+        //TODO: Add roles management
+        //user.setRoles(List.of(roleRepository.findByName("ROLE_AK")));
         userRepository.saveAndFlush(user);
 
 
         //Testing email sending
         emailService.sendTestEmail(new SMTPEmailDetails(null, user.getEmail(), "Registration confirmation EventPlant", "Hello, <br> someone used this email for registration. If it was you, please use this link" +
-                "to confirm <a href='http://localhost:8080/auth/activate?id=" + user.getId() + "' >click</a> <br> Otherwise please ignore this email." + " redirection", null));
+                "to confirm <a href='http://localhost:" + springPort  + "/auth/activate?id=" + user.getId() + "' >click</a> <br> Otherwise please ignore this email." + " redirection", null));
 
     }
 

@@ -31,7 +31,6 @@ public class User extends EntityBase implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-
     // сделать поля обязательными  nullable = false
     @Column(name = "first_name")
     private String firstName;

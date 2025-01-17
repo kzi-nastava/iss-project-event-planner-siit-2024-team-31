@@ -10,7 +10,6 @@ import java.util.List;
 @Setter
 public class CreateProductRequestDTO {
 
-    String token;
     String name;
     String category;
     String peculiarities;

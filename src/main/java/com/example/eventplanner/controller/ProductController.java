@@ -1,13 +1,11 @@
 package com.example.eventplanner.controller;
 
-
-
-import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.CreateProductResponseDTO;
 import com.example.eventplanner.dto.product.ProductDto;
-import com.example.eventplanner.model.product.Product;
+import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
@@ -22,13 +20,26 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+    private final JwtService jwtService;
 
     @PostMapping()
-    public ResponseEntity<CreateProductResponseDTO> createProduct(@RequestBody CreateProductRequestDTO productDto) {
+    public ResponseEntity<CreateProductResponseDTO> createProduct(@RequestBody CreateProductRequestDTO productDto, HttpServletRequest request) {
 
         CreateProductResponseDTO response = new CreateProductResponseDTO();
+
         try {
-            response.setMessage("123");
+
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                throw new IllegalArgumentException("Invalid Authorization header");
+            }
+
+            String token = authorizationHeader.substring(7);
+
+            jwtService.logClaims(token);
+
+            productService.create(productDto);
+            response.setMessage("Product created successfully");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
         catch (Exception e){

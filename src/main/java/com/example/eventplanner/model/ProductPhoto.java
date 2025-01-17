@@ -1,10 +1,7 @@
 package com.example.eventplanner.model;
 
 import com.example.eventplanner.model.product.Product;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +17,7 @@ public class ProductPhoto extends EntityBase{
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @Column(name = "photo_url")
     String photoUrl;
 
 }
