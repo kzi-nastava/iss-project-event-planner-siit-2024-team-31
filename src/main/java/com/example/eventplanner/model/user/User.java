@@ -58,6 +58,9 @@ public class User extends EntityBase implements UserDetails {
     @Column(name = "is_active")
     private boolean active = false;
 
+    @Column(name = "is_deleted")
+    private boolean deleted = false;
+
     @Column(name = "company_description")
     private String description = "";
 
