@@ -44,7 +44,7 @@ public class ProductService {
            product.setPrice(createProductRequestDTO.getPrice());
            product.setDescription(createProductRequestDTO.getDescription());
 
-
+            return productRepository.save(product);
        }
 
 //       public void update (ProductDto productDto) {

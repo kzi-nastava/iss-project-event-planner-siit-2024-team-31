@@ -1,36 +1,61 @@
 package com.example.eventplanner.dto.userDto;
 
-import com.example.eventplanner.dto.PhotoDto;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Getter
 @Setter
 public class UserDto {
-    private String email;
-    private String password;
-    private String firstName;
-    private String lastName;
-    private PhotoDto photoDto;
-    private String phoneNumber;
-    private String address;
-    private String city;
+
+    protected String email;
+    protected String password;
+    protected String role;
+    protected String firstName;
+    protected String lastName;
+    protected List<MultipartFile> photos;
+    protected String phoneNumber;
+    protected String country;
+    protected String city;
+    protected String address;
+    protected String zipCode;
+    protected String description;
 
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("UserDto{");
-        builder.append("email='").append(email).append('\'');
-        builder.append(", password='").append(password).append('\'');
-        builder.append(", firstName='").append(firstName).append('\'');
-        builder.append(", lastName='").append(lastName).append('\'');
-        builder.append(", photoDto=").append(photoDto);
-        builder.append(", phoneNumber='").append(phoneNumber).append('\'');
-        builder.append(", address='").append(address).append('\'');
-        builder.append(", city='").append(city).append('\'');
-        builder.append("}");
-        return builder.toString();
+        if (photos == null) {
+            return "{" +
+                    "email="+ email +
+                    ", password="+ password +
+                    ", role="+ role +
+                    ", firstName="+ firstName +
+                    ", photos.length=empty" +
+                    ", lastName="+ lastName +
+                    ", phoneNumber="+ phoneNumber +
+                    ", country="+ country +
+                    ", city="+ city +
+                    ", street="+ address +
+                    ", zipCode="+ zipCode +
+                    ", description="+ description
+                    + "}";
+        }
+        return "{" +
+                "email="+ email +
+                ", password="+ password +
+                ", role="+ role +
+                ", firstName="+ firstName +
+                ", photos.length=" + photos.size() +
+                ", lastName="+ lastName +
+                ", phoneNumber="+ phoneNumber +
+                ", country="+ country +
+                ", city="+ city +
+                ", street="+ address +
+                ", zipCode="+ zipCode +
+                ", description="+ description
+                + "}";
     }
 
 }
