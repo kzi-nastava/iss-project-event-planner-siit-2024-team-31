@@ -12,6 +12,7 @@ public class CreateProductRequestDTO {
 
     String name;
     String category;
+    String description;
     String peculiarities;
     Double price;
     Double discount;

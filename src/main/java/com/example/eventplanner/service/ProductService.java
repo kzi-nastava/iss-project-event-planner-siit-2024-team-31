@@ -4,8 +4,10 @@ import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.ProductDto;
 import com.example.eventplanner.model.product.Product;
+import com.example.eventplanner.repository.CategoryRepository;
 import com.example.eventplanner.repository.ProductPhotosRepository;
 import com.example.eventplanner.repository.ProductRepository;
+import com.example.eventplanner.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -29,16 +31,20 @@ import java.util.List;
 public class ProductService {
 
        private final ProductRepository productRepository;
-
+       private final CategoryRepository categoryRepository;
+       private final UserRepository userRepository;
        private final ProductPhotosRepository productPhotosRepository;
 
-       public Product create(CreateProductRequestDTO createProductRequestDTO) {
-           try {
-            return null;
-           }
-           catch (Exception e) {
-              return  null;
-           }
+       public Product create(CreateProductRequestDTO createProductRequestDTO, String pupEmail) {
+
+           Product product = new Product();
+           product.setPup(userRepository.findByEmail(pupEmail).orElseThrow());
+
+           product.setName(createProductRequestDTO.getName());
+           product.setPrice(createProductRequestDTO.getPrice());
+           product.setDescription(createProductRequestDTO.getDescription());
+
+
        }
 
 //       public void update (ProductDto productDto) {

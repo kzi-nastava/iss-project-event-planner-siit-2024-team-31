@@ -36,10 +36,12 @@ public class ProductController {
 
             String token = authorizationHeader.substring(7);
 
-            jwtService.logClaims(token);
+            //extracts user email
+            String pupEmail = jwtService.extractUsername(token);
 
-            productService.create(productDto);
-            response.setMessage("Product created successfully");
+            //productService.create(productDto, pupEmail);
+            response.setMessage("Product creation is not implemented, in progress... ");
+            //response.setMessage("Product created successfully");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
         catch (Exception e){
