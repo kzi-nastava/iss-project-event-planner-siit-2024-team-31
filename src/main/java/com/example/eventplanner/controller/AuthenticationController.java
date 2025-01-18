@@ -10,10 +10,8 @@ import com.example.eventplanner.service.AuthenticationService;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,11 +36,11 @@ public class AuthenticationController {
     private final static String FRONTEND_UNHANDLED_ERROR = "http://localhost::" + FRONTEND_PORT + "/login";
 
     @PostMapping("/signup")
-    public ResponseEntity<UserRegisterResponseDTO> register(@RequestBody UserRegisterRequestDTO userRegisterRequestDTO) {
+    public ResponseEntity<UserRegisterResponseDTO> register(@ModelAttribute UserRegisterRequestDTO userRegisterRequestDTO) {
         UserRegisterResponseDTO userRegisterResponseDTO = new UserRegisterResponseDTO();
         try {
 
-            System.out.printf("userRegisterRequestDTO=%s", userRegisterRequestDTO.toString());
+            System.out.printf("::::::::::::::::::::REGISTER REQUEST::::::::::::::::::::userRegisterRequestDTO=%s", userRegisterRequestDTO.toString());
 
             //Check if the given email is used already
             if (authenticationService.isEmailUsed(userRegisterRequestDTO.getEmail())) {
@@ -50,7 +48,7 @@ public class AuthenticationController {
             }
 
             authenticationService.signup(userRegisterRequestDTO);
-            userRegisterResponseDTO.setMessage("We have sent you an activation link to your email.");
+            userRegisterResponseDTO.setMessage("We sent you an email with a confirmation link. Please, check your email and confirm your registration.");
             return ResponseEntity.ok(userRegisterResponseDTO);
 
         } catch (EmailAlreadyUsedException e) {
@@ -64,6 +62,7 @@ public class AuthenticationController {
 
     @GetMapping("/activate")
     public void activateUser(@RequestParam(value = "id") Long id, HttpServletResponse response) throws IOException {
+        System.out.printf("::::::::::::::::::::ACTIVATE USER REQUEST::::::::::::::::::::userID=%s", id);
         try {
             userService.activateUser(id);
             ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
@@ -84,6 +83,7 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<UserLoginResponseDTO> login(@RequestBody UserLoginRequestDTO userLoginRequestDTO) {
+        System.out.printf("::::::::::::::::::::LOGIN REQUEST::::::::::::::::::::userLoginRequestDTO=%s", userLoginRequestDTO.toString());
         UserLoginResponseDTO userLoginResponseDTO = new UserLoginResponseDTO();
         try {
 

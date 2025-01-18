@@ -41,7 +41,6 @@ public class UserService {
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         //   user.setPhoto(photoService.createPhoto(userDto.getPhotoDto()));
-        user.setAddress(userDto.getAddress());
         user.setPhoneNumber(userDto.getPhoneNumber());
         //     appUser.isActive();
         userRepository.saveAndFlush(user);
