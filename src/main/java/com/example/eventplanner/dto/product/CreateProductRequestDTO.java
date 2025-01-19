@@ -19,7 +19,7 @@ public class CreateProductRequestDTO {
     List<MultipartFile> photos;
 
     //ids
-    Integer[] suitableEventTypes;
+    List<Long> suitableEventTypes;
     Boolean isVisible;
     Boolean isAvailable;
 

@@ -26,7 +26,7 @@ public class ProductController {
     private final UserService userService;
 
     @PostMapping()
-    public ResponseEntity<CreateProductResponseDTO> createProduct(@RequestBody CreateProductRequestDTO productDto, HttpServletRequest request) {
+    public ResponseEntity<CreateProductResponseDTO> createProduct(@ModelAttribute CreateProductRequestDTO productDto, HttpServletRequest request) {
 
         CreateProductResponseDTO response = new CreateProductResponseDTO();
 
@@ -47,9 +47,8 @@ public class ProductController {
                 throw new RoleAccessDeniedException();
             }
 
-            //productService.create(productDto, pupEmail);
-            response.setMessage("Product creation is not implemented, in progress... ");
-            //response.setMessage("Product created successfully");
+            productService.create(productDto, pupEmail);
+            response.setMessage("Product created successfully");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
         catch (RoleAccessDeniedException e) {

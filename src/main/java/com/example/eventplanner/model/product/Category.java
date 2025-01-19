@@ -28,7 +28,7 @@ public class Category extends EntityBase {
     @JoinColumn(name = "status_id", nullable = false)
     Status status;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductCategoryEventLink> eventLinks = new ArrayList<>();
 
 }

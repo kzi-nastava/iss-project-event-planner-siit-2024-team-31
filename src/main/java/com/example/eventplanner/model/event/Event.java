@@ -20,7 +20,7 @@ import java.util.List;
 public class Event extends EntityBase {
 
     @OneToOne
-    @JoinColumn(name = "event_type")
+    @JoinColumn(name = "event_type", nullable = false)
     private EventType eventType;
 
     @Column(name = "event_name")

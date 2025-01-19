@@ -46,7 +46,7 @@ public class Product extends EntityBase {
 
     // Suitable event types with this product
     // if list.isEmpty() => product suitable for ALL types
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventTypeProductLink> suitableEventTypeLinks = new ArrayList<>();
 
     //visibility status for OD
