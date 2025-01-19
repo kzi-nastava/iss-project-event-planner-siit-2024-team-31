@@ -1,5 +1,6 @@
 package com.example.eventplanner.controller;
 
+import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.CreateProductResponseDTO;
 import com.example.eventplanner.dto.product.ProductDto;
@@ -62,6 +63,18 @@ public class ProductController {
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<ProductCategoryDTO>> getAllCategories() {
+        try {
+            var categories = productService.getAllCategories();
+            return new ResponseEntity<>(categories, HttpStatus.OK);
+        }
+        catch (Exception e) {
+            System.out.print("Error occurred when retrieving all product categories.");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 //    @PutMapping

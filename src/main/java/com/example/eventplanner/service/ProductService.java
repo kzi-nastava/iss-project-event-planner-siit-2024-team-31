@@ -1,5 +1,6 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.ProductDto;
 import com.example.eventplanner.exception.EventNotFoundException;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -147,6 +149,18 @@ public class ProductService {
 //           Product product = new Product();
 //           productRepository.saveAndFlush(product);
 //       }
+
+        public List<ProductCategoryDTO> getAllCategories() {
+           var allCategories = categoryRepository.findAll();
+           List<ProductCategoryDTO> categories = new ArrayList<>();
+           allCategories.forEach(category -> {
+               ProductCategoryDTO categoryDTO = new ProductCategoryDTO();
+               categoryDTO.setId(category.getId());
+               categoryDTO.setName(category.getName());
+               categories.add(categoryDTO);
+           });
+           return categories;
+        }
 
        public List<ProductDto> findAll(PageRequest of) { return productRepository.findAll(of).stream().map(ProductDto::fromProduct).toList();}
 

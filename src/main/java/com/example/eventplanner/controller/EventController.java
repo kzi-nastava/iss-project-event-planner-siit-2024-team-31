@@ -2,9 +2,11 @@ package com.example.eventplanner.controller;
 
 import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.dto.eventDto.EventFilterInput;
+import com.example.eventplanner.dto.eventDto.EventTypeDTO;
 import com.example.eventplanner.model.event.Event;
 import com.example.eventplanner.service.EventService;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -69,4 +71,17 @@ public class EventController {
         List<Event> events = eventService.findBy(eventFilterInput);
         return ResponseEntity.ok().body(events);
     }
+
+    @GetMapping("/event-types")
+    public ResponseEntity<List<EventTypeDTO>> getAllEventTypes() {
+        try {
+            var eventTypes = eventService.getAllEventTypes();
+            return new ResponseEntity<>(eventTypes, HttpStatus.OK);
+        }
+        catch (Exception e) {
+            System.out.print("Exception occurred when trying to get all event types.");
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

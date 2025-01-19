@@ -4,6 +4,7 @@ import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.ProductCategoryEventLink;
 import com.example.eventplanner.model.Status;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +17,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 public class Category extends EntityBase {
 
     @Column(unique = true, nullable = false, name = "name")

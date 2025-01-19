@@ -2,14 +2,18 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.dto.eventDto.EventFilterInput;
+import com.example.eventplanner.dto.eventDto.EventTypeDTO;
+import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.model.event.Event;
 import com.example.eventplanner.model.event.EventType;
 import com.example.eventplanner.repository.EventRepository;
+import com.example.eventplanner.repository.EventTypesRepository;
 import com.example.eventplanner.repository.specification.EventSpecification;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,9 +21,11 @@ import java.util.List;
 
 public class EventService {
     private final EventRepository eventRepository;
+    private final EventTypesRepository eventTypesRepository;
 
-    public EventService(EventRepository eventRepository) {
+    public EventService(EventRepository eventRepository, EventTypesRepository eventTypesRepository) {
         this.eventRepository = eventRepository;
+        this.eventTypesRepository = eventTypesRepository;
     }
 
     public Event updateEvent(EventDto eventDto) {
@@ -62,5 +68,17 @@ public class EventService {
         event.setLikes(eventDto.getLikes());
         return eventRepository.saveAndFlush(event);
 
+    }
+
+    public List<EventTypeDTO> getAllEventTypes() {
+        var allEventTypes = eventTypesRepository.findAll();
+        List<EventTypeDTO> eventTypes = new ArrayList<>();
+        allEventTypes.forEach(eventType -> {
+            EventTypeDTO eventTypeDTO = new EventTypeDTO();
+            eventTypeDTO.setId(eventType.getId());
+            eventTypeDTO.setName(eventType.getName());
+            eventTypes.add(eventTypeDTO);
+        });
+        return eventTypes;
     }
 }
