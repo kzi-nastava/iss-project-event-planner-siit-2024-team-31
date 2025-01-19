@@ -25,7 +25,7 @@ public final class Role extends EntityBase {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Role role = (Role) o;
-        return Objects.equals(name, role.name);
+        return Objects.equals(name, role.name) && Objects.equals(getId(), role.getId());
     }
 
     @Override

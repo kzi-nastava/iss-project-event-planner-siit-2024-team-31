@@ -3,7 +3,9 @@ package com.example.eventplanner.service;
 import com.example.eventplanner.dto.userDto.UserDto;
 import com.example.eventplanner.exception.ConfirmationExpirationException;
 import com.example.eventplanner.exception.UserNotFoundException;
+import com.example.eventplanner.model.Role;
 import com.example.eventplanner.model.user.User;
+import com.example.eventplanner.repository.RoleRepository;
 import com.example.eventplanner.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -13,11 +15,15 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
 
 //    public User registration(UserDto userDto) {
 //        //    UserValidator.validate(userDto);
@@ -75,6 +81,25 @@ public class UserService {
 
     public void deactivateUser(Long id) {
         userRepository.findById(id).ifPresent(user -> user.setActive(false));
+    }
+
+    //access management
+    public boolean getPupAccess(String userEmail) throws UserNotFoundException {
+        final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
+        Optional<User> user = userRepository.findByEmail(userEmail);
+        if (user.isPresent()) {
+            return user.get().getRole().equals(ROLE_PUP);
+        }
+        else throw new UserNotFoundException("User with email " + userEmail + " not found");
+    }
+
+    public boolean getOdAccess(String userEmail) throws UserNotFoundException {
+        final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
+        Optional<User> user = userRepository.findByEmail(userEmail);
+        if (user.isPresent()) {
+            return user.get().getRole().equals(ROLE_OD);
+        }
+        else throw new UserNotFoundException("User with email " + userEmail + " not found");
     }
 
 }

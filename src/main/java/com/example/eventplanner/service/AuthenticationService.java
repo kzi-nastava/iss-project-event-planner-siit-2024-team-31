@@ -4,6 +4,7 @@ package com.example.eventplanner.service;
 import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
 import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
 import com.example.eventplanner.exception.UserNotActivatedException;
+import com.example.eventplanner.model.Role;
 import com.example.eventplanner.model.UserPhoto;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.RoleRepository;
@@ -44,6 +45,10 @@ public class AuthenticationService {
     private String userBucketName;
 
     public void signup(UserRegisterRequestDTO input) {
+        final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
+        final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
+        final Role ROLE_USER = roleRepository.findByName("ROLE_USER");
+
         User user = new User();
 
         user.setRole(roleRepository.findByName(input.getRole()));
@@ -56,10 +61,10 @@ public class AuthenticationService {
         user.setAddress(input.getAddress());
         user.setZipCode(input.getZipCode());
 
-        if (Objects.equals(input.getRole(), "ROLE_USER") || Objects.equals(input.getRole(), "ROLE_OD")) {
+        if (Objects.equals(input.getRole(), ROLE_USER.getName()) || Objects.equals(input.getRole(), ROLE_OD.getName())) {
             user.setLastName(input.getLastName());
         }
-        if (Objects.equals(input.getRole(), "ROLE_PUP")) {
+        if (Objects.equals(input.getRole(), ROLE_PUP.getName())) {
             user.setDescription(input.getDescription());
         }
 
