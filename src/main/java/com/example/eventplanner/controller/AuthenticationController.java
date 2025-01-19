@@ -94,7 +94,7 @@ public class AuthenticationController {
 
             User authenticatedUser = authenticationService.login(userLoginRequestDTO);
             String jwtToken = jwtService.generateToken(authenticatedUser);
-            userLoginResponseDTO.setRole("ROLE_USER");
+            userLoginResponseDTO.setRole(authenticatedUser.getRole().getName());
             userLoginResponseDTO.setToken(jwtToken);
             userLoginResponseDTO.setTokenExpiresIn(jwtService.getExpirationTime());
 
