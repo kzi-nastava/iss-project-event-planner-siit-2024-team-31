@@ -24,8 +24,6 @@ public class UserService {
     private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
-    private final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
-    private final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
 
 //    public User registration(UserDto userDto) {
 //        //    UserValidator.validate(userDto);
@@ -87,6 +85,7 @@ public class UserService {
 
     //access management
     public boolean getPupAccess(String userEmail) throws UserNotFoundException {
+        final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
         Optional<User> user = userRepository.findByEmail(userEmail);
         if (user.isPresent()) {
             return user.get().getRole().equals(ROLE_PUP);
@@ -95,6 +94,7 @@ public class UserService {
     }
 
     public boolean getOdAccess(String userEmail) throws UserNotFoundException {
+        final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
         Optional<User> user = userRepository.findByEmail(userEmail);
         if (user.isPresent()) {
             return user.get().getRole().equals(ROLE_OD);

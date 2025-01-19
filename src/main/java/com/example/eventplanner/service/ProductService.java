@@ -44,10 +44,9 @@ public class ProductService {
        @Value("${aws.s3.bucket-name}")
        private String bucketName;
 
-       private final Status pendingStatus = statusRepository.findByName("PENDING");
-
        public Product create(CreateProductRequestDTO createProductRequestDTO, String pupEmail) throws UserNotFoundException {
 
+           final Status pendingStatus = statusRepository.findByName("PENDING");
            var pup = userRepository.findByEmail(pupEmail).orElseThrow(() -> new UserNotFoundException(pupEmail));
 
             Product product = new Product();

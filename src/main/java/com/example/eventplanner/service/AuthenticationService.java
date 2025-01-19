@@ -44,11 +44,11 @@ public class AuthenticationService {
     @Value("${aws.s3.bucket-name}")
     private String userBucketName;
 
-    private final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
-    private final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
-    private final Role ROLE_USER = roleRepository.findByName("ROLE_USER");
-
     public void signup(UserRegisterRequestDTO input) {
+        final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
+        final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
+        final Role ROLE_USER = roleRepository.findByName("ROLE_USER");
+
         User user = new User();
 
         user.setRole(roleRepository.findByName(input.getRole()));
