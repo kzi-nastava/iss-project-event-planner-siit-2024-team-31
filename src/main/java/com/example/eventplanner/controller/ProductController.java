@@ -3,8 +3,10 @@ package com.example.eventplanner.controller;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.CreateProductResponseDTO;
 import com.example.eventplanner.dto.product.ProductDto;
+import com.example.eventplanner.exception.RoleAccessDeniedException;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.ProductService;
+import com.example.eventplanner.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -21,6 +23,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final JwtService jwtService;
+    private final UserService userService;
 
     @PostMapping()
     public ResponseEntity<CreateProductResponseDTO> createProduct(@RequestBody CreateProductRequestDTO productDto, HttpServletRequest request) {
@@ -39,10 +42,20 @@ public class ProductController {
             //extracts user email
             String pupEmail = jwtService.extractUsername(token);
 
+            //access management, only PUP can create Product/Service
+            if (!userService.getPupAccess(pupEmail)) {
+                throw new RoleAccessDeniedException();
+            }
+
             //productService.create(productDto, pupEmail);
             response.setMessage("Product creation is not implemented, in progress... ");
             //response.setMessage("Product created successfully");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }
+        catch (RoleAccessDeniedException e) {
+            response.setMessage("ROLE ACCESS DENIED");
+            response.setError(e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
         }
         catch (Exception e){
             response.setMessage("Error with product creation");
