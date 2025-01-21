@@ -7,6 +7,7 @@ import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,17 +23,29 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<UserMyProfileResponseDTO> getUserProfileInfo(HttpServletRequest request) {
+        UserMyProfileResponseDTO responseDTO = new UserMyProfileResponseDTO();
 
-        String authorizationHeader = request.getHeader("Authorization");
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Invalid Authorization header");
+        try {
+
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                throw new IllegalArgumentException("Invalid Authorization header");
+            }
+
+            String token = authorizationHeader.substring(7);
+            String userEmail = jwtService.extractUsername(token);
+
+            responseDTO = userService.getUserProfileByEmail(userEmail);
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+        } catch (IllegalArgumentException e)   {
+            responseDTO.setError(e.getMessage());
+            responseDTO.setMessage("Invalid Authorization header");
+            return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            responseDTO.setError(e.getMessage());
+            responseDTO.setMessage("Error while retrieving user profile");
+            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        String token = authorizationHeader.substring(7);
-
-        String userEmail = jwtService.extractUsername(token);
-        //TODO: continue implementation of user profile feature
-
     }
 
 

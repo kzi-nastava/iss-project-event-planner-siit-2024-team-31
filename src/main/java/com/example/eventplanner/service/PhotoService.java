@@ -3,14 +3,21 @@ package com.example.eventplanner.service;
 import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,6 +28,7 @@ import java.util.UUID;
 public class PhotoService {
 
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     @Value("${aws.s3.region}")
     private String region;
@@ -47,5 +55,27 @@ public class PhotoService {
             }
         }
         return photoUrls;
+    }
+
+    public String generatePresignedUrl(String fileName, String bucketName) {
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileName)
+                .build();
+        //make for 60 minutes
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(60))
+                .getObjectRequest(getObjectRequest)
+                .build();
+        PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(presignRequest);
+        return presignedGetObjectRequest.url().toString();
+    }
+
+    public List<String> generatePresignedUrls(List<String> photoUrls, String bucketName) {
+        List<String> urls = new ArrayList<>();
+        for (String photoUrl : photoUrls) {
+            urls.add(generatePresignedUrl(photoUrl, bucketName));
+        }
+        return urls;
     }
 }

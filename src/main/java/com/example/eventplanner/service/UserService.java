@@ -1,29 +1,39 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
 import com.example.eventplanner.dto.userDto.UserDto;
+import com.example.eventplanner.dto.userDto.UserMyProfileResponseDTO;
 import com.example.eventplanner.exception.ConfirmationExpirationException;
 import com.example.eventplanner.exception.UserNotFoundException;
 import com.example.eventplanner.model.Role;
+import com.example.eventplanner.model.UserPhoto;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.RoleRepository;
+import com.example.eventplanner.repository.UserPhotosRepository;
 import com.example.eventplanner.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
 
+    private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final UserPhotosRepository userPhotosRepository;
+
+    private final PhotoService photoService;
+
+    @Value("${aws.s3.bucket-name}")
+    private String bucketName;
 
 //    public User registration(UserDto userDto) {
 //        //    UserValidator.validate(userDto);
@@ -40,6 +50,33 @@ public class UserService {
 //
 //        return user;
 //    }
+
+    public UserMyProfileResponseDTO getUserProfileByEmail(String email) throws UserNotFoundException {
+        Optional<User> user = userRepository.findByEmail(email);
+        UserMyProfileResponseDTO userMyProfileResponseDTO = new UserMyProfileResponseDTO();
+
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(email);
+        }
+
+        userMyProfileResponseDTO.setEmail(user.get().getEmail());
+        userMyProfileResponseDTO.setFirstName(user.get().getFirstName());
+        userMyProfileResponseDTO.setLastName(user.get().getLastName());
+        userMyProfileResponseDTO.setPhoneNumber(user.get().getPhoneNumber());
+        userMyProfileResponseDTO.setCountry(user.get().getCountry());
+        userMyProfileResponseDTO.setCity(user.get().getCity());
+        userMyProfileResponseDTO.setAddress(user.get().getAddress());
+        userMyProfileResponseDTO.setZipCode(user.get().getZipCode());
+        userMyProfileResponseDTO.setDescription(user.get().getDescription());
+
+        Optional<List<UserPhoto>> userPhotos = userPhotosRepository.findByUserId(user.get().getId());
+
+        if (userPhotos.isPresent()) {
+
+        }
+
+        return userMyProfileResponseDTO;
+    }
 
     public void update(UserDto userDto) {
         User user = new User();
