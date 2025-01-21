@@ -65,12 +65,14 @@ public class UserService {
         Optional<List<UserPhoto>> userPhotos = userPhotosRepository.findByUserId(user.get().getId());
 
         if (userPhotos.isPresent()) {
+            List<TempPhotoUrlAndIdDTO> tempPhotoUrlAndIdDTOList = new ArrayList<>();
             for (UserPhoto photo : userPhotos.get()) {
                 TempPhotoUrlAndIdDTO tempPhotoUrlAndIdDTO = new TempPhotoUrlAndIdDTO();
                 tempPhotoUrlAndIdDTO.setTempPhotoUrl(photoService.generatePresignedUrl(photo.getPhotoUrl(), bucketName));
                 tempPhotoUrlAndIdDTO.setPhotoId(photo.getId());
-                userMyProfileResponseDTO.getTempPhotoUrlAndIdDTOList().add(tempPhotoUrlAndIdDTO);
+                tempPhotoUrlAndIdDTOList.add(tempPhotoUrlAndIdDTO);
             }
+            userMyProfileResponseDTO.setTempPhotoUrlAndIdDTOList(tempPhotoUrlAndIdDTOList);
         }
 
         return userMyProfileResponseDTO;

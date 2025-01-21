@@ -34,7 +34,7 @@ public class PhotoService {
     private String region;
 
     public List<String> uploadPhotos(List<MultipartFile> photos, String bucketName, String photosPrefix) {
-        List<String> photoUrls = new ArrayList<>();
+        List<String> keys = new ArrayList<>();
         for (MultipartFile photo : photos) {
             try {
                 String keyName = photosPrefix + "/" + UUID.randomUUID() + "_" + photo.getOriginalFilename();
@@ -44,17 +44,17 @@ public class PhotoService {
                         .key(keyName)
                         .build();
 
-                s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(photo.getInputStream(), photo.getSize()));
+                s3Client.putObject(putObjectRequest,
+                        RequestBody.fromInputStream(photo.getInputStream(), photo.getSize()));
 
-                String fileUrl = "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + keyName;
-                photoUrls.add(fileUrl);
+                keys.add(keyName);
             } catch (IOException e) {
-                System.out.printf("Error uploading photo: %s", e.getMessage());
+                System.out.printf("Error uploading photo: %s%n", e.getMessage());
             } catch (Exception e) {
-                System.out.printf("Exception: %s", e.getMessage());
+                System.out.printf("Exception: %s%n", e.getMessage());
             }
         }
-        return photoUrls;
+        return keys;
     }
 
     public String generatePresignedUrl(String fileName, String bucketName) {
@@ -71,11 +71,4 @@ public class PhotoService {
         return presignedGetObjectRequest.url().toString();
     }
 
-    public List<String> generatePresignedUrls(List<String> photoUrls, String bucketName) {
-        List<String> urls = new ArrayList<>();
-        for (String photoUrl : photoUrls) {
-            urls.add(generatePresignedUrl(photoUrl, bucketName));
-        }
-        return urls;
-    }
 }
