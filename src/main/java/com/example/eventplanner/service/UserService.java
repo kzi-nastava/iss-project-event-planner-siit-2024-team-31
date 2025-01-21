@@ -13,6 +13,7 @@ import com.example.eventplanner.repository.UserPhotosRepository;
 import com.example.eventplanner.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,30 +54,29 @@ public class UserService {
 
     public UserMyProfileResponseDTO getUserProfileByEmail(String email) throws UserNotFoundException {
         Optional<User> user = userRepository.findByEmail(email);
-        UserMyProfileResponseDTO userMyProfileResponseDTO = new UserMyProfileResponseDTO();
 
         if (user.isEmpty()) {
             throw new UserNotFoundException(email);
         }
 
-        userMyProfileResponseDTO.setEmail(user.get().getEmail());
-        userMyProfileResponseDTO.setFirstName(user.get().getFirstName());
-        userMyProfileResponseDTO.setLastName(user.get().getLastName());
-        userMyProfileResponseDTO.setPhoneNumber(user.get().getPhoneNumber());
-        userMyProfileResponseDTO.setCountry(user.get().getCountry());
-        userMyProfileResponseDTO.setCity(user.get().getCity());
-        userMyProfileResponseDTO.setAddress(user.get().getAddress());
-        userMyProfileResponseDTO.setZipCode(user.get().getZipCode());
-        userMyProfileResponseDTO.setDescription(user.get().getDescription());
+        User userEntity = user.get();
+        UserMyProfileResponseDTO userMyProfileResponseDTO = getProfileFields(userEntity);
 
         Optional<List<UserPhoto>> userPhotos = userPhotosRepository.findByUserId(user.get().getId());
 
         if (userPhotos.isPresent()) {
-
+            for (UserPhoto photo : userPhotos.get()) {
+                TempPhotoUrlAndIdDTO tempPhotoUrlAndIdDTO = new TempPhotoUrlAndIdDTO();
+                tempPhotoUrlAndIdDTO.setTempPhotoUrl(photoService.generatePresignedUrl(photo.getPhotoUrl(), bucketName));
+                tempPhotoUrlAndIdDTO.setPhotoId(photo.getId());
+                userMyProfileResponseDTO.getTempPhotoUrlAndIdDTOList().add(tempPhotoUrlAndIdDTO);
+            }
         }
 
         return userMyProfileResponseDTO;
     }
+
+
 
     public void update(UserDto userDto) {
         User user = new User();
@@ -137,6 +137,27 @@ public class UserService {
             return user.get().getRole().equals(ROLE_OD);
         }
         else throw new UserNotFoundException("User with email " + userEmail + " not found");
+    }
+
+
+    //--------- Methods-Helpers ---------
+    @NotNull
+    private static UserMyProfileResponseDTO getProfileFields(User user) throws UserNotFoundException {
+
+        return UserMyProfileResponseDTO
+                .builder().
+
+                email(user.getEmail()).
+                firstName(user.getFirstName()).
+                lastName(user.getLastName()).
+                phoneNumber(user.getPhoneNumber()).
+                country(user.getCountry()).
+                city(user.getCity()).
+                address(user.getAddress()).
+                zipCode(user.getZipCode()).
+                description(user.getDescription())
+
+                .build();
     }
 
 }

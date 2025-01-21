@@ -23,8 +23,6 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<UserMyProfileResponseDTO> getUserProfileInfo(HttpServletRequest request) {
-        UserMyProfileResponseDTO responseDTO = new UserMyProfileResponseDTO();
-
         try {
 
             String authorizationHeader = request.getHeader("Authorization");
@@ -35,13 +33,15 @@ public class UserController {
             String token = authorizationHeader.substring(7);
             String userEmail = jwtService.extractUsername(token);
 
-            responseDTO = userService.getUserProfileByEmail(userEmail);
+            UserMyProfileResponseDTO responseDTO = userService.getUserProfileByEmail(userEmail);
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-        } catch (IllegalArgumentException e)   {
+        } catch (IllegalArgumentException e) {
+            UserMyProfileResponseDTO responseDTO = UserMyProfileResponseDTO.builder().build();
             responseDTO.setError(e.getMessage());
             responseDTO.setMessage("Invalid Authorization header");
             return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
+            UserMyProfileResponseDTO responseDTO = UserMyProfileResponseDTO.builder().build();
             responseDTO.setError(e.getMessage());
             responseDTO.setMessage("Error while retrieving user profile");
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);

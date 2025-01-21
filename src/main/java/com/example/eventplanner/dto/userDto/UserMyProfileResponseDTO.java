@@ -1,14 +1,14 @@
 package com.example.eventplanner.dto.userDto;
 
 import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Getter
 @Setter
+@Builder
 public class UserMyProfileResponseDTO {
 
     private String email;
