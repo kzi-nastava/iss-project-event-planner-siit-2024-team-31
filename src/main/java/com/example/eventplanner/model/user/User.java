@@ -30,7 +30,7 @@ public class User extends EntityBase implements UserDetails {
     @Column(name = "password_hash")
     private String password;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
