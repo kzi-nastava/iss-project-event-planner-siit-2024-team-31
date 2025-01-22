@@ -1,9 +1,12 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
 import com.example.eventplanner.dto.userDto.UserDto;
 import com.example.eventplanner.dto.userDto.UserMyProfileResponseDTO;
+import com.example.eventplanner.dto.userDto.UserPasswordUpdateDTO;
 import com.example.eventplanner.exception.ConfirmationExpirationException;
+import com.example.eventplanner.exception.IncorrectPasswordException;
 import com.example.eventplanner.exception.UserNotFoundException;
 import com.example.eventplanner.model.Role;
 import com.example.eventplanner.model.UserPhoto;
@@ -17,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -30,7 +34,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserPhotosRepository userPhotosRepository;
-
+    private final PasswordEncoder passwordEncoder;
     private final PhotoService photoService;
 
     @Value("${aws.s3.bucket-name}")
@@ -78,7 +82,25 @@ public class UserService {
         return userMyProfileResponseDTO;
     }
 
+    public CommonMessageDTO updatePassword(String email, UserPasswordUpdateDTO userPasswordUpdateDTO) throws UserNotFoundException, IncorrectPasswordException {
+        CommonMessageDTO commonMessageDTO = new CommonMessageDTO();
 
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isPresent()) {
+
+            User userEntity = user.get();
+
+            if (!passwordEncoder.matches(userPasswordUpdateDTO.getOldPassword(), userEntity.getPassword())) {
+                throw new IncorrectPasswordException("Incorrect old password. Please try again.");
+            }
+
+            userEntity.setPassword(passwordEncoder.encode(userPasswordUpdateDTO.getNewPassword()));
+            userRepository.save(userEntity);
+            commonMessageDTO.setMessage("Password updated successfully");
+        }
+        return commonMessageDTO;
+    }
 
     public void update(UserDto userDto) {
         User user = new User();
