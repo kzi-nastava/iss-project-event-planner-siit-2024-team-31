@@ -1,9 +1,13 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
 import com.example.eventplanner.dto.userDto.UserDto;
 import com.example.eventplanner.dto.userDto.UserMyProfileResponseDTO;
+import com.example.eventplanner.dto.userDto.UserPasswordUpdateDTO;
+import com.example.eventplanner.dto.userDto.UserUpdateProfileRequestDTO;
 import com.example.eventplanner.exception.ConfirmationExpirationException;
+import com.example.eventplanner.exception.IncorrectPasswordException;
 import com.example.eventplanner.exception.UserNotFoundException;
 import com.example.eventplanner.model.Role;
 import com.example.eventplanner.model.UserPhoto;
@@ -11,13 +15,16 @@ import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.RoleRepository;
 import com.example.eventplanner.repository.UserPhotosRepository;
 import com.example.eventplanner.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,7 +37,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserPhotosRepository userPhotosRepository;
-
+    private final PasswordEncoder passwordEncoder;
     private final PhotoService photoService;
 
     @Value("${aws.s3.bucket-name}")
@@ -78,7 +85,86 @@ public class UserService {
         return userMyProfileResponseDTO;
     }
 
+    public CommonMessageDTO updatePassword(String email, UserPasswordUpdateDTO userPasswordUpdateDTO) throws UserNotFoundException, IncorrectPasswordException {
+        CommonMessageDTO commonMessageDTO = new CommonMessageDTO();
 
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isPresent()) {
+
+            User userEntity = user.get();
+
+            if (!passwordEncoder.matches(userPasswordUpdateDTO.getOldPassword(), userEntity.getPassword())) {
+                throw new IncorrectPasswordException("Incorrect old password. Please try again.");
+            }
+
+            userEntity.setPassword(passwordEncoder.encode(userPasswordUpdateDTO.getNewPassword()));
+            userRepository.save(userEntity);
+            commonMessageDTO.setMessage("Password updated successfully");
+        }
+        return commonMessageDTO;
+    }
+
+    public CommonMessageDTO updateUserData(String userEmail, UserUpdateProfileRequestDTO userUpdateProfileRequestDTO) throws UserNotFoundException {
+
+        Optional<User> user = userRepository.findByEmail(userEmail);
+        if (user.isEmpty()) {
+            throw new UserNotFoundException(userEmail);
+        }
+
+        User userEntity = user.get();
+
+        final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
+        final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
+        final Role ROLE_USER = roleRepository.findByName("ROLE_USER");
+
+        userEntity.setFirstName(userUpdateProfileRequestDTO.getFirstName());
+        userEntity.setPhoneNumber(userUpdateProfileRequestDTO.getPhoneNumber());
+        userEntity.setCity(userUpdateProfileRequestDTO.getCity());
+        userEntity.setCountry(userUpdateProfileRequestDTO.getCountry());
+        userEntity.setAddress(userUpdateProfileRequestDTO.getAddress());
+        userEntity.setZipCode(userUpdateProfileRequestDTO.getZipCode());
+
+        if (Objects.equals(userEntity.getRole(), ROLE_USER) || Objects.equals(userEntity.getRole(), ROLE_OD)) {
+            userEntity.setLastName(userUpdateProfileRequestDTO.getLastName());
+        }
+        if (Objects.equals(userEntity.getRole(), ROLE_PUP)) {
+            userEntity.setDescription(userUpdateProfileRequestDTO.getDescription());
+        }
+
+        if (userUpdateProfileRequestDTO.getPhotos() != null) {
+
+            List<MultipartFile> photos = userUpdateProfileRequestDTO.getPhotos();
+            String photosPrefix = "users-photos";
+            List<String> photoUrls = photoService.uploadPhotos(photos, bucketName, photosPrefix);
+
+            for (String url : photoUrls) {
+                UserPhoto userPhoto = new UserPhoto();
+                userPhoto.setPhotoUrl(url);
+                userPhoto.setUser(userEntity);
+                userEntity.getPhotos().add(userPhoto);
+            }
+
+        }
+
+        userRepository.saveAndFlush(userEntity);
+
+        if (userUpdateProfileRequestDTO.getDeletedPhotosIds() != null) {
+
+            userUpdateProfileRequestDTO.getDeletedPhotosIds().forEach(id -> {
+
+                Optional<UserPhoto> userPhoto = userPhotosRepository.findById(id);
+                userPhoto.ifPresent(photo -> photoService.deletePhotoByKey(photo.getPhotoUrl(), bucketName));
+
+            });
+            userPhotosRepository.deleteAllById(userUpdateProfileRequestDTO.getDeletedPhotosIds());
+
+        }
+
+        userRepository.saveAndFlush(userEntity);
+
+        return new CommonMessageDTO("User data successfully updated", null);
+    }
 
     public void update(UserDto userDto) {
         User user = new User();

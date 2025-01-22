@@ -1,7 +1,11 @@
 package com.example.eventplanner.controller;
 
+import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.userDto.UserDto;
 import com.example.eventplanner.dto.userDto.UserMyProfileResponseDTO;
+import com.example.eventplanner.dto.userDto.UserPasswordUpdateDTO;
+import com.example.eventplanner.dto.userDto.UserUpdateProfileRequestDTO;
+import com.example.eventplanner.exception.IncorrectPasswordException;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.UserService;
@@ -45,6 +49,55 @@ public class UserController {
             responseDTO.setError(e.getMessage());
             responseDTO.setMessage("Error while retrieving user profile");
             return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<CommonMessageDTO> updatePassword(@RequestBody UserPasswordUpdateDTO userPasswordUpdateDTO, HttpServletRequest request) {
+
+        try {
+
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                throw new IllegalArgumentException("Invalid Authorization header");
+            }
+
+            String token = authorizationHeader.substring(7);
+            String userEmail = jwtService.extractUsername(token);
+            CommonMessageDTO commonMessageDTO = userService.updatePassword(userEmail, userPasswordUpdateDTO);
+            return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException | IncorrectPasswordException e) {
+            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, e.getMessage());
+            return new ResponseEntity<>(commonMessageDTO, HttpStatus.UNAUTHORIZED);
+        }
+        catch (Exception e) {
+            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, "Error while updating password " + e.getMessage());
+            return new ResponseEntity<>(commonMessageDTO, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+    @PostMapping("/update-data")
+    ResponseEntity<CommonMessageDTO> updateUserData(@ModelAttribute UserUpdateProfileRequestDTO userUpdateProfileRequestDTO, HttpServletRequest request) {
+        try {
+            String authorizationHeader = request.getHeader("Authorization");
+            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+                throw new IllegalArgumentException("Invalid Authorization header");
+            }
+
+            String token = authorizationHeader.substring(7);
+            String userEmail = jwtService.extractUsername(token);
+            CommonMessageDTO commonMessageDTO = userService.updateUserData(userEmail, userUpdateProfileRequestDTO);
+            return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);
+        }
+        catch (IllegalArgumentException | IncorrectPasswordException e) {
+            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, e.getMessage());
+            return new ResponseEntity<>(commonMessageDTO, HttpStatus.UNAUTHORIZED);
+        }
+        catch (Exception e) {
+            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, "Error while updating profile data " + e.getMessage());
+            return new ResponseEntity<>(commonMessageDTO, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
