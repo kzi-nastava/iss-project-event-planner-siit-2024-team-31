@@ -105,8 +105,8 @@ public class DataInitializer {
 
                 Role adminRole = roleRepository.findByName("ROLE_ADMIN");
                 User user = new User();
-                user.setEmail("admin-roman");
-                user.setPassword(passwordEncoder.encode("admin-roman-password"));
+                user.setEmail("admin");
+                user.setPassword(passwordEncoder.encode("admin-password"));
                 user.setFirstName("Admin");
                 user.setRole(adminRole);
                 user.setActive(true);
