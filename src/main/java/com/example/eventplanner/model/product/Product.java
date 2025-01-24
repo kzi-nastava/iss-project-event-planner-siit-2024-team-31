@@ -1,6 +1,7 @@
 package com.example.eventplanner.model.product;
 
 import com.example.eventplanner.model.*;
+import com.example.eventplanner.model.event.EventType;
 import com.example.eventplanner.model.user.User;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -44,10 +45,13 @@ public class Product extends EntityBase {
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductPhoto> photos = new ArrayList<>();
 
-    // Suitable event types with this product
-    // if list.isEmpty() => product suitable for ALL types
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventTypeProductLink> suitableEventTypeLinks = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(
+            name = "product_event_type_link",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_type_id")
+    )
+    private List<EventType> suitableEventTypes = new ArrayList<>();
 
     //visibility status for OD
     @Column(name = "is_visible")

@@ -8,4 +8,7 @@ import lombok.Setter;
 public class EventTypeDTO {
     private Long id;
     private String name;
+    private String description;
+    private String status;
+//    private List<EventTypeProductLink> productLinks;
 }
