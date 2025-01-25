@@ -10,5 +10,4 @@ public class EventTypeDTO {
     private String name;
     private String description;
     private String status;
-//    private List<EventTypeProductLink> productLinks;
 }
