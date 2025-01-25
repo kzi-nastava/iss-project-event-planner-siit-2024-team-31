@@ -2,10 +2,8 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.dto.eventDto.EventFilterInput;
-import com.example.eventplanner.dto.eventDto.EventTypeDTO;
-import com.example.eventplanner.dto.product.ProductCategoryDTO;
+import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.model.event.Event;
-import com.example.eventplanner.model.event.EventType;
 import com.example.eventplanner.repository.EventRepository;
 import com.example.eventplanner.repository.EventTypesRepository;
 import com.example.eventplanner.repository.specification.EventSpecification;
@@ -14,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
