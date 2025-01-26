@@ -22,29 +22,16 @@ import java.util.Optional;
 public class EventTypeService {
 
     private final EventTypesRepository eventTypesRepository;
-    private final ProductCategoryRepository productCategoryRepository;
 
-    public List<EventTypeDTO> getEventTypeNextPage(Pageable pageable) throws NullPageableException {
-
-        if (pageable == null) {
-            throw new NullPageableException("Pageable is null");
+    public Page<EventTypeDTO> searchEventTypes(String keyword, Pageable pageable) {
+        if (keyword == null || keyword.isEmpty()) {
+            return eventTypesRepository.findAll(pageable)
+                    .map(this::convertToDTO);
+        } else {
+            return eventTypesRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+                    keyword, keyword, pageable
+            ).map(this::convertToDTO);
         }
-
-        Page<EventType> eventTypesPage = eventTypesRepository.findAll(pageable);
-
-        List<EventType> eventTypes = eventTypesPage.getContent();
-        List<EventTypeDTO> response = new ArrayList<>();
-
-        eventTypes.forEach(eventType -> {
-            EventTypeDTO eventTypeDTO = new EventTypeDTO();
-            eventTypeDTO.setId(eventType.getId());
-            eventTypeDTO.setName(eventType.getName());
-            eventTypeDTO.setDescription(eventType.getDescription());
-            response.add(eventTypeDTO);
-        });
-
-        return response;
-
     }
 
     public EventTypeFullDTO getEventTypeData(Long id) throws EventTypeNotFoundException {
@@ -68,11 +55,24 @@ public class EventTypeService {
             ProductCategoryDTO productCategoryDTO = new ProductCategoryDTO();
             productCategoryDTO.setId(productCategory.getId());
             productCategoryDTO.setName(productCategory.getName());
+            productCategoryDTO.setDescription(productCategory.getDescription());
+            productCategoryDTO.setStatus(productCategory.getStatus());
             recommendedProductCategories.add(productCategoryDTO);
         });
 
         eventTypeFullDTO.setRecommendedProductCategories(recommendedProductCategories);
 
         return eventTypeFullDTO;
+    }
+
+    //--------------
+    //Helper methods
+
+    private EventTypeDTO convertToDTO(EventType eventType) {
+        EventTypeDTO dto = new EventTypeDTO();
+        dto.setId(eventType.getId());
+        dto.setName(eventType.getName());
+        dto.setDescription(eventType.getDescription());
+        return dto;
     }
 }

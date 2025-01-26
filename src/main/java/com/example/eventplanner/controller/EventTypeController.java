@@ -20,10 +20,10 @@ public class EventTypeController {
 
         private final EventTypeService eventTypeService;
 
-        @GetMapping("/page")
-        public ResponseEntity<List<EventTypeDTO>> getEventTypesNextPage(Pageable pageable) {
+        @GetMapping("/search")
+        public ResponseEntity<Page<EventTypeDTO>> searchEventTypes(@RequestParam(required = false) String keyword, Pageable pageable) {
             try {
-                List<EventTypeDTO> eventTypes = eventTypeService.getEventTypeNextPage(pageable);
+                Page<EventTypeDTO> eventTypes = eventTypeService.searchEventTypes(keyword, pageable);
                 return new ResponseEntity<>(eventTypes, HttpStatus.OK);
             }
             catch (Exception e) {

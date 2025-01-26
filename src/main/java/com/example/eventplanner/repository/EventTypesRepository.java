@@ -12,4 +12,8 @@ public interface EventTypesRepository extends JpaRepository<EventType, Long> {
 
     @NotNull Page<EventType> findAll(@NotNull Pageable pageable);
 
+    Page<EventType> findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+            String nameKeyword, String descriptionKeyword, Pageable pageable
+    );
+
 }
