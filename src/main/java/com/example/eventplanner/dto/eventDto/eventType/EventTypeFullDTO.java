@@ -14,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventTypeFullDTO extends EventTypeDTO {
-    private String description;
     private Status status;
     private List<ProductCategoryDTO> recommendedProductCategories;
 }

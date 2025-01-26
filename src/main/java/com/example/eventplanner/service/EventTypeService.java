@@ -39,6 +39,7 @@ public class EventTypeService {
             EventTypeDTO eventTypeDTO = new EventTypeDTO();
             eventTypeDTO.setId(eventType.getId());
             eventTypeDTO.setName(eventType.getName());
+            eventTypeDTO.setDescription(eventType.getDescription());
             response.add(eventTypeDTO);
         });
 
