@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category extends EntityBase {
+public class ProductCategory extends EntityBase {
 
     @Column(unique = true, nullable = false, name = "name")
     String name;

@@ -3,12 +3,10 @@ package com.example.eventplanner.service;
 import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.ProductDto;
-import com.example.eventplanner.exception.EventNotFoundException;
 import com.example.eventplanner.exception.UserNotFoundException;
 import com.example.eventplanner.model.ProductPhoto;
 import com.example.eventplanner.model.Status;
-import com.example.eventplanner.model.event.EventType;
-import com.example.eventplanner.model.product.Category;
+import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -58,8 +56,8 @@ public class ProductService {
         product.setDiscount(createProductRequestDTO.getDiscount());
 
         // Handle category assignment
-        Category category;
-        Optional<Category> categoryOpt = categoryRepository.findByName(createProductRequestDTO.getCategory());
+        ProductCategory category;
+        Optional<ProductCategory> categoryOpt = categoryRepository.findByName(createProductRequestDTO.getCategory());
         if (categoryOpt.isPresent()) {
             category = categoryOpt.get();
             product.setCategory(category);
@@ -67,7 +65,7 @@ public class ProductService {
             product.setVisible(Boolean.TRUE.equals(createProductRequestDTO.getIsVisible()));
         } else {
             // Создаём новую категорию
-            Category newCategory = new Category();
+            ProductCategory newCategory = new ProductCategory();
             newCategory.setName(createProductRequestDTO.getCategory());
             newCategory.setDescription(""); // Admin will update the description
             newCategory.setStatus(pendingStatus);
@@ -102,7 +100,7 @@ public class ProductService {
         // Assign connection between suitable event types and product categories
         List<Long> suitableEventTypes = createProductRequestDTO.getSuitableEventTypes();
         eventTypesRepository.findAllById(suitableEventTypes).forEach(eventType -> {
-            List<Category> connectedCategories = eventType.getRecommendedCategories();
+            List<ProductCategory> connectedCategories = eventType.getRecommendedCategories();
             if (!connectedCategories.contains(category)) {
                 connectedCategories.add(category);
             }

@@ -3,7 +3,7 @@ package com.example.eventplanner.config;
 import com.example.eventplanner.model.Role;
 import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.event.EventType;
-import com.example.eventplanner.model.product.Category;
+import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.*;
 import org.springframework.boot.CommandLineRunner;
@@ -44,17 +44,17 @@ public class DataInitializer {
         return args -> {
             if (productCategoryRepository.count() == 0) {
                 Status activeStatus = statusRepository.getStatusByName("ACTIVE");
-                List<Category> defaultCategories = List.of(
-                        new Category("Catering", "Food and beverage services for events", activeStatus),
-                        new Category("Photography", "Professional event photography services", activeStatus),
-                        new Category("Music", "Music and DJ services for all occasions", activeStatus),
-                        new Category("Decorations", "Event decorations and theme designs", activeStatus),
-                        new Category("Transportation", "Transportation services for guests or equipment", activeStatus),
-                        new Category("Venue", "Event venues and spaces for hire", activeStatus),
-                        new Category("Event Planning", "Professional event planning and coordination services", activeStatus),
-                        new Category("Lighting", "Lighting equipment and setup for events", activeStatus),
-                        new Category("AV Equipment", "Audio-visual equipment rental and support", activeStatus),
-                        new Category("Security", "Security services to ensure event safety", activeStatus)
+                List<ProductCategory> defaultCategories = List.of(
+                        new ProductCategory("Catering", "Food and beverage services for events", activeStatus),
+                        new ProductCategory("Photography", "Professional event photography services", activeStatus),
+                        new ProductCategory("Music", "Music and DJ services for all occasions", activeStatus),
+                        new ProductCategory("Decorations", "Event decorations and theme designs", activeStatus),
+                        new ProductCategory("Transportation", "Transportation services for guests or equipment", activeStatus),
+                        new ProductCategory("Venue", "Event venues and spaces for hire", activeStatus),
+                        new ProductCategory("Event Planning", "Professional event planning and coordination services", activeStatus),
+                        new ProductCategory("Lighting", "Lighting equipment and setup for events", activeStatus),
+                        new ProductCategory("AV Equipment", "Audio-visual equipment rental and support", activeStatus),
+                        new ProductCategory("Security", "Security services to ensure event safety", activeStatus)
                 );
 
                 productCategoryRepository.saveAllAndFlush(defaultCategories);
