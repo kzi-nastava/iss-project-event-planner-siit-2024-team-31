@@ -42,6 +42,17 @@ public class EventTypeController {
             }
         }
 
+        @PostMapping("/create")
+        public ResponseEntity<CommonMessageDTO> createEventType(@RequestBody EventTypeFullDTO eventTypeFullDTO) {
+            try {
+                CommonMessageDTO response = eventTypeService.createEventType(eventTypeFullDTO);
+                return new ResponseEntity<>(response, HttpStatus.CREATED);
+            }
+            catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
 //        @PutMapping("/update/{id}")
 //        public ResponseEntity<CommonMessageDTO> updateEventTypeById(@PathVariable Long id, @RequestBody EventTypeFullDTO newEventTypeFullDTO) {
 //

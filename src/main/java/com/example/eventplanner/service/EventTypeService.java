@@ -1,13 +1,19 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeFullDTO;
 import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.exception.EventTypeNotFoundException;
 import com.example.eventplanner.exception.NullPageableException;
+import com.example.eventplanner.exception.ProductCategoryNotFoundException;
+import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.event.EventType;
+import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.repository.EventTypesRepository;
 import com.example.eventplanner.repository.ProductCategoryRepository;
+import com.example.eventplanner.repository.StatusRepository;
+import jdk.jfr.Category;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +28,8 @@ import java.util.Optional;
 public class EventTypeService {
 
     private final EventTypesRepository eventTypesRepository;
+    private final ProductCategoryRepository productCategoryRepository;
+    private final StatusRepository statusRepository;
 
     public Page<EventTypeDTO> searchEventTypes(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isEmpty()) {
@@ -63,6 +71,24 @@ public class EventTypeService {
         eventTypeFullDTO.setRecommendedProductCategories(recommendedProductCategories);
 
         return eventTypeFullDTO;
+    }
+
+    public CommonMessageDTO createEventType(EventTypeFullDTO eventTypeFullDTO) throws ProductCategoryNotFoundException {
+
+        Status activeStatus = statusRepository.getStatusByName("ACTIVE");
+
+        EventType eventType = new EventType();
+        eventType.setName(eventTypeFullDTO.getName());
+        eventType.setDescription(eventTypeFullDTO.getDescription());
+        eventType.setStatus(activeStatus);
+        eventTypeFullDTO.getRecommendedProductCategories().forEach(productCategory -> {
+            Long categoryId = productCategory.getId();
+            ProductCategory category = productCategoryRepository.findById(categoryId).orElseThrow(() -> new ProductCategoryNotFoundException("Category with id=" + categoryId + " not found."));
+            eventType.getRecommendedCategories().add(category);
+        });
+        eventTypesRepository.save(eventType);
+
+        return new CommonMessageDTO("Event type successfully created", null);
     }
 
     //--------------

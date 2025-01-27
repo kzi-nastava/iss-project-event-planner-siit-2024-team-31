@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/product-category")
+@RequestMapping("/product-categories")
 @RequiredArgsConstructor
 public class ProductCategoryController {
 
