@@ -1,7 +1,6 @@
 package com.example.eventplanner.dto.product;
 
 import com.example.eventplanner.dto.PhotoDto;
-import com.example.eventplanner.model.product.CommentProduct;
 import com.example.eventplanner.model.product.Product;
 import lombok.Getter;
 import lombok.Setter;

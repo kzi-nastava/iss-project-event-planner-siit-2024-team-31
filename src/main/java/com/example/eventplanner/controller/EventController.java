@@ -2,7 +2,7 @@ package com.example.eventplanner.controller;
 
 import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.dto.eventDto.EventFilterInput;
-import com.example.eventplanner.dto.eventDto.EventTypeDTO;
+import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.model.event.Event;
 import com.example.eventplanner.service.EventService;
 import org.springframework.data.domain.PageRequest;

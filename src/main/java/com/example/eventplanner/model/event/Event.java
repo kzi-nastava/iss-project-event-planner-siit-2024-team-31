@@ -2,7 +2,6 @@ package com.example.eventplanner.model.event;
 
 
 import com.example.eventplanner.model.EntityBase;
-import com.example.eventplanner.model.ProductCategoryEventLink;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,8 +18,8 @@ import java.util.List;
 @DiscriminatorValue("events")
 public class Event extends EntityBase {
 
-    @OneToOne
-    @JoinColumn(name = "event_type", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "event_type_id", nullable = false)
     private EventType eventType;
 
     @Column(name = "event_name")
@@ -63,8 +62,5 @@ public class Event extends EntityBase {
 
     @Column(name = "likes")
     private Long likes;
-
-    @OneToMany(mappedBy = "event")
-    private List<ProductCategoryEventLink> categoryLinks = new ArrayList<>();
 
 }

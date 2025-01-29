@@ -3,13 +3,10 @@ package com.example.eventplanner.service;
 import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.ProductDto;
-import com.example.eventplanner.exception.EventNotFoundException;
 import com.example.eventplanner.exception.UserNotFoundException;
-import com.example.eventplanner.model.EventTypeProductLink;
 import com.example.eventplanner.model.ProductPhoto;
 import com.example.eventplanner.model.Status;
-import com.example.eventplanner.model.event.EventType;
-import com.example.eventplanner.model.product.Category;
+import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -46,104 +43,89 @@ public class ProductService {
        @Value("${aws.s3.bucket-name}")
        private String bucketName;
 
-       public Product create(CreateProductRequestDTO createProductRequestDTO, String pupEmail) throws UserNotFoundException {
+    public Product create(CreateProductRequestDTO createProductRequestDTO, String pupEmail) throws UserNotFoundException {
+        final Status pendingStatus = statusRepository.findByName("PENDING");
+        var pup = userRepository.findByEmail(pupEmail).orElseThrow(() -> new UserNotFoundException(pupEmail));
 
-           final Status pendingStatus = statusRepository.findByName("PENDING");
-           var pup = userRepository.findByEmail(pupEmail).orElseThrow(() -> new UserNotFoundException(pupEmail));
+        Product product = new Product();
+        product.setPup(pup);
+        product.setName(createProductRequestDTO.getName());
+        product.setDescription(createProductRequestDTO.getDescription());
+        product.setPeculiarities(createProductRequestDTO.getPeculiarities());
+        product.setPrice(createProductRequestDTO.getPrice());
+        product.setDiscount(createProductRequestDTO.getDiscount());
 
-            Product product = new Product();
-            product.setPup(pup);
+        // Handle category assignment
+        ProductCategory category;
+        Optional<ProductCategory> categoryOpt = categoryRepository.findByName(createProductRequestDTO.getCategory());
+        if (categoryOpt.isPresent()) {
+            category = categoryOpt.get();
+            product.setCategory(category);
+            product.setAvailable(Boolean.TRUE.equals(createProductRequestDTO.getIsAvailable()));
+            product.setVisible(Boolean.TRUE.equals(createProductRequestDTO.getIsVisible()));
+        } else {
+            // Создаём новую категорию
+            ProductCategory newCategory = new ProductCategory();
+            newCategory.setName(createProductRequestDTO.getCategory());
+            newCategory.setDescription(""); // Admin will update the description
+            newCategory.setStatus(pendingStatus);
+            newCategory = categoryRepository.saveAndFlush(newCategory); // Сохраняем и обновляем объект
 
-            product.setName(createProductRequestDTO.getName());
-            product.setDescription(createProductRequestDTO.getDescription());
-            product.setPeculiarities(createProductRequestDTO.getPeculiarities());
-            product.setPrice(createProductRequestDTO.getPrice());
-            product.setDiscount(createProductRequestDTO.getDiscount());
+            product.setCategory(newCategory);
+            product.setVisible(false);
+            product.setAvailable(false);
 
-            Optional<Category> categoryOpt = categoryRepository.findByName(createProductRequestDTO.getCategory());
+            category = newCategory; // Назначаем новую категорию переменной
+        }
 
+        // Handle time management and booking rules
+        if (Boolean.TRUE.equals(createProductRequestDTO.getNoTimeSelectionRequired())) {
+            product.setTimeManagement(false);
+            product.setServiceDurationMinMinutes(null);
+            product.setServiceDurationMaxMinutes(null);
+        } else if (Boolean.TRUE.equals(createProductRequestDTO.getManualTimeSelection())) {
+            product.setTimeManagement(true);
+            product.setServiceDurationMinMinutes(createProductRequestDTO.getServiceDurationMin());
+            product.setServiceDurationMaxMinutes(createProductRequestDTO.getServiceDurationMax());
+        } else {
+            product.setTimeManagement(false);
+            product.setServiceDurationMinMinutes(createProductRequestDTO.getServiceDurationMin());
+            product.setServiceDurationMaxMinutes(null);
+        }
 
-            if (categoryOpt.isPresent()) {
+        String bookingConf = createProductRequestDTO.getBookingConfirmation();
+        product.setBookingConfirmation("manual".equalsIgnoreCase(bookingConf));
+        product.setBookingDeclineDeadlineHours(createProductRequestDTO.getBookingDeclineDeadline());
 
-                //if category presented just add it to product
-                product.setCategory(categoryOpt.get());
-                product.setAvailable(Boolean.TRUE.equals(createProductRequestDTO.getIsAvailable()));
-                product.setVisible(Boolean.TRUE.equals(createProductRequestDTO.getIsVisible()));
-
-            } else {
-
-                //else create new category with PENDING status
-                Category newCategory = new Category();
-                newCategory.setName(createProductRequestDTO.getCategory());
-                newCategory.setDescription(""); // description adds admin when approve
-                newCategory.setStatus(pendingStatus);
-                categoryRepository.saveAndFlush(newCategory);
-
-                product.setCategory(newCategory);
-                product.setVisible(false);
-                product.setAvailable(false);
-
-                // TODO: NOTIFY admin and pup about that
+        // Assign connection between suitable event types and product categories
+        List<Long> suitableEventTypes = createProductRequestDTO.getSuitableEventTypes();
+        eventTypesRepository.findAllById(suitableEventTypes).forEach(eventType -> {
+            List<ProductCategory> connectedCategories = eventType.getRecommendedCategories();
+            if (!connectedCategories.contains(category)) {
+                connectedCategories.add(category);
             }
+            eventType.setRecommendedCategories(connectedCategories);
+            eventTypesRepository.saveAndFlush(eventType);
+        });
 
-            // Processing timeManagement/Duration/Booking rules
-            //    timeManagement = true => "Manual" flexible time management
-            //    timeManagement = false => "Fixed" time, fixed duration of event
-            // - if manualTimeSelection == true => timeManagement = true
-            // - if noTimeSelectionRequired == true => can be assumed as timeManagement = false, serviceDuration = 0/null
-            //      noTimeSelectionRequired is a flag for services/products like purchases.
+        product.setLikes(0L);
 
-            if (Boolean.TRUE.equals(createProductRequestDTO.getNoTimeSelectionRequired())) {
-                // Auto => timeManagement = false
-                product.setTimeManagement(false);
-                product.setServiceDurationMinMinutes(null);
-                product.setServiceDurationMaxMinutes(null);
-            } else if (Boolean.TRUE.equals(createProductRequestDTO.getManualTimeSelection())) {
-                // Manual => timeManagement = true
-                product.setTimeManagement(true);
-                product.setServiceDurationMinMinutes(createProductRequestDTO.getServiceDurationMin());
-                product.setServiceDurationMaxMinutes(createProductRequestDTO.getServiceDurationMax());
-            } else {
-                product.setTimeManagement(false);
-                product.setServiceDurationMinMinutes(createProductRequestDTO.getServiceDurationMin());
-                product.setServiceDurationMaxMinutes(null);
+        // Handle product photos
+        if (createProductRequestDTO.getPhotos() != null) {
+            List<MultipartFile> photos = createProductRequestDTO.getPhotos();
+            String photosPrefix = "products-photos";
+            List<String> photoUrls = photoService.uploadPhotos(photos, bucketName, photosPrefix);
+
+            for (String url : photoUrls) {
+                ProductPhoto productPhoto = new ProductPhoto();
+                productPhoto.setPhotoUrl(url);
+                productPhoto.setProduct(product);
+                product.getPhotos().add(productPhoto);
             }
+        }
 
-            String bookingConf = createProductRequestDTO.getBookingConfirmation();
-            product.setBookingConfirmation("manual".equalsIgnoreCase(bookingConf));
-            product.setBookingDeclineDeadlineHours(createProductRequestDTO.getBookingDeclineDeadline());
-
-            if (createProductRequestDTO.getSuitableEventTypes() != null
-            && !createProductRequestDTO.getSuitableEventTypes().isEmpty()) {
-                 for (Long eventTypeId : createProductRequestDTO.getSuitableEventTypes()) {
-                     EventType eventType = eventTypesRepository.findById(eventTypeId)
-                             .orElseThrow(() -> new EventNotFoundException("Event type not found: " + eventTypeId));
-                     EventTypeProductLink link = new EventTypeProductLink();
-                     link.setEventType(eventType);
-                     link.setProduct(product);
-
-                     product.getSuitableEventTypeLinks().add(link);
-                     eventType.getProductLinks().add(link);
-                 }
-            }
-
-            product.setLikes(0L);
-
-            if (createProductRequestDTO.getPhotos() != null) {
-                List<MultipartFile> photos = createProductRequestDTO.getPhotos();
-                String photosPrefix = "products-photos";
-                List<String> photoUrls = photoService.uploadPhotos(photos, bucketName, photosPrefix);
-
-                for (String url : photoUrls) {
-                    ProductPhoto productPhoto = new ProductPhoto();
-                    productPhoto.setPhotoUrl(url);
-                    productPhoto.setProduct(product);
-                    product.getPhotos().add(productPhoto);
-                }
-            }
-
-            return productRepository.save(product);
-       }
+        return productRepository.save(product);
+    }
 
 //       public void update (ProductDto productDto) {
 //           Product product = new Product();
