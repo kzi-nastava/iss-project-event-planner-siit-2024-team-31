@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequestMapping("/event-types")
 @RestController
@@ -53,14 +54,30 @@ public class EventTypeController {
             }
         }
 
-//        @PutMapping("/update/{id}")
-//        public ResponseEntity<CommonMessageDTO> updateEventTypeById(@PathVariable Long id, @RequestBody EventTypeFullDTO newEventTypeFullDTO) {
-//
-//        }
-//
-//        @PutMapping("/deactivate/{id}")
-//        public ResponseEntity<CommonMessageDTO> deactivateEventTypeById(@PathVariable Long id) {
-//
-//        }
+        @PutMapping("/update/{id}")
+        public ResponseEntity<CommonMessageDTO> updateEventTypeById(@PathVariable Long id, @RequestBody EventTypeFullDTO newEventTypeFullDTO) {
+            try {
+                CommonMessageDTO response = eventTypeService.updateEventTypeById(id, newEventTypeFullDTO);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+            catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
+        @PutMapping("/set-status/{id}")
+        public ResponseEntity<CommonMessageDTO> setEventTypeStatusById(@PathVariable Long id, @RequestBody Map<String, Boolean> statusMap) {
+            try {
+                Boolean status = statusMap.get("status");
+                if (status == null) {
+                    return new ResponseEntity<>(new CommonMessageDTO(null, "Status is missing"), HttpStatus.BAD_REQUEST);
+                }
+
+                CommonMessageDTO response = eventTypeService.setActivationStatusEventTypeById(id, status);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
 
 }

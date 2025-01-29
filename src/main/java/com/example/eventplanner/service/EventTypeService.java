@@ -91,6 +91,58 @@ public class EventTypeService {
         return new CommonMessageDTO("Event type successfully created", null);
     }
 
+    public CommonMessageDTO updateEventTypeById(Long id, EventTypeFullDTO newEventTypeFullDTO) throws EventTypeNotFoundException, ProductCategoryNotFoundException {
+
+        Optional<EventType> eventType = eventTypesRepository.findById(id);
+        if (eventType.isEmpty()) {
+            throw new EventTypeNotFoundException("Event Type with id=" + id + " not found.");
+        }
+
+        EventType eventTypeEntity = eventType.get();
+        eventTypeEntity.setName(newEventTypeFullDTO.getName());
+        eventTypeEntity.setDescription(newEventTypeFullDTO.getDescription());
+
+        //Here we get from client full list of categories, so we need to clear the old list
+        eventTypeEntity.getRecommendedCategories().clear();
+
+        newEventTypeFullDTO.getRecommendedProductCategories().forEach(productCategory -> {
+            Long categoryId = productCategory.getId();
+            ProductCategory category = productCategoryRepository.findById(categoryId).orElseThrow(() -> new ProductCategoryNotFoundException("Category with id=" + categoryId + " not found."));
+            eventTypeEntity.getRecommendedCategories().add(category);
+        });
+
+        eventTypesRepository.save(eventTypeEntity);
+        return new CommonMessageDTO("Event type successfully updated", null);
+    }
+
+    public CommonMessageDTO setActivationStatusEventTypeById(Long id, Boolean status) throws EventTypeNotFoundException {
+
+        Optional<EventType> eventType = eventTypesRepository.findById(id);
+
+        if (eventType.isEmpty()) {
+            throw new EventTypeNotFoundException("Event Type with id=" + id + " not found.");
+        }
+
+        EventType eventTypeEntity = eventType.get();
+
+        Status inactiveStatus = statusRepository.getStatusByName("INACTIVE");
+        Status activeStatus = statusRepository.getStatusByName("ACTIVE");
+
+        //TODO: check if event type has no <active> of <future> events
+        //add new exception if it has
+
+        if (status) {
+            eventTypeEntity.setStatus(activeStatus);
+            eventTypesRepository.save(eventTypeEntity);
+            return new CommonMessageDTO("Event type successfully activated", null);
+        }
+        else {
+            eventTypeEntity.setStatus(inactiveStatus);
+            eventTypesRepository.save(eventTypeEntity);
+            return new CommonMessageDTO("Event type successfully deactivated", null);
+        }
+    }
+
     //--------------
     //Helper methods
 
