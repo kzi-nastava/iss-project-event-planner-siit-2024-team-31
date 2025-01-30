@@ -71,7 +71,7 @@ public class User extends EntityBase implements UserDetails {
     private List<UserPhoto> photos = new ArrayList<>();
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() { return List.of(new SimpleGrantedAuthority(role.getName())); }
+    public Collection<? extends GrantedAuthority> getAuthorities() { return List.of(new SimpleGrantedAuthority("ROLE_" + role.getName())); }
 
     @Override
     public String getUsername() {

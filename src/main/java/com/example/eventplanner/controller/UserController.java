@@ -21,11 +21,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
-@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_OD', 'ROLE_PUP', 'ROLE_ADMIN')")
+@PreAuthorize("hasAnyRole('USER', 'OD', 'PUP', 'ADMIN')")
 public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
-
 
     @GetMapping()
     public ResponseEntity<UserMyProfileResponseDTO> getUserProfileInfo(HttpServletRequest request) {
@@ -47,33 +46,6 @@ public class UserController {
         CommonMessageDTO commonMessageDTO = userService.updateUserData(userEmail, userUpdateProfileRequestDTO);
         return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);
     }
-
-
-//    @PutMapping("/update")
-//    public ResponseEntity<?> updateUser(@RequestBody UserDto userDto) {
-//        //   appUserService.update(userDto);
-//        return ResponseEntity.ok().build();
-//    }
-
-//    @DeleteMapping("/delete")
-//    public ResponseEntity<?> deleteUser(@RequestParam(value = "id") Long id) {
-//         // userService.delete(id);
-//       // return ResponseEntity.status(204).body(String.format("User with id %s have not been found ", id));
-//        return ResponseEntity.ok().body(String.format("User with id %s has been deleted", id));
-//
-//    }
-
-//    @PatchMapping("/activate")
-//    public ResponseEntity<?> activateUser(@RequestParam(value = "id") Long id) {
-//        userService.activateUser(id);
-//        return ResponseEntity.ok().body(String.format("User with id %s has been activated", id));
-//    }
-
-//    @PatchMapping("/deactivate")
-//    public ResponseEntity<?> deactivateUser(@RequestParam(value = "id") Long id) {
-//        userService.deactivateUser(id);
-//        return ResponseEntity.ok().body(String.format("User with id %s has been deactivated", id));
-//    }
 
     //Helper methods
     private String extractUserEmail(HttpServletRequest request) {

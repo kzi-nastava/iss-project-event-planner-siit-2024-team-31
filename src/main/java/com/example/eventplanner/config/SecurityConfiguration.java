@@ -54,10 +54,7 @@ public class SecurityConfiguration {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ROLE_ADMIN")
-//                        .requestMatchers("/user/**").hasRole("ROLE_USER")
-//                        .requestMatchers("/od/**").hasRole("ROLE_OD")
-//                        .requestMatchers("/pup/**").hasRole("ROLE_PUP")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm

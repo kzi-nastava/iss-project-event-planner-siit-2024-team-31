@@ -23,10 +23,10 @@ public class DataInitializer {
         return args -> {
             //default Roles
             if (roleRepository.count() == 0) {
-                roleRepository.saveAndFlush(new Role("ROLE_USER"));
-                roleRepository.saveAndFlush(new Role("ROLE_PUP"));
-                roleRepository.saveAndFlush(new Role("ROLE_OD"));
-                roleRepository.saveAndFlush(new Role("ROLE_ADMIN"));
+                roleRepository.saveAndFlush(new Role("USER"));
+                roleRepository.saveAndFlush(new Role("PUP"));
+                roleRepository.saveAndFlush(new Role("OD"));
+                roleRepository.saveAndFlush(new Role("ADMIN"));
                 System.out.println("Default roles have been initialized.");
             }
             if (statusRepository.count() == 0) {
