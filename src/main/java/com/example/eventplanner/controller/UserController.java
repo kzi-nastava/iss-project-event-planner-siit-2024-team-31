@@ -13,13 +13,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_OD', 'ROLE_PUP', 'ROLE_ADMIN')")
 public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
@@ -27,78 +29,23 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<UserMyProfileResponseDTO> getUserProfileInfo(HttpServletRequest request) {
-        try {
-
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                throw new IllegalArgumentException("Invalid Authorization header");
-            }
-
-            String token = authorizationHeader.substring(7);
-            String userEmail = jwtService.extractUsername(token);
-
-            UserMyProfileResponseDTO responseDTO = userService.getUserProfileByEmail(userEmail);
-            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            UserMyProfileResponseDTO responseDTO = UserMyProfileResponseDTO.builder().build();
-            responseDTO.setError(e.getMessage());
-            responseDTO.setMessage("Invalid Authorization header");
-            return new ResponseEntity<>(responseDTO, HttpStatus.UNAUTHORIZED);
-        } catch (Exception e) {
-            UserMyProfileResponseDTO responseDTO = UserMyProfileResponseDTO.builder().build();
-            responseDTO.setError(e.getMessage());
-            responseDTO.setMessage("Error while retrieving user profile");
-            return new ResponseEntity<>(responseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        String userEmail = extractUserEmail(request);
+        UserMyProfileResponseDTO responseDTO = userService.getUserProfileByEmail(userEmail);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     @PostMapping("/update-password")
     public ResponseEntity<CommonMessageDTO> updatePassword(@RequestBody UserPasswordUpdateDTO userPasswordUpdateDTO, HttpServletRequest request) {
-
-        try {
-
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                throw new IllegalArgumentException("Invalid Authorization header");
-            }
-
-            String token = authorizationHeader.substring(7);
-            String userEmail = jwtService.extractUsername(token);
-            CommonMessageDTO commonMessageDTO = userService.updatePassword(userEmail, userPasswordUpdateDTO);
-            return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);
-        }
-        catch (IllegalArgumentException | IncorrectPasswordException e) {
-            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, e.getMessage());
-            return new ResponseEntity<>(commonMessageDTO, HttpStatus.UNAUTHORIZED);
-        }
-        catch (Exception e) {
-            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, "Error while updating password " + e.getMessage());
-            return new ResponseEntity<>(commonMessageDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
+        String userEmail = extractUserEmail(request);
+        CommonMessageDTO commonMessageDTO = userService.updatePassword(userEmail, userPasswordUpdateDTO);
+        return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);
     }
 
     @PostMapping("/update-data")
     ResponseEntity<CommonMessageDTO> updateUserData(@ModelAttribute UserUpdateProfileRequestDTO userUpdateProfileRequestDTO, HttpServletRequest request) {
-        try {
-            String authorizationHeader = request.getHeader("Authorization");
-            if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-                throw new IllegalArgumentException("Invalid Authorization header");
-            }
-
-            String token = authorizationHeader.substring(7);
-            String userEmail = jwtService.extractUsername(token);
-            CommonMessageDTO commonMessageDTO = userService.updateUserData(userEmail, userUpdateProfileRequestDTO);
-            return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);
-        }
-        catch (IllegalArgumentException | IncorrectPasswordException e) {
-            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, e.getMessage());
-            return new ResponseEntity<>(commonMessageDTO, HttpStatus.UNAUTHORIZED);
-        }
-        catch (Exception e) {
-            CommonMessageDTO commonMessageDTO = new CommonMessageDTO(null, "Error while updating profile data " + e.getMessage());
-            return new ResponseEntity<>(commonMessageDTO, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        String userEmail = extractUserEmail(request);
+        CommonMessageDTO commonMessageDTO = userService.updateUserData(userEmail, userUpdateProfileRequestDTO);
+        return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);
     }
 
 
@@ -127,6 +74,13 @@ public class UserController {
 //        userService.deactivateUser(id);
 //        return ResponseEntity.ok().body(String.format("User with id %s has been deactivated", id));
 //    }
+
+    //Helper methods
+    private String extractUserEmail(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+        String token = authorizationHeader.substring(7);
+        return jwtService.extractUsername(token);
+    }
 
 }
 
