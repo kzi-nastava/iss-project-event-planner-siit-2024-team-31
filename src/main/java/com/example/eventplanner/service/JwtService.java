@@ -1,5 +1,6 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.exception.exceptions.auth.InvalidAuthorizationHeaderException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -114,5 +116,16 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public String extractUserEmailFromAuthorizationRequest(HttpServletRequest request) {
+        String authorizationHeader = request.getHeader("Authorization");
+
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            throw new InvalidAuthorizationHeaderException("Invalid Authorization header");
+        }
+
+        String token = authorizationHeader.substring(7);
+        return extractUsername(token);
     }
 }

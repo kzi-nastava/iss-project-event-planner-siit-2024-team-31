@@ -1,6 +1,6 @@
 package com.example.eventplanner.config;
 
-import com.example.eventplanner.exception.InvalidTokenException;
+import com.example.eventplanner.exception.exceptions.auth.InvalidTokenException;
 import com.example.eventplanner.service.JwtService;
 
 import jakarta.servlet.FilterChain;

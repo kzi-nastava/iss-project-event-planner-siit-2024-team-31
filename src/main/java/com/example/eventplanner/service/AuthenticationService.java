@@ -3,17 +3,13 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
 import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
-import com.example.eventplanner.exception.EmailAlreadyUsedException;
-import com.example.eventplanner.exception.UserNotActivatedException;
-import com.example.eventplanner.exception.UserNotFoundException;
-import com.example.eventplanner.model.Role;
+import com.example.eventplanner.exception.exceptions.auth.EmailAlreadyUsedException;
+import com.example.eventplanner.exception.exceptions.auth.UserNotActivatedException;
+import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.UserPhoto;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.RoleRepository;
-import com.example.eventplanner.repository.UserPhotosRepository;
 import com.example.eventplanner.repository.UserRepository;
-import com.example.eventplanner.utils.types.SMTPEmailDetails;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

@@ -2,8 +2,6 @@ package com.example.eventplanner.controller;
 
 import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.userDto.*;
-import com.example.eventplanner.exception.EmailAlreadyUsedException;
-import com.example.eventplanner.exception.UserNotFoundException;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.service.AuthenticationService;
 import com.example.eventplanner.service.JwtService;

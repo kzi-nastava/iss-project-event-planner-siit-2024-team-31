@@ -6,17 +6,15 @@ import com.example.eventplanner.dto.userDto.UserDto;
 import com.example.eventplanner.dto.userDto.UserMyProfileResponseDTO;
 import com.example.eventplanner.dto.userDto.UserPasswordUpdateDTO;
 import com.example.eventplanner.dto.userDto.UserUpdateProfileRequestDTO;
-import com.example.eventplanner.exception.ConfirmationExpirationException;
-import com.example.eventplanner.exception.IncorrectPasswordException;
-import com.example.eventplanner.exception.UserNotFoundException;
+import com.example.eventplanner.exception.exceptions.auth.ConfirmationExpirationException;
+import com.example.eventplanner.exception.exceptions.auth.IncorrectPasswordException;
+import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.Role;
 import com.example.eventplanner.model.UserPhoto;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.RoleRepository;
 import com.example.eventplanner.repository.UserPhotosRepository;
 import com.example.eventplanner.repository.UserRepository;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -26,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 

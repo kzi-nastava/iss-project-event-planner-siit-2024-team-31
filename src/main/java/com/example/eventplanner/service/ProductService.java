@@ -2,8 +2,7 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
-import com.example.eventplanner.dto.product.ProductDto;
-import com.example.eventplanner.exception.UserNotFoundException;
+import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.ProductPhoto;
 import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.product.ProductCategory;
@@ -11,7 +10,6 @@ import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,7 +43,7 @@ public class ProductService {
 
     public Product create(CreateProductRequestDTO createProductRequestDTO, String pupEmail) throws UserNotFoundException {
         final Status pendingStatus = statusRepository.findByName("PENDING");
-        var pup = userRepository.findByEmail(pupEmail).orElseThrow(() -> new UserNotFoundException(pupEmail));
+        var pup = userRepository.findByEmail(pupEmail).orElseThrow(() -> new UserNotFoundException("User with " + pupEmail + " not found"));
 
         Product product = new Product();
         product.setPup(pup);
@@ -64,18 +62,17 @@ public class ProductService {
             product.setAvailable(Boolean.TRUE.equals(createProductRequestDTO.getIsAvailable()));
             product.setVisible(Boolean.TRUE.equals(createProductRequestDTO.getIsVisible()));
         } else {
-            // Создаём новую категорию
             ProductCategory newCategory = new ProductCategory();
             newCategory.setName(createProductRequestDTO.getCategory());
             newCategory.setDescription(""); // Admin will update the description
             newCategory.setStatus(pendingStatus);
-            newCategory = categoryRepository.saveAndFlush(newCategory); // Сохраняем и обновляем объект
+            newCategory = categoryRepository.saveAndFlush(newCategory);
 
             product.setCategory(newCategory);
             product.setVisible(false);
             product.setAvailable(false);
 
-            category = newCategory; // Назначаем новую категорию переменной
+            category = newCategory;
         }
 
         // Handle time management and booking rules
@@ -143,9 +140,5 @@ public class ProductService {
            });
            return categories;
         }
-
-       public List<ProductDto> findAll(PageRequest of) { return productRepository.findAll(of).stream().map(ProductDto::fromProduct).toList();}
-
-       public List<ProductDto> findTopFive() { return productRepository.findAll().stream().map(ProductDto::fromProduct).toList();}
 
 }
