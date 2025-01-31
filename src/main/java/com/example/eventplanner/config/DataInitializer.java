@@ -23,10 +23,10 @@ public class DataInitializer {
         return args -> {
             //default Roles
             if (roleRepository.count() == 0) {
-                roleRepository.saveAndFlush(new Role("ROLE_USER"));
-                roleRepository.saveAndFlush(new Role("ROLE_PUP"));
-                roleRepository.saveAndFlush(new Role("ROLE_OD"));
-                roleRepository.saveAndFlush(new Role("ROLE_ADMIN"));
+                roleRepository.saveAndFlush(new Role("USER"));
+                roleRepository.saveAndFlush(new Role("PUP"));
+                roleRepository.saveAndFlush(new Role("OD"));
+                roleRepository.saveAndFlush(new Role("ADMIN"));
                 System.out.println("Default roles have been initialized.");
             }
             if (statusRepository.count() == 0) {
@@ -67,49 +67,50 @@ public class DataInitializer {
     @Order(3)
     CommandLineRunner initDefaultEventTypes(EventTypesRepository eventTypesRepository, StatusRepository statusRepository) {
         return args -> {
-            //default EventTypes
             if (eventTypesRepository.count() == 0) {
                 Status activeStatus = statusRepository.getStatusByName("ACTIVE");
                 Status inactiveStatus = statusRepository.getStatusByName("INACTIVE");
 
-                eventTypesRepository.saveAndFlush(new EventType(
-                        "All",
-                        "",
-                        activeStatus,
-                        null
+                eventTypesRepository.saveAllAndFlush(List.of(
+                        new EventType(
+                                "All",
+                                "Apply this event type to events that do not fit into any specific category or combine elements from multiple categories. A general-purpose option for diverse or hybrid events.",
+                                activeStatus,
+                                null
+                        ),
+                        new EventType(
+                                "Conference",
+                                "Formal gatherings focused on knowledge-sharing, expert discussions, and presentations within a specific industry or field. Ideal for professional networking and collaborative learning.",
+                                activeStatus,
+                                null
+                        ),
+                        new EventType(
+                                "Exhibition",
+                                "Events showcasing products, services, art, or innovations to a targeted audience. Designed for demonstrations, promotions, and direct engagement with attendees.",
+                                activeStatus,
+                                null
+                        ),
+                        new EventType(
+                                "Festival",
+                                "Large-scale celebrations featuring cultural, artistic, or entertainment activities. Includes live performances, food, games, and community-driven experiences.",
+                                activeStatus,
+                                null
+                        ),
+                        new EventType(
+                                "Networking",
+                                "Events centered around building professional or social connections. Facilitates interactions between participants through structured activities or informal mingling.",
+                                activeStatus,
+                                null
+                        ),
+                        new EventType(
+                                "Workshop",
+                                "Interactive sessions aimed at skill development, hands-on training, or collaborative problem-solving. Led by experts to encourage active participation and learning.",
+                                inactiveStatus,
+                                null
+                        )
+                ));
 
-                ));
-                eventTypesRepository.saveAndFlush(new EventType(
-                        "Conference",
-                        "",
-                        activeStatus,
-                        null
-                ));
-                eventTypesRepository.saveAndFlush(new EventType(
-                        "Exhibition",
-                        "",
-                        activeStatus,
-                        null
-                ));
-                eventTypesRepository.saveAndFlush(new EventType(
-                        "Festival",
-                        "",
-                        activeStatus,
-                        null
-                ));
-                eventTypesRepository.saveAndFlush(new EventType(
-                        "Networking",
-                        "",
-                        activeStatus,
-                        null
-                ));
-                eventTypesRepository.saveAndFlush(new EventType(
-                        "Workshop",
-                        "",
-                        inactiveStatus,
-                        null
-                ));
-                System.out.print("Default events types have been initialized.");
+                System.out.println("Default event types have been initialized successfully.");
             }
         };
     }
@@ -123,7 +124,7 @@ public class DataInitializer {
         return args -> {
             if (userRepository.count() == 0) {
 
-                Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+                Role adminRole = roleRepository.findByName("ADMIN");
                 User admin = new User();
                 admin.setEmail("admin");
                 admin.setPassword(passwordEncoder.encode("1"));
@@ -131,7 +132,7 @@ public class DataInitializer {
                 admin.setRole(adminRole);
                 admin.setActive(true);
 
-                Role userRole = roleRepository.findByName("ROLE_USER");
+                Role userRole = roleRepository.findByName("USER");
                 User user = new User();
                 user.setEmail("user");
                 user.setPassword(passwordEncoder.encode("1"));
@@ -139,7 +140,7 @@ public class DataInitializer {
                 user.setRole(userRole);
                 user.setActive(true);
 
-                Role pupRole = roleRepository.findByName("ROLE_PUP");
+                Role pupRole = roleRepository.findByName("PUP");
                 User pup = new User();
                 pup.setEmail("pup");
                 pup.setPassword(passwordEncoder.encode("1"));
@@ -147,7 +148,7 @@ public class DataInitializer {
                 pup.setRole(pupRole);
                 pup.setActive(true);
 
-                Role odRole = roleRepository.findByName("ROLE_OD");
+                Role odRole = roleRepository.findByName("OD");
                 User od = new User();
                 od.setEmail("od");
                 od.setPassword(passwordEncoder.encode("1"));

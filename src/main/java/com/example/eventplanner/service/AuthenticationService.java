@@ -3,15 +3,13 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
 import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
-import com.example.eventplanner.exception.UserNotActivatedException;
-import com.example.eventplanner.model.Role;
+import com.example.eventplanner.exception.exceptions.auth.EmailAlreadyUsedException;
+import com.example.eventplanner.exception.exceptions.auth.UserNotActivatedException;
+import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.UserPhoto;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.RoleRepository;
-import com.example.eventplanner.repository.UserPhotosRepository;
 import com.example.eventplanner.repository.UserRepository;
-import com.example.eventplanner.utils.types.SMTPEmailDetails;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +42,10 @@ public class AuthenticationService {
     private String userBucketName;
 
     public void signup(UserRegisterRequestDTO input) {
-        final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
-        final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
-        final Role ROLE_USER = roleRepository.findByName("ROLE_USER");
+
+        if (userRepository.findByEmail().isPresent()) {
+            throw new EmailAlreadyUsedException("Email already used. Please choose another email.");
+        }
 
         User user = new User();
 
@@ -60,13 +58,8 @@ public class AuthenticationService {
         user.setCountry(input.getCountry());
         user.setAddress(input.getAddress());
         user.setZipCode(input.getZipCode());
-
-        if (Objects.equals(input.getRole(), ROLE_USER.getName()) || Objects.equals(input.getRole(), ROLE_OD.getName())) {
-            user.setLastName(input.getLastName());
-        }
-        if (Objects.equals(input.getRole(), ROLE_PUP.getName())) {
-            user.setDescription(input.getDescription());
-        }
+        user.setLastName(input.getLastName());
+        user.setDescription(input.getDescription());
 
         if (input.getPhotos() != null) {
 
@@ -91,11 +84,13 @@ public class AuthenticationService {
     }
 
     public User login(UserLoginRequestDTO input) {
-        var user = userRepository.findByEmail(input.getEmail())
-                .orElseThrow();
+        User user = userRepository.findByEmail(input.getEmail()).orElseThrow(
+                () -> new UserNotFoundException("User with email: " + input.getEmail() + " not found"));
+
         if (!user.isActive()) {
             throw new UserNotActivatedException("User is not activated. Please activate the user first.");
         }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         input.getEmail(),
@@ -105,7 +100,4 @@ public class AuthenticationService {
         return user;
     }
 
-    public boolean isEmailUsed(String email) {
-        return userRepository.findByEmail(email).isPresent();
-    }
 }
