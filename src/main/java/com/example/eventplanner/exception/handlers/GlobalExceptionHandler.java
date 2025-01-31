@@ -6,10 +6,12 @@ import com.example.eventplanner.exception.exceptions.general.ForbiddenException;
 import com.example.eventplanner.exception.exceptions.general.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
 
-@ControllerAdvice
+@ControllerAdvice(annotations = {RestController.class, Controller.class})
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(ForbiddenException.class)

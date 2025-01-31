@@ -11,45 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 public class CompanyController {
 
-    private final CompanyService companyService;
+    //Company is user with role PUP
 
-    public CompanyController(CompanyService companyService) {
-        this.companyService = companyService;
-    }
-
-    @PutMapping("/registration")
-    public ResponseEntity<?> registrationCompany(@RequestBody CompanyDto companyDto) {
-        try {
-            Company company = companyService.registration(companyDto);
-            return ResponseEntity.ok().body(company); // возвращать DTO а не entity
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    //метод update
-    @PatchMapping("/update")
-    public ResponseEntity<?> updateCompany(@RequestBody CompanyDto companyDto) {
-        companyService.update(companyDto);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> deleteCompany(@RequestParam(value = "id") Long id) {
-        companyService.delete(id);
-        return ResponseEntity.status(204).body(String.format("Company with id %s have not been found", id));
-    }
-
-    // метод activate
-    @PatchMapping("/active")
-    public ResponseEntity<?> activateCompany(@RequestParam(value = "id") Long id) {
-        companyService.activateCompany(id);
-        return ResponseEntity.ok().body(String.format("Company with id %s has been activated", id));
-    }
-
-    @PatchMapping("/deactivate")
-    public ResponseEntity<?> deactivateCompany(@RequestParam(value = "id") Long id) {
-        companyService.deactivateCompany(id);
-        return ResponseEntity.ok().body(String.format("Company with id %s has been deactivated", id));
-    }
 }

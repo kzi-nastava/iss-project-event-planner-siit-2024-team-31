@@ -13,17 +13,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/event")
-//serverip/event/top5
+@RequestMapping("/api/event")
 public class EventController {
     private final EventService eventService;
 
     public EventController(EventService eventService) {
         this.eventService = eventService;
     }
-
-    // поиск с фильтром, активация event
-
 
     // этот метод возвращает конкретное событие
 //    @GetMapping()
