@@ -24,6 +24,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
@@ -42,29 +43,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         try {
+
             final String jwt = authHeader.substring(7);
-            final String userEmail = jwtService.extractUsername(jwt);
 
-            if (userEmail != null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-
-                if (!jwtService.isTokenValid(jwt, userDetails)) {
-                    throw new InvalidTokenException("Invalid token");
-                }
-
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            System.out.println("Checking if token is expired");
+            if (jwtService.isTokenExpired(jwt)) {
+                System.out.println("Token is expired, throwing exception");
+                throw new InvalidTokenException("Invalid token");
             }
 
+            System.out.println("Token is not expired");
+            final String userEmail = jwtService.extractUsername(jwt);
+            System.out.println("User email: " + userEmail);
+
+            if (userEmail == null) {
+                throw new RuntimeException("Jwt auth error");
+            }
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+            if (!jwtService.isTokenValid(jwt, userDetails)) {
+                throw new InvalidTokenException("Invalid token");
+            }
+
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities()
+            );
+
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
+
             filterChain.doFilter(request, response);
-        } catch (Exception exception) {
-            handlerExceptionResolver.resolveException(request, response, null, exception);
+        } catch (Exception e) {
+            handlerExceptionResolver.resolveException(request, response, null, e);
         }
     }
 }

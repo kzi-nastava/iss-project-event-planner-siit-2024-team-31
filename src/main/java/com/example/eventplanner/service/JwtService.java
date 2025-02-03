@@ -2,6 +2,7 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.exception.exceptions.auth.InvalidAuthorizationHeaderException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -65,11 +66,19 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return username.equals(userDetails.getUsername());
     }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
+    public boolean isTokenExpired(String token) {
+        try {
+            final Date expiration = extractExpiration(token);
+            return expiration.before(new Date());
+        } catch (ExpiredJwtException ex) {
+            return true;
+        } catch (Exception ex) {
+            System.out.println(("Error checking token expiration: " + ex.getMessage()));
+            return true; // Токен считается невалидным при ошибках парсинга
+        }
     }
 
     private Date extractExpiration(String token) {
