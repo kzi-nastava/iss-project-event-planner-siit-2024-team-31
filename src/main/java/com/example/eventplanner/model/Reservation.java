@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "reservation_list")
@@ -32,13 +32,10 @@ public class Reservation extends EntityBase {
     @Column(name = "count")
     private int count = 1; // Default value is 1
 
-    @Column(name = "date")
-    private Date date;
-
     @Column(name = "start_time")
-    private Date startTime;
+    private LocalDateTime startTime;
 
     @Column(name = "end_time")
-    private Date endTime;
+    private LocalDateTime endTime;
 
 }

@@ -17,10 +17,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EventLocation extends EntityBase {
 
-    @OneToOne
-    @JoinColumn(name = "event_id")
-    private Event event;
-
     //TODO: Add location fields (e.g., address, city, state, zip code, country)
 
 }
