@@ -25,23 +25,4 @@ public class EventDto {
     private boolean isActive;
     private Long likes;
 
-    public static EventDto fromEvent(Event event) {
-        EventDto dto = new EventDto();
-        dto.eventType = event.getEventType();
-        dto.eventName = event.getEventName();
-        dto.description = event.getDescription();
-        dto.maxNumberOfGuests = event.getMaxNumberOfGuests();
-        dto.isPrivate = event.isPrivate();
-        dto.whoCanComeToEvent = event.getWhoCanComeToEvent();
-        dto.address = event.getAddress();
-        dto.dateOfEvent = event.getDateOfEvent();
-        dto.phoneNumber = event.getPhoneNumber();
-        dto.budget = event.getBudget();
-        dto.fullDescription = event.getFullDescription();
-        dto.isActive = event.isActive();
-        dto.likes = event.getLikes();
-        return dto;
-    }
-
-
 }

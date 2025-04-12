@@ -15,15 +15,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/product-categories")
-@RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class ProductCategoryController {
 
     private final ProductCategoryService productCategoryService;
 
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('OD', 'PUP', 'ADMIN')")
-    private ResponseEntity<Page<ProductCategoryDTO>> searchProductCategories(@RequestParam String keyword, Pageable pageable) {
+    public ResponseEntity<Page<ProductCategoryDTO>> searchProductCategories(@RequestParam String keyword, Pageable pageable) {
         Page<ProductCategoryDTO> productCategories = productCategoryService.searchProductCategories(keyword, pageable);
         return new ResponseEntity<>(productCategories, HttpStatus.OK);
     }

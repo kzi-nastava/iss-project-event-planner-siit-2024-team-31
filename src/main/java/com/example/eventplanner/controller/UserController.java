@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping("/update-data")
-    ResponseEntity<CommonMessageDTO> updateUserData(@ModelAttribute UserUpdateProfileRequestDTO userUpdateProfileRequestDTO, HttpServletRequest request) {
+    public ResponseEntity<CommonMessageDTO> updateUserData(@ModelAttribute UserUpdateProfileRequestDTO userUpdateProfileRequestDTO, HttpServletRequest request) {
         String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
         CommonMessageDTO commonMessageDTO = userService.updateUserData(userEmail, userUpdateProfileRequestDTO);
         return new ResponseEntity<>(commonMessageDTO, HttpStatus.OK);

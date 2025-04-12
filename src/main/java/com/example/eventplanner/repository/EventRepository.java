@@ -11,6 +11,5 @@ import java.util.List;
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
-    @Query("SELECT e FROM Event as e ORDER BY e.likes limit 5")
-    List<Event> findTop5();
+
 }
