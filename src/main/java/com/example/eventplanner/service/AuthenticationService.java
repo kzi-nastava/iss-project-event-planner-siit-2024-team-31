@@ -1,8 +1,11 @@
 package com.example.eventplanner.service;
 
 
+import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
+import com.example.eventplanner.dto.userDto.UserRecoveryCodeVerificationRequestDTO;
 import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
+import com.example.eventplanner.dto.userDto.UserResetPasswordRequestDTO;
 import com.example.eventplanner.exception.exceptions.auth.EmailAlreadyUsedException;
 import com.example.eventplanner.exception.exceptions.auth.UserNotActivatedException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
@@ -98,6 +101,18 @@ public class AuthenticationService {
                 )
         );
         return user;
+    }
+
+    public CommonMessageDTO sendRecoveryCode(String email) {
+        return new CommonMessageDTO("Recovery code sent to your email", null);
+    }
+
+    public CommonMessageDTO verifyRecoveryCode(UserRecoveryCodeVerificationRequestDTO request) {
+        return new CommonMessageDTO("Recovery code verified successfully", null);
+    }
+
+    public CommonMessageDTO resetPassword(UserResetPasswordRequestDTO request) {
+        return new CommonMessageDTO("Password reset successfully", null);
     }
 
 }

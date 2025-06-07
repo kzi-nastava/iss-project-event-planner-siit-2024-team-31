@@ -48,4 +48,22 @@ public class AuthenticationController {
         return new ResponseEntity<>(userLoginResponseDTO, HttpStatus.OK);
     }
 
+    @PostMapping("/send-recovery-code")
+    public ResponseEntity<CommonMessageDTO> sendRecoveryCode(@RequestBody String email) {
+        CommonMessageDTO response = authenticationService.sendRecoveryCode(email);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/verify-recovery-code")
+    public ResponseEntity<CommonMessageDTO> verifyRecoveryCode(@RequestBody UserRecoveryCodeVerificationRequestDTO userRecoveryCodeVerificationRequestDTO) {
+        CommonMessageDTO response = authenticationService.verifyRecoveryCode(userRecoveryCodeVerificationRequestDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<CommonMessageDTO> resetPassword(@RequestBody UserResetPasswordRequestDTO userResetPasswordRequestDTO) {
+        CommonMessageDTO response = authenticationService.resetPassword(userResetPasswordRequestDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }
