@@ -1,8 +1,6 @@
 package com.example.eventplanner.service;
 
-import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.product.ProductCategoryDTO;
-import com.example.eventplanner.model.event.EventType;
 import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.repository.ProductCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,6 @@ import org.springframework.stereotype.Service;
 public class ProductCategoryService {
 
     private final ProductCategoryRepository productCategoryRepository;
-
 
     public Page<ProductCategoryDTO> searchProductCategories(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isEmpty()) {

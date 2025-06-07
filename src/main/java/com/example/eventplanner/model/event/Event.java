@@ -2,11 +2,15 @@ package com.example.eventplanner.model.event;
 
 
 import com.example.eventplanner.model.EntityBase;
+import com.example.eventplanner.model.EventLocation;
+import com.example.eventplanner.model.event.agenda.AgendaItem;
+import com.example.eventplanner.model.event.budget.BudgetItem;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,49 +22,45 @@ import java.util.List;
 @DiscriminatorValue("events")
 public class Event extends EntityBase {
 
-    @ManyToOne
-    @JoinColumn(name = "event_type_id", nullable = false)
-    private EventType eventType;
-
-    @Column(name = "event_name")
-    private String eventName;
+    @Column(name = "name")
+    private String name;
 
     @Column(name = "description")
     private String description;
 
-    @Column(name = "maximux_number_of_guests")
-    private Integer maxNumberOfGuests;
+    @Column(name = "max_num_guests")
+    private Integer maxNumGuests;
+
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
+
+    @Column(name = "end_time")
+    private LocalDateTime endTime;
 
     @Column(name = "is_private")
-    private boolean isPrivate = false;
+    private boolean isPrivate;
 
-//    Если мероприятие закрытого типа у пользователя
-//    должна быть возможность отправлять приглашения определенной группе людей.
-//    Определенная группа людей может увидеть и добавить это событие
-//    выбираться может из какой-то таблицы
-    @Column(name = "who_can_come_to_event")
-    private String whoCanComeToEvent;
+    @ManyToOne
+    @JoinColumn(name = "event_type_id", nullable = false)
+    private EventType eventType;
 
-    @Column(name = "address")
-    private String address;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
+    private EventLocation location;
 
-    //Если событие является бессрочным, то Событие будет видно всем пользователям приложения.
-    @Column(name = "date_of_event") //can be indefinitely
-    private Date dateOfEvent;
+    @OneToMany(
+            mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<AgendaItem> agendaItems = new ArrayList<>();
 
-    @Column(name = "phone_number")
-    private String phoneNumber;
+    @OneToMany(
+            mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<BudgetItem> budgetItems = new ArrayList<>();
 
-    @Column(name = "budget")
-    private int budget;
-
-    @Column(name = "full_description")
-    private String fullDescription;
-
-    @Column(name = "is_active")
-    private boolean isActive = false;
-
-    @Column(name = "likes")
-    private Long likes;
 
 }
