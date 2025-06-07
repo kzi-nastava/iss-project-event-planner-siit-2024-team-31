@@ -139,10 +139,62 @@ public class AuthenticationService {
     }
 
     public CommonMessageDTO verifyRecoveryCode(UserRecoveryCodeVerificationRequestDTO request) {
+
+        String email = request.getEmail();
+        String code = request.getCode();
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException("User with email: " + email + " not found"));
+
+        if (!user.isActive()) {
+            throw new UserNotActivatedException("User is not activated. Please activate the user first.");
+        }
+
+        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(code)
+                .orElseThrow(() -> new UserNotFoundException("Password reset token not found for user with email: " + email));
+
+        if (!token.getUserId().equals(user.getId())) {
+            throw new UserNotFoundException("Recovery code does not match the user");
+        }
+
+        if (token.isUsed() || token.getExpiryAt().isBefore(Instant.now())) {
+            throw new UserNotFoundException("Recovery code is invalid or expired");
+        }
+
+        // Mark the token as used
+        token.setUsed(true);
+        passwordResetTokenRepo.save(token);
+
         return new CommonMessageDTO("Recovery code verified successfully", null);
     }
 
     public CommonMessageDTO resetPassword(UserResetPasswordRequestDTO request) {
+
+        String email = request.getEmail();
+        String newPassword = request.getNewPassword();
+        String code = request.getCode();
+
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException("User with email: " + email + " not found"));
+
+        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(code)
+                .orElseThrow(() -> new UserNotFoundException("Password reset token not found for user with email: " + email));
+
+        if (!token.getUserId().equals(user.getId())) {
+            throw new UserNotFoundException("Recovery code does not match the user");
+        }
+
+        if (!token.isUsed()) {
+            throw new IllegalArgumentException("Recovery code has not been verified yet");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
         return new CommonMessageDTO("Password reset successfully", null);
     }
 
