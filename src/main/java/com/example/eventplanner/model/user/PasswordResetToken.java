@@ -12,7 +12,7 @@ import lombok.Setter;
 
 import java.time.Instant;
 
-@Table(name='password_reset_tokens')
+@Table(name="password_reset_tokens")
 @Entity
 @Getter
 @Setter
