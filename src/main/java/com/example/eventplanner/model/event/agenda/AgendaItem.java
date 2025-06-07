@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "agenda_items")
@@ -16,7 +15,6 @@ import java.util.Date;
 @Getter
 @Setter
 public class AgendaItem extends EntityBase {
-
     @Column(name = "start_time")
     private LocalDateTime startDate;
 
@@ -32,4 +30,7 @@ public class AgendaItem extends EntityBase {
     @Column(name = "location")
     private String location;
 
+    @ManyToOne
+    @JoinColumn(name = "event_id")
+    private Event event;
 }

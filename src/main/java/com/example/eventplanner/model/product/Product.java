@@ -87,4 +87,13 @@ public class Product extends EntityBase {
 
     @Column(name = "likes")
     private Long likes;
+
+    @ManyToMany
+    @JoinTable(
+            name = "product_reservation", // имя таблицы-связки
+            joinColumns = @JoinColumn(name = "product_id"), // внешний ключ для Product
+            inverseJoinColumns = @JoinColumn(name = "reservation_id") // внешний ключ для Reservation
+    )
+    private List<Reservation> reservations = new ArrayList<>();
+
 }

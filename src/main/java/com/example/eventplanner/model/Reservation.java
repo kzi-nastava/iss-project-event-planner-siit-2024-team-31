@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "reservation_list")
@@ -37,5 +39,8 @@ public class Reservation extends EntityBase {
 
     @Column(name = "end_time")
     private LocalDateTime endTime;
+
+    @ManyToMany(mappedBy = "reservations")
+    private List<Product> products = new ArrayList<>();
 
 }
