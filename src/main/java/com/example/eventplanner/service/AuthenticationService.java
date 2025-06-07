@@ -1,16 +1,23 @@
 package com.example.eventplanner.service;
 
 
+import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
+import com.example.eventplanner.dto.userDto.UserRecoveryCodeVerificationRequestDTO;
 import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
+import com.example.eventplanner.dto.userDto.UserResetPasswordRequestDTO;
 import com.example.eventplanner.exception.exceptions.auth.EmailAlreadyUsedException;
 import com.example.eventplanner.exception.exceptions.auth.UserNotActivatedException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.UserPhoto;
+import com.example.eventplanner.model.user.PasswordResetToken;
 import com.example.eventplanner.model.user.User;
+import com.example.eventplanner.repository.PasswordResetTokenRepo;
 import com.example.eventplanner.repository.RoleRepository;
 import com.example.eventplanner.repository.UserRepository;
+import com.example.eventplanner.utils.types.SMTPEmailDetails;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +27,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -34,6 +45,8 @@ public class AuthenticationService {
     private final EmailService emailService;
     private final RoleRepository roleRepository;
     private final PhotoService photoService;
+    private final PasswordResetTokenRepo passwordResetTokenRepo;
+    private SecureRandom random = new SecureRandom();
 
     @Value("${server.port}")
     private String springPort;
@@ -98,6 +111,91 @@ public class AuthenticationService {
                 )
         );
         return user;
+    }
+
+    public CommonMessageDTO sendRecoveryCode(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException("User with email: " + email + " not found"));
+
+        if (!user.isActive()) {
+            throw new UserNotActivatedException("User is not activated. Please activate the user first.");
+        }
+
+        //Generate token from 7 bytes to get 10 length Base64 URL encoded string
+        byte[] b = new byte[7]; random.nextBytes(b);
+        String token = Base64.getUrlEncoder().withoutPadding().encodeToString(b);
+        String hash = DigestUtils.sha256Hex(token);
+
+        PasswordResetToken prt = new PasswordResetToken();
+        prt.setUserId(user.getId());
+        prt.setTokenHash(hash);
+        prt.setExpiryAt(Instant.now().plus(1, ChronoUnit.HOURS));
+        passwordResetTokenRepo.save(prt);
+
+        emailService.sendTestEmail(new SMTPEmailDetails(null, user.getEmail(), "Event Planner: Password recovery code",
+                "Hello, <br> you requested a password recovery. Please use this code to reset your password: <b>" + token + "</b> <br> The code is valid for 1 hour.", null));
+
+        return new CommonMessageDTO("Recovery code sent to your email", null);
+    }
+
+    public CommonMessageDTO verifyRecoveryCode(UserRecoveryCodeVerificationRequestDTO request) {
+
+        String email = request.getEmail();
+        String code = request.getCode();
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException("User with email: " + email + " not found"));
+
+        if (!user.isActive()) {
+            throw new UserNotActivatedException("User is not activated. Please activate the user first.");
+        }
+
+        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(code)
+                .orElseThrow(() -> new UserNotFoundException("Password reset token not found for user with email: " + email));
+
+        if (!token.getUserId().equals(user.getId())) {
+            throw new UserNotFoundException("Recovery code does not match the user");
+        }
+
+        if (token.isUsed() || token.getExpiryAt().isBefore(Instant.now())) {
+            throw new UserNotFoundException("Recovery code is invalid or expired");
+        }
+
+        // Mark the token as used
+        token.setUsed(true);
+        passwordResetTokenRepo.save(token);
+
+        return new CommonMessageDTO("Recovery code verified successfully", null);
+    }
+
+    public CommonMessageDTO resetPassword(UserResetPasswordRequestDTO request) {
+
+        String email = request.getEmail();
+        String newPassword = request.getNewPassword();
+        String code = request.getCode();
+
+        if (newPassword == null || newPassword.isBlank()) {
+            throw new IllegalArgumentException("New password cannot be empty");
+        }
+
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new UserNotFoundException("User with email: " + email + " not found"));
+
+        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(code)
+                .orElseThrow(() -> new UserNotFoundException("Password reset token not found for user with email: " + email));
+
+        if (!token.getUserId().equals(user.getId())) {
+            throw new UserNotFoundException("Recovery code does not match the user");
+        }
+
+        if (!token.isUsed()) {
+            throw new IllegalArgumentException("Recovery code has not been verified yet");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return new CommonMessageDTO("Password reset successfully", null);
     }
 
 }
