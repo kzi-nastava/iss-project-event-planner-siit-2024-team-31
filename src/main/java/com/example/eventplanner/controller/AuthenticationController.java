@@ -49,8 +49,8 @@ public class AuthenticationController {
     }
 
     @PostMapping("/send-recovery-code")
-    public ResponseEntity<CommonMessageDTO> sendRecoveryCode(@RequestBody String email) {
-        CommonMessageDTO response = authenticationService.sendRecoveryCode(email);
+    public ResponseEntity<CommonMessageDTO> sendRecoveryCode(@RequestBody EmailDTO emailDTO) {
+        CommonMessageDTO response = authenticationService.sendRecoveryCode(emailDTO);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

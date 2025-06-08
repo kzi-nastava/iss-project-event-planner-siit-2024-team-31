@@ -2,10 +2,7 @@ package com.example.eventplanner.service;
 
 
 import com.example.eventplanner.dto.CommonMessageDTO;
-import com.example.eventplanner.dto.userDto.UserLoginRequestDTO;
-import com.example.eventplanner.dto.userDto.UserRecoveryCodeVerificationRequestDTO;
-import com.example.eventplanner.dto.userDto.UserRegisterRequestDTO;
-import com.example.eventplanner.dto.userDto.UserResetPasswordRequestDTO;
+import com.example.eventplanner.dto.userDto.*;
 import com.example.eventplanner.exception.exceptions.auth.EmailAlreadyUsedException;
 import com.example.eventplanner.exception.exceptions.auth.UserNotActivatedException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
@@ -113,7 +110,8 @@ public class AuthenticationService {
         return user;
     }
 
-    public CommonMessageDTO sendRecoveryCode(String email) {
+    public CommonMessageDTO sendRecoveryCode(EmailDTO request) {
+        String email = request.getEmail();
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new UserNotFoundException("User with email: " + email + " not found"));
 
@@ -150,7 +148,8 @@ public class AuthenticationService {
             throw new UserNotActivatedException("User is not activated. Please activate the user first.");
         }
 
-        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(code)
+        String hash = DigestUtils.sha256Hex(code);
+        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(hash)
                 .orElseThrow(() -> new UserNotFoundException("Password reset token not found for user with email: " + email));
 
         if (!token.getUserId().equals(user.getId())) {
@@ -181,7 +180,8 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new UserNotFoundException("User with email: " + email + " not found"));
 
-        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(code)
+        String hash = DigestUtils.sha256Hex(code);
+        PasswordResetToken token = passwordResetTokenRepo.findByTokenHash(hash)
                 .orElseThrow(() -> new UserNotFoundException("Password reset token not found for user with email: " + email));
 
         if (!token.getUserId().equals(user.getId())) {
