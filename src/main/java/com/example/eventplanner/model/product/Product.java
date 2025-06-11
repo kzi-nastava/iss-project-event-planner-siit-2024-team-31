@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@Table("products")
+@Table(name = "products")
 public class Product extends EntityBase {
 
     @ManyToOne
