@@ -32,4 +32,8 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+//    @GetMapping("/my-products")
+//    @PreAuthorize("hasRole('PUP')")
+//    public ResponseEnitity<> getMyProducts() {}
+
 }
