@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/product-categories")
+@RequestMapping("/api/product-category")
 @PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class ProductCategoryController {
