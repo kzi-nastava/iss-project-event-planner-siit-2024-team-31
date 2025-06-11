@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@DiscriminatorValue("products")
+@Table("products")
 public class Product extends EntityBase {
 
     @ManyToOne
@@ -43,7 +43,7 @@ public class Product extends EntityBase {
     private Double discount;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductPhoto> photos = new ArrayList<>();
+    private List<ItemPhoto> photos = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(

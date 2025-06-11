@@ -11,8 +11,6 @@ import java.util.Collection;
 @Getter
 @Setter
 @MappedSuperclass
-
-
 public abstract class EntityBase {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)

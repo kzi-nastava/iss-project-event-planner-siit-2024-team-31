@@ -3,7 +3,7 @@ package com.example.eventplanner.service;
 import com.example.eventplanner.dto.product.ProductCategoryDTO;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
-import com.example.eventplanner.model.ProductPhoto;
+import com.example.eventplanner.model.ItemPhoto;
 import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.model.product.Product;
@@ -114,7 +114,7 @@ public class ProductService {
             List<String> photoUrls = photoService.uploadPhotos(photos, bucketName, photosPrefix);
 
             for (String url : photoUrls) {
-                ProductPhoto productPhoto = new ProductPhoto();
+                ItemPhoto productPhoto = new ItemPhoto();
                 productPhoto.setPhotoUrl(url);
                 productPhoto.setProduct(product);
                 product.getPhotos().add(productPhoto);
