@@ -19,7 +19,7 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-public class Service extends EntityBase {
+public class ProvidedService extends EntityBase {
 
     @ManyToOne
     @JoinColumn(name = "pup_id", nullable = false)
@@ -27,10 +27,13 @@ public class Service extends EntityBase {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    private ServiceCategory category;
+    private ProvidedServiceCategory category;
 
     @Column(name = "name")
     private String name;
+
+    @Column(name = "description")
+    private String description;
 
     @Column(name = "peculiarities")
     private String peculiarities;

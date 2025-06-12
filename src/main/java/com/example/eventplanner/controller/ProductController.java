@@ -27,7 +27,7 @@ public class ProductController {
 
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
 
-        productService.create(productDto, pupEmail);
+//        productService.create(productDto, pupEmail);
         response.setMessage("Product created successfully");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

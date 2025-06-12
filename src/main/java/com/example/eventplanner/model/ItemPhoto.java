@@ -1,7 +1,7 @@
 package com.example.eventplanner.model;
 
 import com.example.eventplanner.model.product.Product;
-import com.example.eventplanner.model.service.Service;
+import com.example.eventplanner.model.service.ProvidedService;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +23,6 @@ public class ItemPhoto extends EntityBase {
 
     @ManyToOne
     @JoinColumn(name = "service_id", nullable = true)
-    private Service service;
+    private ProvidedService service;
 
 }

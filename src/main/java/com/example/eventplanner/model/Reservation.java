@@ -3,6 +3,7 @@ package com.example.eventplanner.model;
 
 import com.example.eventplanner.model.event.budget.BudgetItem;
 import com.example.eventplanner.model.product.Product;
+import com.example.eventplanner.model.service.ProvidedService;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,6 +42,6 @@ public class Reservation extends EntityBase {
     private LocalDateTime endTime;
 
     @ManyToMany(mappedBy = "reservations")
-    private List<Product> products = new ArrayList<>();
+    private List<ProvidedService> providedServices = new ArrayList<>();
 
 }

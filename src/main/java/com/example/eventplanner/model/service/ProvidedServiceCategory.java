@@ -12,7 +12,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ServiceCategory extends EntityBase {
+public class ProvidedServiceCategory extends EntityBase {
 
     @Column(unique = true, nullable = false, name = "name")
     private String name;

@@ -122,6 +122,7 @@ CREATE TABLE service (
                          pup_id                         BIGINT    NOT NULL,
                          category_id                    BIGINT    NOT NULL,
                          name                           VARCHAR(255),
+                            description                    VARCHAR(255),
                          peculiarities                  VARCHAR(255),
                          price_per_hour                 DOUBLE PRECISION,
                          discount                       DOUBLE PRECISION,

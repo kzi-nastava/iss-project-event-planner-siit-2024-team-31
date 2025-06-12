@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/service-category")
 @PreAuthorize("hasAnyRole('OD', 'PUP', 'ADMIN', 'USER')")
 @RequiredArgsConstructor
-public class ServiceCategoryController {
+public class ProvidedServiceCategoryController {
 
 
 

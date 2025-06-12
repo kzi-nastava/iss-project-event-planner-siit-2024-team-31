@@ -10,6 +10,4 @@ import java.util.List;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    @Query("SELECT e FROM Product as e ORDER BY e.likes limit 5")
-    List<Product> findTop5();
 }

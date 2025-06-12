@@ -1,6 +1,6 @@
 package com.example.eventplanner.controller;
 
-import com.example.eventplanner.dto.product.ProductCategoryDTO;
+import com.example.eventplanner.dto.product_category.ProductCategoryDTO;
 import com.example.eventplanner.service.ProductCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

@@ -1,6 +1,6 @@
 package com.example.eventplanner.service;
 
-import com.example.eventplanner.dto.product.ProductCategoryDTO;
+import com.example.eventplanner.dto.product_category.ProductCategoryDTO;
 import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.repository.ProductCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,4 +36,5 @@ public class ProductCategoryService {
         dto.setStatus(productCategory.getStatus());
         return dto;
     }
+
 }
