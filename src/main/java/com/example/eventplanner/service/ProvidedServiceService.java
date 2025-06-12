@@ -1,6 +1,7 @@
 package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
+import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.ItemPhoto;
 import com.example.eventplanner.model.Status;
@@ -9,6 +10,8 @@ import com.example.eventplanner.model.service.ProvidedServiceCategory;
 import com.example.eventplanner.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
