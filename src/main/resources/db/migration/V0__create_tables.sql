@@ -103,7 +103,7 @@ CREATE TABLE event_type_service_category_link (
                                                   category_id   BIGINT NOT NULL
 );
 
-CREATE TABLE products (
+CREATE TABLE product (
                           id         BIGSERIAL PRIMARY KEY,
                           version    INTEGER,
                           pup_id     BIGINT    NOT NULL,
@@ -113,7 +113,8 @@ CREATE TABLE products (
                           peculiarities VARCHAR(255),
                           price      DOUBLE PRECISION,
                           discount   DOUBLE PRECISION,
-                          is_visible BOOLEAN
+                          is_visible BOOLEAN,
+                          is_available BOOLEAN
 );
 
 CREATE TABLE service (
@@ -250,16 +251,16 @@ ALTER TABLE event_type_service_category_link
     ADD CONSTRAINT fk_et_scat_et  FOREIGN KEY(event_type_id) REFERENCES event_types(id),
     ADD CONSTRAINT fk_et_scat_cat FOREIGN KEY(category_id)   REFERENCES service_category(id);
 
-ALTER TABLE products
-    ADD CONSTRAINT fk_products_pup      FOREIGN KEY(pup_id)      REFERENCES users(id),
-    ADD CONSTRAINT fk_products_category FOREIGN KEY(category_id) REFERENCES product_category(id);
+ALTER TABLE product
+    ADD CONSTRAINT fk_product_pup      FOREIGN KEY(pup_id)      REFERENCES users(id),
+    ADD CONSTRAINT fk_product_category FOREIGN KEY(category_id) REFERENCES product_category(id);
 
 ALTER TABLE service
     ADD CONSTRAINT fk_service_pup      FOREIGN KEY(pup_id)      REFERENCES users(id),
     ADD CONSTRAINT fk_service_category FOREIGN KEY(category_id) REFERENCES service_category(id);
 
 ALTER TABLE product_event_type_link
-    ADD CONSTRAINT fk_petl_prod FOREIGN KEY(product_id)    REFERENCES products(id),
+    ADD CONSTRAINT fk_petl_prod FOREIGN KEY(product_id)    REFERENCES product(id),
     ADD CONSTRAINT fk_petl_et   FOREIGN KEY(event_type_id) REFERENCES event_types(id);
 
 ALTER TABLE service_event_type_link
@@ -272,7 +273,7 @@ ALTER TABLE service_reservation
 
 ALTER TABLE item_photo
     ADD CONSTRAINT fk_ip_service FOREIGN KEY(service_id) REFERENCES service(id),
-    ADD CONSTRAINT fk_ip_product FOREIGN KEY(product_id) REFERENCES products(id),
+    ADD CONSTRAINT fk_ip_product FOREIGN KEY(product_id) REFERENCES product(id),
     ADD CONSTRAINT chk_ip_one_fk CHECK (
         (service_id IS NOT NULL AND product_id IS NULL)
             OR
@@ -284,12 +285,12 @@ ALTER TABLE budget_items
     ADD CONSTRAINT fk_bi_reservation FOREIGN KEY(reservation_id) REFERENCES reservation_list(id);
 
 ALTER TABLE reservation_list
-    ADD CONSTRAINT fk_rl_product     FOREIGN KEY(product_id)     REFERENCES products(id),
+    ADD CONSTRAINT fk_rl_product     FOREIGN KEY(product_id)     REFERENCES product(id),
     ADD CONSTRAINT fk_rl_budget_item FOREIGN KEY(budget_item_id) REFERENCES budget_items(id),
     ADD CONSTRAINT fk_rl_status      FOREIGN KEY(status_id)      REFERENCES status(id);
 
 ALTER TABLE product_reservation
-    ADD CONSTRAINT fk_pr_prod FOREIGN KEY(product_id)     REFERENCES products(id),
+    ADD CONSTRAINT fk_pr_prod FOREIGN KEY(product_id)     REFERENCES product(id),
     ADD CONSTRAINT fk_pr_res  FOREIGN KEY(reservation_id) REFERENCES reservation_list(id);
 
 ALTER TABLE agenda_items

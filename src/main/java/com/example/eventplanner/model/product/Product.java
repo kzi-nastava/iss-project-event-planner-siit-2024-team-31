@@ -56,4 +56,8 @@ public class Product extends EntityBase {
     @Column(name = "is_visible")
     private boolean isVisible;
 
+    //availability status for OD
+    @Column(name = "is_available")
+    private boolean isAvailable;
+
 }

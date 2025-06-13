@@ -67,7 +67,7 @@ public class ProvidedService extends EntityBase {
     private boolean isDeleted = false;
 
     //true - Manual, false - Fixed
-    @Column(name = "time_management")
+    @Column(name = "time_management", nullable = true)
     private Boolean timeManagement;
 
     //In minutes
