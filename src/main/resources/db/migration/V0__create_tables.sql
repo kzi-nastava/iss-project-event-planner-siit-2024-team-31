@@ -114,7 +114,9 @@ CREATE TABLE product (
                           price      DOUBLE PRECISION,
                           discount   DOUBLE PRECISION,
                           is_visible BOOLEAN,
-                          is_available BOOLEAN
+                          is_available BOOLEAN,
+                          is_deleted BOOLEAN,
+                          rating     DOUBLE PRECISION
 );
 
 CREATE TABLE service (
@@ -134,7 +136,8 @@ CREATE TABLE service (
                          service_duration_min_minutes   INTEGER,
                          service_duration_max_minutes   INTEGER,
                          booking_confirmation           BOOLEAN,
-                         booking_decline_deadline_hours INTEGER
+                         booking_decline_deadline_hours INTEGER,
+                         rating                         DOUBLE PRECISION
 );
 
 CREATE TABLE product_event_type_link (

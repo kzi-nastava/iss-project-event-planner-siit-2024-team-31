@@ -94,4 +94,6 @@ public class ProvidedService extends EntityBase {
     )
     private List<Reservation> reservations = new ArrayList<>();
 
+    @Column(name = "rating")
+    private double rating = 0.0;
 }

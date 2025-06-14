@@ -60,4 +60,9 @@ public class Product extends EntityBase {
     @Column(name = "is_available")
     private boolean isAvailable;
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
+    @Column(name = "rating")
+    private double rating = 0.0;
 }
