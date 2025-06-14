@@ -20,6 +20,7 @@ public class ProductDTO {
     private List<Long> suitableEventTypes;
     private boolean isVisible;
     private boolean isAvailable;
+    private double rating;
 
 }
 
