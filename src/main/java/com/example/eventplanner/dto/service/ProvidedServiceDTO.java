@@ -24,5 +24,6 @@ public class ProvidedServiceDTO {
     private Integer serviceDurationMax;
     private Boolean bookingConfirmation;
     private Integer bookingDeclineDeadline;
+    private Double rating;
 
 }

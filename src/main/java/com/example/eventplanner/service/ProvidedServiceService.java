@@ -1,8 +1,10 @@
 package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
+import com.example.eventplanner.dto.service.ProvidedServiceDTO;
 import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
+import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.ItemPhoto;
 import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.service.ProvidedService;
@@ -114,6 +116,32 @@ public class ProvidedServiceService {
         }
 
         return providedServiceRepository.save(providedService);
+    }
+
+    public List<ProvidedServiceDTO> getTop5Services() {
+        return providedServiceRepository
+                .findTop5ByOrderByRatingDesc()
+                .stream()
+                .map(this::convertToDTO)
+                .toList();
+    }
+
+    // Helper method to convert ProvidedService to ProvidedServiceDTO
+    private ProvidedServiceDTO convertToDTO(com.example.eventplanner.model.service.ProvidedService providedService) {
+        ProvidedServiceDTO dto = new ProvidedServiceDTO();
+        dto.setId(providedService.getId());
+        dto.setPupId(providedService.getPup().getId());
+        dto.setName(providedService.getName());
+        dto.setDescription(providedService.getDescription());
+        dto.setPeculiarities(providedService.getPeculiarities());
+        dto.setPricePerHour(providedService.getPrice());
+        dto.setDiscount(providedService.getDiscount());
+        dto.setPhotos(providedService.getPhotos().stream().map(ItemPhoto::getPhotoUrl).toList());
+        dto.setSuitableEventTypes(providedService.getSuitableEventTypes().stream().map(EntityBase::getId).toList());
+        dto.setVisible(providedService.isVisible());
+        dto.setAvailable(providedService.isAvailable());
+        dto.setRating(providedService.getRating());
+        return dto;
     }
 
 }
