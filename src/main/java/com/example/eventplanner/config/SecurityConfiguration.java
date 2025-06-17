@@ -50,7 +50,13 @@ public class SecurityConfiguration {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
-                        .requestMatchers("/api/auth/**", "/api/product/public/**", "/api/service/public/**").permitAll()
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/api/product/public/**",
+                                "/api/service/public/**",
+                                "/api/service-category/public/**",
+                                "/api/product-category/public/**")
+                        .permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

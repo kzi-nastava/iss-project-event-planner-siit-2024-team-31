@@ -11,19 +11,21 @@ public class ProvidedServiceDTO {
 
     private Long id;
     private Long pupId;
+    private Long categoryId;
     private String name;
     private String description;
     private String peculiarities;
-    private Double pricePerHour;
+    private Double price;
     private Double discount;
     private List<String> photos;
     private List<Long> suitableEventTypes;
     private boolean isVisible;
     private boolean isAvailable;
-    private Integer serviceDurationMin;
-    private Integer serviceDurationMax;
+    private boolean timeManagement;
+    private Integer serviceDurationMinMinutes;
+    private Integer serviceDurationMaxMinutes;
     private Boolean bookingConfirmation;
-    private Integer bookingDeclineDeadline;
+    private Integer bookingDeclineDeadlineHours;
     private Double rating;
 
 }

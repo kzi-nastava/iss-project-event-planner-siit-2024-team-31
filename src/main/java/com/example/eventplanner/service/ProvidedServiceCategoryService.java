@@ -1,8 +1,6 @@
 package com.example.eventplanner.service;
 
-import com.example.eventplanner.dto.product_category.ProductCategoryDTO;
 import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
-import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.model.service.ProvidedServiceCategory;
 import com.example.eventplanner.repository.ProvidedServiceCategoryRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,7 @@ public class ProvidedServiceCategoryService {
 
     private final ProvidedServiceCategoryRepository providedServiceCategoryRepository;
 
-    public Page<ProvidedServiceCategoryDTO> searchProductCategories(String keyword, Pageable pageable) {
+    public Page<ProvidedServiceCategoryDTO> searchProvidedServiceCategories(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isEmpty()) {
             return providedServiceCategoryRepository.findAll(pageable)
                     .map(this::convertToDTO);

@@ -2,7 +2,6 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
-import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.ItemPhoto;
@@ -10,14 +9,21 @@ import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.service.ProvidedService;
 import com.example.eventplanner.model.service.ProvidedServiceCategory;
 import com.example.eventplanner.repository.*;
+import com.example.eventplanner.utils.types.ProductFilterCriteria;
+import com.example.eventplanner.utils.types.ProvidedServiceFilterCriteria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -126,6 +132,95 @@ public class ProvidedServiceService {
                 .toList();
     }
 
+    public Page<ProvidedServiceDTO> searchServices(String keyword, Pageable pageable) {
+        Page<ProvidedService> servicesPage;
+        if (keyword == null || keyword.isEmpty()) {
+            servicesPage = providedServiceRepository.findAll(pageable);
+        }
+        else {
+            servicesPage = providedServiceRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword, pageable);
+        }
+        return servicesPage.map(this::convertToDTO);
+    }
+
+    public Page<ProvidedServiceDTO> filterSearchServices(
+            ProvidedServiceFilterCriteria c,
+            Pageable pageable) {
+
+        Specification<ProvidedService> spec = Specification.where(null);
+
+        if (c.getKeyword() != null && !c.getKeyword().isBlank()) {
+            String kw = "%" + c.getKeyword().toLowerCase() + "%";
+            spec = spec.and((r, q, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(r.get("name")), kw),
+                            cb.like(cb.lower(r.get("description")), kw)
+                    )
+            );
+        }
+        if (c.getCategoryIds() != null && !c.getCategoryIds().isEmpty()) {
+            spec = spec.and((r, q, cb) ->
+                    r.get("category").get("id").in(c.getCategoryIds())
+            );
+        }
+        if (c.getMinPrice() != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.ge(r.get("price"), c.getMinPrice())
+            );
+        }
+        if (c.getMaxPrice() != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.le(r.get("price"), c.getMaxPrice())
+            );
+        }
+        if (c.getMinRating() != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.ge(r.get("rating"), c.getMinRating())
+            );
+        }
+        if (c.getIsAvailable() != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.equal(r.get("isAvailable"), c.getIsAvailable())
+            );
+        }
+        if (c.getPupId() != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.equal(r.get("pup").get("id"),
+                            Long.parseLong(c.getPupId()))
+            );
+        }
+
+        return providedServiceRepository
+                .findAll(spec, pageable)
+                .map(this::convertToDTO);
+    }
+
+    public ProvidedServiceFilterCriteria getFilterOptions() {
+
+        List<Long> categoryIds = providedServiceCategoryRepository
+                .findAll().stream()
+                .map(ProvidedServiceCategory::getId)
+                .toList();
+
+
+        Double minPrice = providedServiceRepository.findAll().stream()
+                .map(ProvidedService::getPrice)
+                .min(Comparator.naturalOrder())
+                .orElse(0.0);
+        Double maxPrice = providedServiceRepository.findAll().stream()
+                .map(ProvidedService::getPrice)
+                .max(Double::compareTo)
+                .orElse(0.0);
+
+        return ProvidedServiceFilterCriteria.builder()
+                .categoryIds(categoryIds)
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .minRating(0.0)
+                .isAvailable(null)
+                .build();
+    }
+
     // Helper method to convert ProvidedService to ProvidedServiceDTO
     private ProvidedServiceDTO convertToDTO(com.example.eventplanner.model.service.ProvidedService providedService) {
         ProvidedServiceDTO dto = new ProvidedServiceDTO();
@@ -134,14 +229,20 @@ public class ProvidedServiceService {
         dto.setName(providedService.getName());
         dto.setDescription(providedService.getDescription());
         dto.setPeculiarities(providedService.getPeculiarities());
-        dto.setPricePerHour(providedService.getPrice());
+        dto.setPrice(providedService.getPrice());
         dto.setDiscount(providedService.getDiscount());
         dto.setPhotos(providedService.getPhotos().stream().map(ItemPhoto::getPhotoUrl).toList());
         dto.setSuitableEventTypes(providedService.getSuitableEventTypes().stream().map(EntityBase::getId).toList());
         dto.setVisible(providedService.isVisible());
         dto.setAvailable(providedService.isAvailable());
         dto.setRating(providedService.getRating());
+        dto.setBookingConfirmation(providedService.getBookingConfirmation());
+        dto.setBookingDeclineDeadlineHours(providedService.getBookingDeclineDeadlineHours());
+        dto.setTimeManagement(providedService.getTimeManagement());
+        dto.setServiceDurationMinMinutes(providedService.getServiceDurationMinMinutes());
+        dto.setServiceDurationMaxMinutes(providedService.getServiceDurationMaxMinutes());
         return dto;
     }
+
 
 }

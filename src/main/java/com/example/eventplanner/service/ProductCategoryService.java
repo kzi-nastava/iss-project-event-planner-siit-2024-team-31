@@ -19,7 +19,7 @@ public class ProductCategoryService {
             return productCategoryRepository.findAll(pageable)
                     .map(this::convertToDTO);
         } else {
-            return productCategoryRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+            return productCategoryRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
                     keyword, keyword, pageable
             ).map(this::convertToDTO);
         }
