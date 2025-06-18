@@ -9,27 +9,21 @@ import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.service.ProvidedService;
 import com.example.eventplanner.model.service.ProvidedServiceCategory;
 import com.example.eventplanner.repository.*;
-import com.example.eventplanner.utils.types.ProductFilterCriteria;
 import com.example.eventplanner.utils.types.ProvidedServiceFilterCriteria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Comparator;
+import jakarta.persistence.criteria.Predicate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-
 public class ProvidedServiceService {
 
     private final ProvidedServiceRepository providedServiceRepository;
@@ -42,207 +36,217 @@ public class ProvidedServiceService {
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    public ProvidedService create(CreateServiceRequestDTO createServiceRequestDTO, String pupEmail) throws UserNotFoundException {
+    public ProvidedService create(CreateServiceRequestDTO dto, String pupEmail) throws UserNotFoundException {
+        Status pending = statusRepository.findByName("PENDING");
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
 
-        final Status pendingStatus = statusRepository.findByName("PENDING");
-        var pup = userRepository.findByEmail(pupEmail).orElseThrow(() -> new UserNotFoundException("User with " + pupEmail + " not found"));
+        ProvidedService svc = new ProvidedService();
+        svc.setPup(pup);
+        svc.setName(dto.getName());
+        svc.setDescription(dto.getDescription());
+        svc.setPeculiarities(dto.getPeculiarities());
+        svc.setPrice(dto.getPrice());
+        svc.setDiscount(dto.getDiscount());
 
-        ProvidedService providedService = new ProvidedService();
-        providedService.setPup(pup);
-        providedService.setName(createServiceRequestDTO.getName());
-        providedService.setDescription(createServiceRequestDTO.getDescription());
-        providedService.setPeculiarities(createServiceRequestDTO.getPeculiarities());
-        providedService.setPrice(createServiceRequestDTO.getPrice());
-        providedService.setDiscount(createServiceRequestDTO.getDiscount());
+        // категория
+        Optional<ProvidedServiceCategory> catOpt = providedServiceRepository.findByName(dto.getCategory());
+        ProvidedServiceCategory cat = catOpt
+                .orElseGet(() -> {
+                    ProvidedServiceCategory c = new ProvidedServiceCategory();
+                    c.setName(dto.getCategory());
+                    c.setDescription("");
+                    c.setStatus(pending);
+                    return providedServiceCategoryRepository.saveAndFlush(c);
+                });
+        svc.setCategory(cat);
+        svc.setAvailable(Boolean.TRUE.equals(dto.getIsAvailable()));
+        svc.setVisible(Boolean.TRUE.equals(dto.getIsVisible()));
 
-        // Handle category assignment
-        ProvidedServiceCategory category;
-        Optional<ProvidedServiceCategory> categoryOpt = providedServiceRepository.findByName(createServiceRequestDTO.getCategory());
-        if (categoryOpt.isPresent()) {
-            category = categoryOpt.get();
-            providedService.setCategory(category);
-            providedService.setAvailable(Boolean.TRUE.equals(createServiceRequestDTO.getIsAvailable()));
-            providedService.setVisible(Boolean.TRUE.equals(createServiceRequestDTO.getIsVisible()));
+        // время
+        if (Boolean.TRUE.equals(dto.getNoTimeSelectionRequired())) {
+            svc.setTimeManagement(false);
+            svc.setServiceDurationMinMinutes(null);
+            svc.setServiceDurationMaxMinutes(null);
+        } else if (Boolean.TRUE.equals(dto.getManualTimeSelection())) {
+            svc.setTimeManagement(true);
+            svc.setServiceDurationMinMinutes(dto.getServiceDurationMin());
+            svc.setServiceDurationMaxMinutes(dto.getServiceDurationMax());
         } else {
-            ProvidedServiceCategory newCategory = new ProvidedServiceCategory();
-            newCategory.setName(createServiceRequestDTO.getCategory());
-            newCategory.setDescription(""); // Admin will update the description
-            newCategory.setStatus(pendingStatus);
-            newCategory = providedServiceCategoryRepository.saveAndFlush(newCategory);
-
-            providedService.setCategory(newCategory);
-            providedService.setVisible(false);
-            providedService.setAvailable(false);
-
-            category = newCategory;
+            svc.setTimeManagement(false);
+            svc.setServiceDurationMinMinutes(dto.getServiceDurationMin());
+            svc.setServiceDurationMaxMinutes(null);
         }
 
-        // Handle time management and booking rules
-        if (Boolean.TRUE.equals(createServiceRequestDTO.getNoTimeSelectionRequired())) {
-            providedService.setTimeManagement(false);
-            providedService.setServiceDurationMinMinutes(null);
-            providedService.setServiceDurationMaxMinutes(null);
-        } else if (Boolean.TRUE.equals(createServiceRequestDTO.getManualTimeSelection())) {
-            providedService.setTimeManagement(true);
-            providedService.setServiceDurationMinMinutes(createServiceRequestDTO.getServiceDurationMin());
-            providedService.setServiceDurationMaxMinutes(createServiceRequestDTO.getServiceDurationMax());
-        } else {
-            providedService.setTimeManagement(false);
-            providedService.setServiceDurationMinMinutes(createServiceRequestDTO.getServiceDurationMin());
-            providedService.setServiceDurationMaxMinutes(null);
-        }
+        svc.setBookingConfirmation("manual".equalsIgnoreCase(dto.getBookingConfirmation()));
+        svc.setBookingDeclineDeadlineHours(dto.getBookingDeclineDeadline());
 
-        String bookingConf = createServiceRequestDTO.getBookingConfirmation();
-        providedService.setBookingConfirmation("manual".equalsIgnoreCase(bookingConf));
-        providedService.setBookingDeclineDeadlineHours(createServiceRequestDTO.getBookingDeclineDeadline());
-
-        // Assign connection between suitable event types and product categories
-        List<Long> suitableEventTypes = createServiceRequestDTO.getSuitableEventTypes();
-        eventTypesRepository.findAllById(suitableEventTypes).forEach(eventType -> {
-            List<ProvidedServiceCategory> connectedCategories = eventType.getRecommendedProvidedServiceCategories();
-            if (!connectedCategories.contains(category)) {
-                connectedCategories.add(category);
+        // связь с EventTypes
+        eventTypesRepository.findAllById(dto.getSuitableEventTypes()).forEach(et -> {
+            var rec = et.getRecommendedProvidedServiceCategories();
+            if (!rec.contains(cat)) {
+                rec.add(cat);
+                et.setRecommendedProvidedServiceCategories(rec);
+                eventTypesRepository.saveAndFlush(et);
             }
-            eventType.setRecommendedProvidedServiceCategories(connectedCategories);
-            eventTypesRepository.saveAndFlush(eventType);
         });
 
-        // Handle product photos
-        if (createServiceRequestDTO.getPhotos() != null) {
-            List<MultipartFile> photos = createServiceRequestDTO.getPhotos();
-            String photosPrefix = "service-photos";
-            List<String> photoUrls = photoService.uploadPhotos(photos, bucketName, photosPrefix);
-
-            for (String url : photoUrls) {
-                ItemPhoto productPhoto = new ItemPhoto();
-                productPhoto.setPhotoUrl(url);
-                productPhoto.setService(providedService);
-                providedService.getPhotos().add(productPhoto);
-            }
+        // фото
+        if (dto.getPhotos() != null) {
+            List<String> urls = photoService.uploadPhotos(dto.getPhotos(), bucketName, "service-photos");
+            urls.forEach(url -> {
+                ItemPhoto p = new ItemPhoto();
+                p.setPhotoUrl(url);
+                p.setService(svc);
+                svc.getPhotos().add(p);
+            });
         }
 
-        return providedServiceRepository.save(providedService);
+        return providedServiceRepository.save(svc);
     }
 
     public List<ProvidedServiceDTO> getTop5Services() {
         return providedServiceRepository
                 .findTop5ByOrderByRatingDesc()
                 .stream()
-                .map(this::convertToDTO)
+                .map(this::toDto)
                 .toList();
     }
 
-    public Page<ProvidedServiceDTO> searchServices(String keyword, Pageable pageable) {
-        Page<ProvidedService> servicesPage;
-        if (keyword == null || keyword.isEmpty()) {
-            servicesPage = providedServiceRepository.findAll(pageable);
-        }
-        else {
-            servicesPage = providedServiceRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword, pageable);
-        }
-        return servicesPage.map(this::convertToDTO);
+    public Page<ProvidedServiceDTO> searchServices(String keyword, Pageable pg) {
+        Page<ProvidedService> page = (keyword == null || keyword.isBlank())
+                ? providedServiceRepository.findAll(pg)
+                : providedServiceRepository
+                .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword, pg);
+        return page.map(this::toDto);
     }
 
-    public Page<ProvidedServiceDTO> filterSearchServices(
-            ProvidedServiceFilterCriteria c,
-            Pageable pageable) {
-
+    public Page<ProvidedServiceDTO> filterSearchServices(ProvidedServiceFilterCriteria c, Pageable pg) {
         Specification<ProvidedService> spec = Specification.where(null);
 
         if (c.getKeyword() != null && !c.getKeyword().isBlank()) {
             String kw = "%" + c.getKeyword().toLowerCase() + "%";
-            spec = spec.and((r, q, cb) ->
-                    cb.or(
-                            cb.like(cb.lower(r.get("name")), kw),
-                            cb.like(cb.lower(r.get("description")), kw)
-                    )
-            );
+            spec = spec.and((r, q, cb) -> cb.or(
+                    cb.like(cb.lower(r.get("name")), kw),
+                    cb.like(cb.lower(r.get("description")), kw)
+            ));
         }
+
         if (c.getCategoryIds() != null && !c.getCategoryIds().isEmpty()) {
             spec = spec.and((r, q, cb) ->
-                    r.get("category").get("id").in(c.getCategoryIds())
-            );
+                    r.get("category").get("id").in(c.getCategoryIds()));
         }
         if (c.getMinPrice() != null) {
             spec = spec.and((r, q, cb) ->
-                    cb.ge(r.get("price"), c.getMinPrice())
-            );
+                    cb.ge(r.get("price"), c.getMinPrice()));
         }
         if (c.getMaxPrice() != null) {
             spec = spec.and((r, q, cb) ->
-                    cb.le(r.get("price"), c.getMaxPrice())
-            );
+                    cb.le(r.get("price"), c.getMaxPrice()));
         }
         if (c.getMinRating() != null) {
             spec = spec.and((r, q, cb) ->
-                    cb.ge(r.get("rating"), c.getMinRating())
-            );
+                    cb.ge(r.get("rating"), c.getMinRating()));
         }
         if (c.getIsAvailable() != null) {
             spec = spec.and((r, q, cb) ->
-                    cb.equal(r.get("isAvailable"), c.getIsAvailable())
-            );
+                    cb.equal(r.get("isAvailable"), c.getIsAvailable()));
         }
         if (c.getPupId() != null) {
             spec = spec.and((r, q, cb) ->
-                    cb.equal(r.get("pup").get("id"),
-                            Long.parseLong(c.getPupId()))
-            );
+                    cb.equal(r.get("pup").get("id"), Long.parseLong(c.getPupId())));
+        }
+
+        // Фильтр по дате доступности
+        if (c.getAvailableFrom() != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.greaterThanOrEqualTo(r.get("availableFrom"), c.getAvailableFrom()));
+        }
+        if (c.getAvailableTo() != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.lessThanOrEqualTo(r.get("availableTo"), c.getAvailableTo()));
+        }
+
+        if (c.getServiceDurationMinMinutes() != null) {
+            Integer minMin = c.getServiceDurationMinMinutes();
+            spec = spec.and((r, q, cb) -> {
+                Predicate noMax  = cb.isNull(r.get("serviceDurationMaxMinutes"));
+                Predicate enough = cb.ge(r.get("serviceDurationMaxMinutes"), minMin);
+                return cb.or(noMax, enough);
+            });
+        }
+        if (c.getServiceDurationMaxMinutes() != null) {
+            Integer maxMin = c.getServiceDurationMaxMinutes();
+            spec = spec.and((r, q, cb) ->
+                    cb.le(r.get("serviceDurationMinMinutes"), maxMin));
+        }
+
+        // suitableFor filtering using an explicit join
+        if (c.getSuitableFor() != null && !c.getSuitableFor().isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                query.distinct(true);
+                var join = root.join("suitableEventTypes");
+                return join.get("id").in(c.getSuitableFor());
+            });
         }
 
         return providedServiceRepository
-                .findAll(spec, pageable)
-                .map(this::convertToDTO);
+                .findAll(spec, pg)
+                .map(this::toDto);
     }
 
     public ProvidedServiceFilterCriteria getFilterOptions() {
+        List<Long> catIds = providedServiceCategoryRepository.findAll()
+                .stream().map(ProvidedServiceCategory::getId).toList();
 
-        List<Long> categoryIds = providedServiceCategoryRepository
-                .findAll().stream()
-                .map(ProvidedServiceCategory::getId)
-                .toList();
+        Double minP = providedServiceRepository.findAll()
+                .stream().map(ProvidedService::getPrice)
+                .min(Double::compareTo).orElse(0.0);
+        Double maxP = providedServiceRepository.findAll()
+                .stream().map(ProvidedService::getPrice)
+                .max(Double::compareTo).orElse(0.0);
 
+        Integer minDuration = providedServiceRepository.findAll()
+                .stream().map(ProvidedService::getServiceDurationMinMinutes)
+                .filter(Objects::nonNull)
+                .min(Integer::compareTo).orElse(0);
 
-        Double minPrice = providedServiceRepository.findAll().stream()
-                .map(ProvidedService::getPrice)
-                .min(Comparator.naturalOrder())
-                .orElse(0.0);
-        Double maxPrice = providedServiceRepository.findAll().stream()
-                .map(ProvidedService::getPrice)
-                .max(Double::compareTo)
-                .orElse(0.0);
+        Integer maxDuration = providedServiceRepository.findAll()
+                .stream().map(ProvidedService::getServiceDurationMaxMinutes)
+                .filter(Objects::nonNull)
+                .max(Integer::compareTo).orElse(null);
 
         return ProvidedServiceFilterCriteria.builder()
-                .categoryIds(categoryIds)
-                .minPrice(minPrice)
-                .maxPrice(maxPrice)
+                .categoryIds(catIds)
+                .minPrice(minP)
+                .maxPrice(maxP)
                 .minRating(0.0)
-                .isAvailable(null)
+                .serviceDurationMinMinutes(minDuration)
+                .serviceDurationMaxMinutes(maxDuration)
                 .build();
     }
 
-    // Helper method to convert ProvidedService to ProvidedServiceDTO
-    private ProvidedServiceDTO convertToDTO(com.example.eventplanner.model.service.ProvidedService providedService) {
-        ProvidedServiceDTO dto = new ProvidedServiceDTO();
-        dto.setId(providedService.getId());
-        dto.setPupId(providedService.getPup().getId());
-        dto.setName(providedService.getName());
-        dto.setDescription(providedService.getDescription());
-        dto.setPeculiarities(providedService.getPeculiarities());
-        dto.setPrice(providedService.getPrice());
-        dto.setDiscount(providedService.getDiscount());
-        dto.setPhotos(providedService.getPhotos().stream().map(ItemPhoto::getPhotoUrl).toList());
-        dto.setSuitableEventTypes(providedService.getSuitableEventTypes().stream().map(EntityBase::getId).toList());
-        dto.setVisible(providedService.isVisible());
-        dto.setAvailable(providedService.isAvailable());
-        dto.setRating(providedService.getRating());
-        dto.setBookingConfirmation(providedService.getBookingConfirmation());
-        dto.setBookingDeclineDeadlineHours(providedService.getBookingDeclineDeadlineHours());
-        dto.setTimeManagement(providedService.getTimeManagement());
-        dto.setServiceDurationMinMinutes(providedService.getServiceDurationMinMinutes());
-        dto.setServiceDurationMaxMinutes(providedService.getServiceDurationMaxMinutes());
-        return dto;
+    private ProvidedServiceDTO toDto(ProvidedService svc) {
+        ProvidedServiceDTO d = new ProvidedServiceDTO();
+        d.setId(svc.getId());
+        d.setPupId(svc.getPup().getId());
+        d.setName(svc.getName());
+        d.setDescription(svc.getDescription());
+        d.setPeculiarities(svc.getPeculiarities());
+        d.setPrice(svc.getPrice());
+        d.setDiscount(svc.getDiscount());
+        d.setPhotos(svc.getPhotos().stream()
+                .map(ItemPhoto::getPhotoUrl).toList());
+        d.setSuitableEventTypes(svc.getSuitableEventTypes()
+                .stream().map(EntityBase::getId).toList());
+        d.setVisible(svc.isVisible());
+        d.setAvailable(svc.isAvailable());
+        d.setRating(svc.getRating());
+        d.setBookingConfirmation(svc.getBookingConfirmation());
+        d.setBookingDeclineDeadlineHours(svc.getBookingDeclineDeadlineHours());
+        d.setTimeManagement(svc.getTimeManagement());
+        d.setServiceDurationMinMinutes(svc.getServiceDurationMinMinutes());
+        d.setServiceDurationMaxMinutes(svc.getServiceDurationMaxMinutes());
+        return d;
     }
-
-
 }

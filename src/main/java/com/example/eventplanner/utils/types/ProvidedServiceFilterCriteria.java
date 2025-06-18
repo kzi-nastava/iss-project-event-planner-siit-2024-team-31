@@ -3,7 +3,6 @@ package com.example.eventplanner.utils.types;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -17,9 +16,10 @@ public class ProvidedServiceFilterCriteria {
     private Double minRating;
     private LocalDate availableFrom;
     private LocalDate availableTo;
-    private Integer minTimeUsageHours;
-    private Integer maxTimeUsageHours;
+    private Integer serviceDurationMinMinutes;
+    private Integer serviceDurationMaxMinutes;
     private List<String> suitableFor;
     private Boolean isAvailable;
     private String pupId;
 }
+

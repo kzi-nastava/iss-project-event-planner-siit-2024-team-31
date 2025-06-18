@@ -1,14 +1,10 @@
 package com.example.eventplanner.controller;
 
 import com.example.eventplanner.dto.CommonMessageDTO;
-import com.example.eventplanner.dto.product.CreateProductRequestDTO;
-import com.example.eventplanner.dto.product.CreateProductResponseDTO;
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
 import com.example.eventplanner.service.JwtService;
-import com.example.eventplanner.service.ProductService;
 import com.example.eventplanner.service.ProvidedServiceService;
-import com.example.eventplanner.utils.types.ProductFilterCriteria;
 import com.example.eventplanner.utils.types.ProvidedServiceFilterCriteria;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -58,6 +53,7 @@ public class ProvidedServiceController {
 
     @GetMapping("/public/filter-search")
     public ResponseEntity<Page<ProvidedServiceDTO>> filterSearchServices(Pageable pageable,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> categoryIds,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
@@ -75,9 +71,10 @@ public class ProvidedServiceController {
                 .maxPrice(maxPrice)
                 .minRating(minRating)
                 .availableFrom(availableFrom)
+                .keyword(keyword)
                 .availableTo(availableTo)
-                .minTimeUsageHours(minTimeUsageHours)
-                .maxTimeUsageHours(maxTimeUsageHours)
+                .serviceDurationMinMinutes(minTimeUsageHours)
+                .serviceDurationMaxMinutes(maxTimeUsageHours)
                 .suitableFor(suitableFor)
                 .isAvailable(isAvailable)
                 .pupId(pupId)

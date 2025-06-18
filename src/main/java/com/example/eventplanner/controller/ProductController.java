@@ -59,6 +59,7 @@ public class ProductController {
 
     @GetMapping("/public/filter-search")
     public ResponseEntity<Page<ProductDTO>> filterSearchProducts(Pageable pageable,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> categoryIds,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
@@ -68,6 +69,7 @@ public class ProductController {
             @RequestParam(required = false) String pupId) {
         ProductFilterCriteria filterCriteria = ProductFilterCriteria.builder()
                 .categoryIds(categoryIds)
+                .keyword(keyword)
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
                 .minRating(minRating)

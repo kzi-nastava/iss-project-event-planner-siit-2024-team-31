@@ -86,11 +86,20 @@ public class ProductService {
                     cb.equal(r.get("isAvailable"), c.getIsAvailable())
             );
         }
+
         if (c.getPupId() != null) {
             spec = spec.and((r, q, cb) ->
                     cb.equal(r.get("pup").get("id"),
                             Long.parseLong(c.getPupId()))
             );
+        }
+
+        if (c.getSuitableFor() != null && !c.getSuitableFor().isEmpty()) {
+            spec = spec.and((root, query, cb) -> {
+                query.distinct(true);
+                var join = root.join("suitableEventTypes");
+                return join.get("id").in(c.getSuitableFor());
+            });
         }
 
         return productRepository

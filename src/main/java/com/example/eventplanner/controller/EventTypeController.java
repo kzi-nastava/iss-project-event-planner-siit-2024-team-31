@@ -16,9 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@RequestMapping("/api/event-types")
+@RequestMapping("/api/event-type")
 @RestController
-@PreAuthorize("hasRole('ADMIN')")
 @RequiredArgsConstructor
 public class EventTypeController {
 
@@ -31,25 +30,35 @@ public class EventTypeController {
             return new ResponseEntity<>(eventTypes, HttpStatus.OK);
         }
 
+        @GetMapping("/public/search")
+        public ResponseEntity<Page<EventTypeDTO>> publicSearchEventTypes(@RequestParam(required = false) String keyword, Pageable pageable) {
+            Page<EventTypeDTO> eventTypes = eventTypeService.searchEventTypes(keyword, pageable);
+            return new ResponseEntity<>(eventTypes, HttpStatus.OK);
+        }
+
         @GetMapping("/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<EventTypeFullDTO> getEventTypeById(@PathVariable Long id) {
             EventTypeFullDTO eventTypeFullDTO = eventTypeService.getEventTypeData(id);
             return new ResponseEntity<>(eventTypeFullDTO, HttpStatus.OK);
         }
 
         @PostMapping("/create")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<CommonMessageDTO> createEventType(@RequestBody EventTypeFullDTO eventTypeFullDTO) {
             CommonMessageDTO response = eventTypeService.createEventType(eventTypeFullDTO);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }
 
         @PutMapping("/update/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<CommonMessageDTO> updateEventTypeById(@PathVariable Long id, @RequestBody EventTypeFullDTO newEventTypeFullDTO) {
             CommonMessageDTO response = eventTypeService.updateEventTypeById(id, newEventTypeFullDTO);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         @PutMapping("/set-status/{id}")
+        @PreAuthorize("hasRole('ADMIN')")
         public ResponseEntity<CommonMessageDTO> setEventTypeStatusById(@PathVariable Long id, @RequestBody Map<String, Boolean> statusMap) {
             Boolean status = statusMap.get("status");
             CommonMessageDTO response = eventTypeService.setActivationStatusEventTypeById(id, status);

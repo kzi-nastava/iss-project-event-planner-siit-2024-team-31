@@ -55,7 +55,8 @@ public class SecurityConfiguration {
                                 "/api/product/public/**",
                                 "/api/service/public/**",
                                 "/api/service-category/public/**",
-                                "/api/product-category/public/**")
+                                "/api/product-category/public/**",
+                                "/api/event-type/public/**")
                         .permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
