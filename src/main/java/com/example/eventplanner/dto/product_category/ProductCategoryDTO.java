@@ -1,4 +1,4 @@
-package com.example.eventplanner.dto.product;
+package com.example.eventplanner.dto.product_category;
 
 import com.example.eventplanner.model.Status;
 import lombok.Getter;

@@ -1,7 +1,7 @@
 package com.example.eventplanner.controller;
 
-import com.example.eventplanner.dto.product_category.ProductCategoryDTO;
-import com.example.eventplanner.service.ProductCategoryService;
+import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
+import com.example.eventplanner.service.ProvidedServiceCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,15 +14,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/product-category")
+@RequestMapping("/api/service-category")
 @RequiredArgsConstructor
-public class ProductCategoryController {
+public class ProvidedServiceCategoryController {
 
-    private final ProductCategoryService productCategoryService;
+    private final ProvidedServiceCategoryService providedServiceCategoryService;
 
     @GetMapping("/public/search")
-    public ResponseEntity<Page<ProductCategoryDTO>> searchProductCategories(@RequestParam(required = false) String keyword, Pageable pageable) {
-        Page<ProductCategoryDTO> productCategories = productCategoryService.searchProductCategories(keyword, pageable);
+    public ResponseEntity<Page<ProvidedServiceCategoryDTO>> searchProvidedServiceCategories(@RequestParam(required = false) String keyword, Pageable pageable) {
+        Page<ProvidedServiceCategoryDTO> productCategories = providedServiceCategoryService.searchProvidedServiceCategories(keyword, pageable);
         return new ResponseEntity<>(productCategories, HttpStatus.OK);
     }
 

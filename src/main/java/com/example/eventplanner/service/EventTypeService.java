@@ -3,7 +3,7 @@ package com.example.eventplanner.service;
 import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeFullDTO;
-import com.example.eventplanner.dto.product.ProductCategoryDTO;
+import com.example.eventplanner.dto.product_category.ProductCategoryDTO;
 import com.example.eventplanner.exception.exceptions.eventType.EventTypeNotFoundException;
 import com.example.eventplanner.exception.exceptions.productCategory.ProductCategoryNotFoundException;
 import com.example.eventplanner.model.Status;

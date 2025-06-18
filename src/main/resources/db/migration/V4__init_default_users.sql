@@ -1,3 +1,4 @@
+-- DEVELOPMENT ONLY
 INSERT INTO users (email, password_hash, first_name, role_id, is_active, is_deleted) VALUES
     (
          'admin',

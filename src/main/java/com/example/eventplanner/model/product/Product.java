@@ -15,7 +15,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-@DiscriminatorValue("products")
+@Table(name = "product")
 public class Product extends EntityBase {
 
     @ManyToOne
@@ -35,7 +35,6 @@ public class Product extends EntityBase {
     @Column(name = "peculiarities")
     private String peculiarities;
 
-    //price per 60 minutes
     @Column(name = "price")
     private Double price;
 
@@ -43,7 +42,7 @@ public class Product extends EntityBase {
     private Double discount;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductPhoto> photos = new ArrayList<>();
+    private List<ItemPhoto> photos = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -57,43 +56,13 @@ public class Product extends EntityBase {
     @Column(name = "is_visible")
     private boolean isVisible;
 
-    //Availability for booking
+    //availability status for OD
     @Column(name = "is_available")
     private boolean isAvailable;
 
-    //When PUP deletes his Product make this flag true
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
-    //true - Manual, false - Fixed
-    @Column(name = "time_management")
-    private Boolean timeManagement;
-
-    //In minutes
-    @Column(name = "service_duration_min_minutes")
-    private Integer serviceDurationMinMinutes;
-
-    @Column(name = "service_duration_max_minutes")
-    @Nullable //is timeManagement - Fixed => Null
-    private Integer serviceDurationMaxMinutes = null;
-
-    //true - Manual, false - Automatic
-    @Column(name = "booking_confirmation")
-    private Boolean bookingConfirmation;
-
-    //In hours
-    @Column(name = "booking_decline_deadline_hours")
-    private Integer bookingDeclineDeadlineHours;
-
-    @Column(name = "likes")
-    private Long likes;
-
-    @ManyToMany
-    @JoinTable(
-            name = "product_reservation", // имя таблицы-связки
-            joinColumns = @JoinColumn(name = "product_id"), // внешний ключ для Product
-            inverseJoinColumns = @JoinColumn(name = "reservation_id") // внешний ключ для Reservation
-    )
-    private List<Reservation> reservations = new ArrayList<>();
-
+    @Column(name = "rating")
+    private double rating = 0.0;
 }
