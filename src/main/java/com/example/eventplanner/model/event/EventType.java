@@ -36,7 +36,7 @@ public class EventType extends EntityBase {
      @JoinTable(
              name = "event_type_product_category_link",
              joinColumns = @JoinColumn(name = "event_type_id"),
-             inverseJoinColumns = @JoinColumn(name = "product_category_id")
+             inverseJoinColumns = @JoinColumn(name = "category_id")
      )
      private List<ProductCategory> recommendedCategories = new ArrayList<>();
 
@@ -44,7 +44,7 @@ public class EventType extends EntityBase {
      @JoinTable(
              name="event_type_service_category_link",
              joinColumns = @JoinColumn(name = "event_type_id"),
-             inverseJoinColumns = @JoinColumn(name = "service_category_id")
+             inverseJoinColumns = @JoinColumn(name = "category_id")
      )
      private List<ProvidedServiceCategory> recommendedProvidedServiceCategories = new ArrayList<>();
 
