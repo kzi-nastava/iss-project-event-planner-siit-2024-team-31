@@ -25,8 +25,8 @@ public class Reservation extends EntityBase {
     private Status status;
 
     @ManyToOne
-    @JoinColumn(name = "product_id")
-    private Product product;
+    @JoinColumn(name = "service_id")
+    private ProvidedService service;
 
     @OneToOne
     @JoinColumn(name = "budget_item_id")

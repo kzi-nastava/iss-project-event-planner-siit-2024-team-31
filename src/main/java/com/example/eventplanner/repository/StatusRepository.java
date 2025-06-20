@@ -9,7 +9,7 @@ import java.util.Optional;
 @Repository
 public interface StatusRepository extends JpaRepository<Status, Long> {
 
-    Status findByName(String name);
+    Status findByName(String name) throws IllegalArgumentException;
 
     Status getStatusByName(String name);
 }

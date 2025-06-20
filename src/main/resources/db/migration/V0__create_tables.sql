@@ -74,7 +74,8 @@ CREATE TABLE event (
                        max_num_guests   INTEGER,
                        is_private       BOOLEAN,
                        event_type_id    BIGINT    NOT NULL,
-                       location_id      BIGINT
+                       location_id      BIGINT,
+                       organizer_id     BIGINT    NOT NULL
 );
 
 CREATE TABLE product_category (
@@ -177,7 +178,7 @@ CREATE TABLE reservation_list (
                                   count           INTEGER,
                                   start_time      TIMESTAMP(6),
                                   end_time        TIMESTAMP(6),
-                                  product_id      BIGINT,
+                                  service_id      BIGINT,
                                   budget_item_id  BIGINT,
                                   status_id       BIGINT
 );
@@ -288,13 +289,9 @@ ALTER TABLE budget_items
     ADD CONSTRAINT fk_bi_reservation FOREIGN KEY(reservation_id) REFERENCES reservation_list(id);
 
 ALTER TABLE reservation_list
-    ADD CONSTRAINT fk_rl_product     FOREIGN KEY(product_id)     REFERENCES product(id),
+    ADD CONSTRAINT fk_rl_service     FOREIGN KEY(service_id)     REFERENCES service(id),
     ADD CONSTRAINT fk_rl_budget_item FOREIGN KEY(budget_item_id) REFERENCES budget_items(id),
     ADD CONSTRAINT fk_rl_status      FOREIGN KEY(status_id)      REFERENCES status(id);
-
-ALTER TABLE product_reservation
-    ADD CONSTRAINT fk_pr_prod FOREIGN KEY(product_id)     REFERENCES product(id),
-    ADD CONSTRAINT fk_pr_res  FOREIGN KEY(reservation_id) REFERENCES reservation_list(id);
 
 ALTER TABLE agenda_items
     ADD CONSTRAINT fk_ag_event FOREIGN KEY(event_id) REFERENCES event(id);
@@ -304,5 +301,8 @@ ALTER TABLE comments
 
 ALTER TABLE company
     ADD CONSTRAINT fk_comp_photo FOREIGN KEY(photo_id) REFERENCES photos(id);
+
+ALTER TABLE event
+    ADD CONSTRAINT fk_event_organizer FOREIGN KEY(organizer_id) REFERENCES users(id);
 
 COMMIT;

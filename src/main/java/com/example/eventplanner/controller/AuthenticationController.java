@@ -6,6 +6,7 @@ import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.service.AuthenticationService;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +64,13 @@ public class AuthenticationController {
     @PostMapping("/reset-password")
     public ResponseEntity<CommonMessageDTO> resetPassword(@RequestBody UserResetPasswordRequestDTO userResetPasswordRequestDTO) {
         CommonMessageDTO response = authenticationService.resetPassword(userResetPasswordRequestDTO);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/deactivate")
+    public ResponseEntity<CommonMessageDTO> deactivateUser(HttpServletRequest request) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        CommonMessageDTO response = authenticationService.deactivateUser(userEmail);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
