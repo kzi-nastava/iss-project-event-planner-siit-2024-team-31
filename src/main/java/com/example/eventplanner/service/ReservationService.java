@@ -33,6 +33,6 @@ public class ReservationService {
 
         Status status = statusRepository.findByName(statusName);
 
-        return reservationRepository.findAllService_PupAndStatus(provider, status, pageable);
+        return reservationRepository.findAllByServicePupAndStatus(provider, status, pageable);
     }
 }

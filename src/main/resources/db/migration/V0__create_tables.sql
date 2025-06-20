@@ -75,7 +75,8 @@ CREATE TABLE event (
                        is_private       BOOLEAN,
                        event_type_id    BIGINT    NOT NULL,
                        location_id      BIGINT,
-                       organizer_id     BIGINT    NOT NULL
+                       organizer_id     BIGINT    NOT NULL,
+                       status_id        BIGINT    NOT NULL
 );
 
 CREATE TABLE product_category (
@@ -303,6 +304,7 @@ ALTER TABLE company
     ADD CONSTRAINT fk_comp_photo FOREIGN KEY(photo_id) REFERENCES photos(id);
 
 ALTER TABLE event
-    ADD CONSTRAINT fk_event_organizer FOREIGN KEY(organizer_id) REFERENCES users(id);
+    ADD CONSTRAINT fk_event_organizer FOREIGN KEY(organizer_id) REFERENCES users(id),
+    ADD CONSTRAINT fk_event_status FOREIGN KEY(status_id) REFERENCES status(id);
 
 COMMIT;

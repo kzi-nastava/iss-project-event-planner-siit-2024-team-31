@@ -203,12 +203,17 @@ public class AuthenticationService {
         return new CommonMessageDTO("Password reset successfully", null);
     }
 
-    public CommonMessageDTO deactivateUser(String userEmail) {
+    public CommonMessageDTO deactivateUser(String userEmail, String password) {
+
         User user = userRepository.findByEmail(userEmail).orElseThrow(
                 () -> new UserNotFoundException("User with email: " + userEmail + " not found"));
 
         if (!user.isActive()) {
             throw new UserNotActivatedException("User is already deactivated");
+        }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("Incorrect password");
         }
 
         if (user.getRole().getName().equals("ADMIN")) {

@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    Page<Reservation> findAllService_PupAndStatus(User pup, Status status, Pageable pageable);
+    Page<Reservation> findAllByServicePupAndStatus(User pup, Status status, Pageable pageable);
 
 }

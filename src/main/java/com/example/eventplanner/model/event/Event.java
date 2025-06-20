@@ -3,6 +3,7 @@ package com.example.eventplanner.model.event;
 
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.EventLocation;
+import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.event.agenda.AgendaItem;
 import com.example.eventplanner.model.event.budget.BudgetItem;
 import com.example.eventplanner.model.user.User;
@@ -48,6 +49,10 @@ public class Event extends EntityBase {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
     private EventLocation location;
+
+    @ManyToOne
+    @JoinColumn(name= "status_id")
+    private Status status;
 
     @ManyToOne
     @JoinColumn(name = "organizer_id")
