@@ -6,18 +6,20 @@ import com.example.eventplanner.dto.userDto.*;
 import com.example.eventplanner.exception.exceptions.auth.EmailAlreadyUsedException;
 import com.example.eventplanner.exception.exceptions.auth.UserNotActivatedException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
+import com.example.eventplanner.model.Reservation;
 import com.example.eventplanner.model.UserPhoto;
+import com.example.eventplanner.model.event.Event;
 import com.example.eventplanner.model.user.PasswordResetToken;
 import com.example.eventplanner.model.user.User;
-import com.example.eventplanner.repository.PasswordResetTokenRepo;
-import com.example.eventplanner.repository.RoleRepository;
-import com.example.eventplanner.repository.UserRepository;
+import com.example.eventplanner.repository.*;
 import com.example.eventplanner.utils.types.SMTPEmailDetails;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,10 +41,13 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final ProvidedServiceRepository providedServiceRepository;
     private final EmailService emailService;
+    private final ReservationService reservationService;
     private final RoleRepository roleRepository;
     private final PhotoService photoService;
     private final PasswordResetTokenRepo passwordResetTokenRepo;
+    private final EventService eventService;
     private SecureRandom random = new SecureRandom();
 
     @Value("${server.port}")
@@ -198,4 +203,37 @@ public class AuthenticationService {
         return new CommonMessageDTO("Password reset successfully", null);
     }
 
+    public CommonMessageDTO deactivateUser(String userEmail) {
+        User user = userRepository.findByEmail(userEmail).orElseThrow(
+                () -> new UserNotFoundException("User with email: " + userEmail + " not found"));
+
+        if (!user.isActive()) {
+            throw new UserNotActivatedException("User is already deactivated");
+        }
+
+        if (user.getRole().getName().equals("ADMIN")) {
+            throw new IllegalArgumentException("Cannot deactivate an admin user");
+        }
+
+        if (user.getRole().getName().equals("PUP")) {
+            Pageable pageable = Pageable.ofSize(10);
+            Page<Reservation> confirmedServices = reservationService.getPageReservationsByStatusAndProvider(user, "CONFIRMED", pageable);
+            if (confirmedServices.hasContent()) {
+                throw new IllegalArgumentException("Cannot deactivate a PUP with active reservations");
+            }
+        }
+
+        if (user.getRole().getName().equals("OD")) {
+            Pageable pageable = Pageable.ofSize(10);
+            Page<Event> upcomingEvents = eventService.getPageEventsByStatusAndOrganizer(user, "UPCOMING", pageable);
+            if (upcomingEvents.hasContent()) {
+                throw new IllegalArgumentException("Cannot deactivate an OD with upcoming events");
+            }
+        }
+
+        user.setActive(false);
+        userRepository.save(user);
+
+        return new CommonMessageDTO("User deactivated successfully", null);
+    }
 }

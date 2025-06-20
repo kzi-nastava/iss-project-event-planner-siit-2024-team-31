@@ -5,14 +5,15 @@ import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.EventLocation;
 import com.example.eventplanner.model.event.agenda.AgendaItem;
 import com.example.eventplanner.model.event.budget.BudgetItem;
+import com.example.eventplanner.model.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -47,6 +48,10 @@ public class Event extends EntityBase {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
     private EventLocation location;
+
+    @ManyToOne
+    @JoinColumn(name = "organizer_id")
+    User organizer;
 
     @OneToMany(
             mappedBy = "event",
