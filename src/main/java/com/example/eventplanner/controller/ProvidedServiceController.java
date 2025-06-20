@@ -88,4 +88,13 @@ public class ProvidedServiceController {
         ProvidedServiceFilterCriteria filterOptions = providedServiceService.getFilterOptions();
         return new ResponseEntity<>(filterOptions, HttpStatus.OK);
     }
+
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<Page<ProvidedServiceDTO>> searchMyServices(HttpServletRequest request, Pageable pageable) {
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        Page<ProvidedServiceDTO> services = providedServiceService.searchMyServices(pupEmail, pageable);
+        return new ResponseEntity<>(services, HttpStatus.OK);
+    }
+
 }
