@@ -41,9 +41,13 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-//    @GetMapping("/my-products")
-//    @PreAuthorize("hasRole('PUP')")
-//    public ResponseEnitity<> getMyProducts() {}
+    @GetMapping("/my")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<Page<ProductDTO>> searchMyProducts(HttpServletRequest request, Pageable pageable) {
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        Page<ProductDTO> products = productService.searchMyProducts(pupEmail, pageable);
+        return new ResponseEntity<>(products, HttpStatus.OK);
+    }
 
     @GetMapping("/public/top-5")
     public ResponseEntity<List<ProductDTO>> getTop5Products(HttpServletRequest request) {

@@ -226,6 +226,14 @@ public class ProvidedServiceService {
                 .build();
     }
 
+    public Page<ProvidedServiceDTO> searchMyServices(String pupEmail, Pageable pageable) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
+        return providedServiceRepository
+                .findAllByPup(pup, pageable)
+                .map(this::toDto);
+    }
+
     private ProvidedServiceDTO toDto(ProvidedService svc) {
         ProvidedServiceDTO d = new ProvidedServiceDTO();
         d.setId(svc.getId());
@@ -249,4 +257,6 @@ public class ProvidedServiceService {
         d.setServiceDurationMaxMinutes(svc.getServiceDurationMaxMinutes());
         return d;
     }
+
+
 }

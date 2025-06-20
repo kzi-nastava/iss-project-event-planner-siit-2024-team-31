@@ -134,6 +134,14 @@ public class ProductService {
                 .build();
     }
 
+    public Page<ProductDTO> searchMyProducts(String pupEmail, Pageable pageable) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new IllegalArgumentException("PUP not found with email: " + pupEmail));
+
+        return productRepository.findAllByPup(pup, pageable)
+                .map(this::convertToDTO);
+    }
+
     // Helper methods for creating products, getting user email, etc. can be added here
     private ProductDTO convertToDTO(com.example.eventplanner.model.product.Product product) {
         ProductDTO productDTO = new ProductDTO();
@@ -151,6 +159,7 @@ public class ProductService {
         productDTO.setRating(product.getRating());
         return productDTO;
     }
+
 
 
 }
