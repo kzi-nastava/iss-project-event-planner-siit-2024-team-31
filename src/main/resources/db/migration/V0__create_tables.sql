@@ -224,6 +224,24 @@ CREATE TABLE company (
                          is_active            BOOLEAN
 );
 
+CREATE TABLE user_favorite_service (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    service_id BIGINT NOT NULL
+);
+
+CREATE TABLE user_favorite_product (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL
+);
+
+CREATE TABLE user_favorite_event (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    event_id BIGINT NOT NULL
+);
+
 BEGIN;
 
 ALTER TABLE users
@@ -306,5 +324,17 @@ ALTER TABLE company
 ALTER TABLE event
     ADD CONSTRAINT fk_event_organizer FOREIGN KEY(organizer_id) REFERENCES users(id),
     ADD CONSTRAINT fk_event_status FOREIGN KEY(status_id) REFERENCES status(id);
+
+ALTER TABLE user_favorite_service
+    ADD CONSTRAINT fk_user_service FOREIGN KEY(user_id) REFERENCES users(id),
+    ADD CONSTRAINT fk_service_service FOREIGN KEY(service_id) REFERENCES service(id);
+
+ALTER TABLE user_favorite_product
+    ADD CONSTRAINT fk_user_product FOREIGN KEY(user_id) REFERENCES users(id),
+    ADD CONSTRAINT fk_product_product FOREIGN KEY(product_id) REFERENCES product(id);
+
+ALTER TABLE user_favorite_event
+    ADD CONSTRAINT fk_user_event FOREIGN KEY(user_id) REFERENCES users(id),
+    ADD CONSTRAINT fk_event_event FOREIGN KEY(event_id) REFERENCES event(id);
 
 COMMIT;

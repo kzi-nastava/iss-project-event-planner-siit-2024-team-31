@@ -2,6 +2,7 @@ package com.example.eventplanner.model.user;
 
 import com.example.eventplanner.model.*;
 import com.example.eventplanner.model.product.Product;
+import com.example.eventplanner.model.service.ProvidedService;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,10 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -69,6 +67,30 @@ public class User extends EntityBase implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserPhoto> photos = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_favorite_service",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private Set<ProvidedService> favoriteServices = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_favorite_product",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_id")
+    )
+    private Set<Product> favoriteProducts = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_favorite_event",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
+    )
+    private Set<Event> favoriteEvents = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() { return List.of(new SimpleGrantedAuthority("ROLE_" + role.getName())); }
