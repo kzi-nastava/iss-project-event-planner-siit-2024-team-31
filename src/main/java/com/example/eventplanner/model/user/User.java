@@ -1,6 +1,7 @@
 package com.example.eventplanner.model.user;
 
 import com.example.eventplanner.model.*;
+import com.example.eventplanner.model.event.Event;
 import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.model.service.ProvidedService;
 import jakarta.persistence.*;
