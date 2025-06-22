@@ -80,7 +80,6 @@ public class PhotoService {
                 .build();
 
         s3Client.deleteObject(deleteRequest);
-        s3Client.close();
     }
 
 }

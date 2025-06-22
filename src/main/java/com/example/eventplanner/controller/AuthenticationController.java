@@ -68,9 +68,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/deactivate")
-    public ResponseEntity<CommonMessageDTO> deactivateUser(HttpServletRequest request) {
+    public ResponseEntity<CommonMessageDTO> deactivateUser(HttpServletRequest request, @RequestParam String password) {
         String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        CommonMessageDTO response = authenticationService.deactivateUser(userEmail);
+        CommonMessageDTO response = authenticationService.deactivateUser(userEmail, password);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

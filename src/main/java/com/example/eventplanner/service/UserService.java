@@ -19,6 +19,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -111,9 +113,9 @@ public class UserService {
 
         User userEntity = user.get();
 
-        final Role ROLE_PUP = roleRepository.findByName("ROLE_PUP");
-        final Role ROLE_OD = roleRepository.findByName("ROLE_OD");
-        final Role ROLE_USER = roleRepository.findByName("ROLE_USER");
+        final Role ROLE_PUP = roleRepository.findByName("PUP");
+        final Role ROLE_OD = roleRepository.findByName("OD");
+        final Role ROLE_USER = roleRepository.findByName("USER");
 
         userEntity.setFirstName(userUpdateProfileRequestDTO.getFirstName());
         userEntity.setPhoneNumber(userUpdateProfileRequestDTO.getPhoneNumber());
@@ -244,6 +246,14 @@ public class UserService {
 
                 .build();
     }
+
+//    public static String[] getNullPropertyNames(Object source) {
+//        final BeanWrapper src = new BeanWrapperImpl(source);
+//        return Arrays.stream(src.getPropertyDescriptors())
+//                .map(PropertyDescriptor::getName)
+//                .filter(name -> src.getPropertyValue(name) == null)
+//                .toArray(String[]::new);
+//    }
 
 }
 

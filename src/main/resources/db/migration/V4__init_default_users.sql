@@ -1,12 +1,13 @@
 -- DEVELOPMENT ONLY
-INSERT INTO users (email, password_hash, first_name, role_id, is_active, is_deleted) VALUES
+INSERT INTO users (email, password_hash, first_name, role_id, is_active, is_deleted, version) VALUES
     (
          'admin',
          '$2a$10$bkYMiLynfP5DCVNKpnS.3eaJiY3.bVPRn0na43wKQPypu7kLiN.Ui',
          'Admin',
          (SELECT id FROM roles WHERE name = 'ADMIN'),
          TRUE,
-        FALSE
+        FALSE,
+        0
     ),
     (
          'user',
@@ -14,7 +15,8 @@ INSERT INTO users (email, password_hash, first_name, role_id, is_active, is_dele
          'User',
          (SELECT id FROM roles WHERE name = 'USER'),
          TRUE,
-     FALSE
+     FALSE,
+        0
     ),
     (
          'pup',
@@ -22,7 +24,8 @@ INSERT INTO users (email, password_hash, first_name, role_id, is_active, is_dele
          'Pup',
          (SELECT id FROM roles WHERE name = 'PUP'),
          TRUE,
-     FALSE
+     FALSE,
+        0
     ),
     (
          'od',
@@ -30,5 +33,6 @@ INSERT INTO users (email, password_hash, first_name, role_id, is_active, is_dele
          'Od',
          (SELECT id FROM roles WHERE name = 'OD'),
          TRUE,
-     FALSE
+     FALSE,
+            0
     );

@@ -7,14 +7,12 @@ import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.repository.ProductRepository;
 import com.example.eventplanner.repository.UserRepository;
 import com.example.eventplanner.utils.types.ProductFilterCriteria;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,18 +29,18 @@ public class ProductService {
         return productRepository
                 .findTop5ByOrderByRatingDesc()
                 .stream()
-                .map(this::convertToDTO)
+                .map(this::productToProductDTO)
                 .collect(Collectors.toList());
     }
 
     public Page<ProductDTO> searchProducts(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isEmpty()) {
             return productRepository.findAll(pageable)
-                    .map(this::convertToDTO);
+                    .map(this::productToProductDTO);
         } else {
             return productRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
                     keyword, keyword, pageable
-            ).map(this::convertToDTO);
+            ).map(this::productToProductDTO);
         }
     }
 
@@ -104,7 +102,7 @@ public class ProductService {
 
         return productRepository
                 .findAll(spec, pageable)
-                .map(this::convertToDTO);
+                .map(this::productToProductDTO);
     }
 
     public ProductFilterCriteria getFilterOptions() {
@@ -139,11 +137,11 @@ public class ProductService {
                 .orElseThrow(() -> new IllegalArgumentException("PUP not found with email: " + pupEmail));
 
         return productRepository.findAllByPup(pup, pageable)
-                .map(this::convertToDTO);
+                .map(this::productToProductDTO);
     }
 
     // Helper methods for creating products, getting user email, etc. can be added here
-    private ProductDTO convertToDTO(com.example.eventplanner.model.product.Product product) {
+    public ProductDTO productToProductDTO(com.example.eventplanner.model.product.Product product) {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setId(product.getId());
         productDTO.setPupId(product.getPup().getId());
