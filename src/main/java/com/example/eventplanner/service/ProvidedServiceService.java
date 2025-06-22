@@ -109,7 +109,7 @@ public class ProvidedServiceService {
         return providedServiceRepository
                 .findTop5ByOrderByRatingDesc()
                 .stream()
-                .map(this::toDto)
+                .map(this::providedServiceToProvidedServiceDTO)
                 .toList();
     }
 
@@ -118,7 +118,7 @@ public class ProvidedServiceService {
                 ? providedServiceRepository.findAll(pg)
                 : providedServiceRepository
                 .findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(keyword, keyword, pg);
-        return page.map(this::toDto);
+        return page.map(this::providedServiceToProvidedServiceDTO);
     }
 
     public Page<ProvidedServiceDTO> filterSearchServices(ProvidedServiceFilterCriteria c, Pageable pg) {
@@ -192,7 +192,7 @@ public class ProvidedServiceService {
 
         return providedServiceRepository
                 .findAll(spec, pg)
-                .map(this::toDto);
+                .map(this::providedServiceToProvidedServiceDTO);
     }
 
     public ProvidedServiceFilterCriteria getFilterOptions() {
@@ -231,10 +231,10 @@ public class ProvidedServiceService {
                 .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
         return providedServiceRepository
                 .findAllByPup(pup, pageable)
-                .map(this::toDto);
+                .map(this::providedServiceToProvidedServiceDTO);
     }
 
-    private ProvidedServiceDTO toDto(ProvidedService svc) {
+    public ProvidedServiceDTO providedServiceToProvidedServiceDTO(ProvidedService svc) {
         ProvidedServiceDTO d = new ProvidedServiceDTO();
         d.setId(svc.getId());
         d.setPupId(svc.getPup().getId());

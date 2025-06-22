@@ -1,5 +1,6 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.eventDto.EventDto;
 import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.event.Event;
 import com.example.eventplanner.model.user.User;
@@ -30,6 +31,12 @@ public class EventService {
         Status status = statusRepository.getStatusByName(statusName);
 
         return eventRepository.findAllByOrganizerAndStatus(organizer, status, pageable);
+    }
+
+    //Helper
+    public EventDto eventToEventDTO(Event event) {
+        //TODO: Implement the conversion logic from Event to EventDto
+        return new EventDto();
     }
 
 }
