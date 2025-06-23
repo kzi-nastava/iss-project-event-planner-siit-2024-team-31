@@ -72,5 +72,7 @@ public class Event extends EntityBase {
     )
     private List<BudgetItem> budgetItems = new ArrayList<>();
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventPhoto> images = new ArrayList<>();
 
 }

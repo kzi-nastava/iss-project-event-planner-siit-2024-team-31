@@ -1,4 +1,9 @@
 package com.example.eventplanner.repository;
 
-public interface EventPhotoRepository {
+import com.example.eventplanner.model.event.EventPhoto;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface EventPhotoRepository extends JpaRepository<EventPhoto, Long> {
 }

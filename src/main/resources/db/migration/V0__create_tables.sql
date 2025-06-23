@@ -242,6 +242,13 @@ CREATE TABLE user_favorite_event (
     event_id BIGINT NOT NULL
 );
 
+CREATE TABLE event_photos (
+    id BIGSERIAL PRIMARY KEY,
+    version INTEGER,
+    event_id BIGINT NOT NULL,
+    url VARCHAR(255) NOT NULL
+);
+
 BEGIN;
 
 ALTER TABLE users
@@ -336,5 +343,8 @@ ALTER TABLE user_favorite_product
 ALTER TABLE user_favorite_event
     ADD CONSTRAINT fk_user_event FOREIGN KEY(user_id) REFERENCES users(id),
     ADD CONSTRAINT fk_event_event FOREIGN KEY(event_id) REFERENCES event(id);
+
+ALTER TABLE event_photos
+    ADD CONSTRAINT fk_event_photos_event FOREIGN KEY(event_id) REFERENCES event(id);
 
 COMMIT;
