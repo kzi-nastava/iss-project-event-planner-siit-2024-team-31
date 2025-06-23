@@ -17,6 +17,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EventLocation extends EntityBase {
 
-    //TODO: Add location fields (e.g., address, city, state, zip code, country)
+    private double lat;
+    private double lng;
+    private String address;
 
 }
