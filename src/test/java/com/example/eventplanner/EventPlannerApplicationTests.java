@@ -1,13 +1,12 @@
 package com.example.eventplanner;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.platform.suite.api.SelectPackages;
+import org.junit.platform.suite.api.Suite;
 
-@SpringBootTest
+@Suite
+@SelectPackages(
+        value = {"com.example.eventplanner.JUnit5", "com.example.eventplanner.MVC"}
+)
 class EventPlannerApplicationTests {
-
-    @Test
-    void contextLoads() {
-    }
 
 }
