@@ -1,7 +1,7 @@
 package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.CommonMessageDTO;
-import com.example.eventplanner.dto.eventDto.EventDto;
+import com.example.eventplanner.dto.eventDto.EventDTO;
 import com.example.eventplanner.dto.product.ProductDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
 import com.example.eventplanner.exception.exceptions.event.EventNotFoundException;
@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -107,9 +106,9 @@ public class FavoriteService {
         return new CommonMessageDTO("Service removed from favorites successfully", null);
     }
 
-    public Page<EventDto> getFavoriteEvents(String userEmail, Pageable pageable) {
+    public Page<EventDTO> getFavoriteEvents(String userEmail, Pageable pageable) {
         User user = getUserByEmail(userEmail);
-        List<EventDto> all = user.getFavoriteEvents().stream()
+        List<EventDTO> all = user.getFavoriteEvents().stream()
                 .map(eventService::eventToEventDTO)
                 .toList();
 

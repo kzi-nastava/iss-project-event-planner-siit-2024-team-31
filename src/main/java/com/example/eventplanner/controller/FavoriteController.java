@@ -1,7 +1,7 @@
 package com.example.eventplanner.controller;
 
 import com.example.eventplanner.dto.CommonMessageDTO;
-import com.example.eventplanner.dto.eventDto.EventDto;
+import com.example.eventplanner.dto.eventDto.EventDTO;
 import com.example.eventplanner.dto.product.ProductDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
 import com.example.eventplanner.service.FavoriteService;
@@ -66,9 +66,9 @@ public class FavoriteController {
     }
 
     @GetMapping("/event/my")
-    public ResponseEntity<Page<EventDto>> getMyFavoriteEvents(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Page<EventDTO>> getMyFavoriteEvents(HttpServletRequest request, Pageable pageable) {
         String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        Page<EventDto> favoriteEvents = favoriteService.getFavoriteEvents(userEmail, pageable);
+        Page<EventDTO> favoriteEvents = favoriteService.getFavoriteEvents(userEmail, pageable);
         return ResponseEntity.ok(favoriteEvents);
     }
 
