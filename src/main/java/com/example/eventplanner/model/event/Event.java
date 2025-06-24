@@ -71,6 +71,12 @@ public class Event extends EntityBase {
     )
     private List<BudgetItem> budgetItems = new ArrayList<>();
 
+    @Column(name = "likes_count")
+    private Long likesCount = 0L;
+
+    @Column(name = "rating")
+    private Double rating = 0.0;
+
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventPhoto> images = new ArrayList<>();
 

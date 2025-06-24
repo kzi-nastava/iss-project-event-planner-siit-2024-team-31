@@ -76,7 +76,9 @@ CREATE TABLE event (
                        event_type_id    BIGINT    NOT NULL,
                        location_id      BIGINT,
                        organizer_id     BIGINT    NOT NULL,
-                       status_id        BIGINT    NOT NULL
+                       status_id        BIGINT    NOT NULL,
+                       likes_count      BIGINT DEFAULT 0,
+                       rating           DOUBLE PRECISION DEFAULT 0.0
 );
 
 CREATE TABLE product_category (
