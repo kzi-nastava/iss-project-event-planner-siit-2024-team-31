@@ -1,8 +1,10 @@
 package com.example.eventplanner.controller;
 
 import com.example.eventplanner.dto.CommonMessageDTO;
+import com.example.eventplanner.dto.eventDto.CreateEventRequestDTO;
 import com.example.eventplanner.dto.eventDto.EventDTO;
 import com.example.eventplanner.service.EventService;
+import com.example.eventplanner.utils.types.EventFilterCriteria;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -11,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/event")
@@ -27,8 +32,8 @@ public class EventController {
 
     @GetMapping("/public/search")
     public ResponseEntity<Page<EventDTO>> searchEvents(@RequestParam(value = "keyword", required = false) String keyword, Pageable pageable) {
-        //TODO: Implement the logic to search events based on the provided parameters
-        return null;
+        Page<EventDTO> events = eventService.searchEvents(keyword, pageable);
+        return new ResponseEntity<>(events, HttpStatus.OK);
     }
 
     @GetMapping("/public/top-5")
@@ -39,25 +44,37 @@ public class EventController {
 
     @GetMapping("/public/filter-search")
     public ResponseEntity<Page<EventDTO>> filterEvents(
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "location", required = false) String location,
-            @RequestParam(value = "date", required = false) String date,
+            @RequestParam(required = false) List<Long> eventTypeIds,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) LocalDateTime dateBefore,
+            @RequestParam(required = false) LocalDateTime dateAfter,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Integer minGuestNum,
+            @RequestParam(required = false) Integer maxGuestNum,
             Pageable pageable) {
-        //TODO: Implement the logic to filter events based on the provided parameters
-        return null;
+        EventFilterCriteria filterCriteria = EventFilterCriteria.builder()
+                .keyword(keyword)
+                .eventTypeIds(eventTypeIds)
+                .dateBefore(dateBefore)
+                .dateAfter(dateAfter)
+                .minGuestsNum(minGuestNum)
+                .maxGuestsNum(maxGuestNum)
+                .city(city)
+                .build();
+        Page<EventDTO> events = eventService.filterEvents(filterCriteria, pageable);
+        return new ResponseEntity<>(events, HttpStatus.OK);
     }
 
     @GetMapping("/public/filter-options")
-    public ResponseEntity<?> getFilterOptions() {
-        //TODO: Implement the logic to retrieve filter options for events
-        return null;
+    public ResponseEntity<EventFilterCriteria> getFilterOptions() {
+        EventFilterCriteria filterOptions = eventService.getFilterOptions();
+        return new ResponseEntity<>(filterOptions, HttpStatus.OK);
     }
 
     @PostMapping()
     @PreAuthorize("hasRole('OD')")
-    public ResponseEntity<CommonMessageDTO> createEvent(@RequestBody EventDTO eventDTO) {
-        //TODO: Implement the logic to create a new event
-        return null;
+    public ResponseEntity<CommonMessageDTO> createEvent(@RequestBody CreateEventRequestDTO createEventRequestDTO, HttpServletRequest request) {
+        return new ResponseEntity<>(new CommonMessageDTO("Event created successfully", null), HttpStatus.CREATED);
     }
 
     @PutMapping("/{eventId}")

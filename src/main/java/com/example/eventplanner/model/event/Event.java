@@ -55,7 +55,7 @@ public class Event extends EntityBase {
 
     @ManyToOne
     @JoinColumn(name = "organizer_id")
-    User organizer;
+    private User organizer;
 
     @OneToMany(
             mappedBy = "event",

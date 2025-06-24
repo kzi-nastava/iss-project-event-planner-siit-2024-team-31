@@ -10,11 +10,14 @@ import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.EventPhotoRepository;
 import com.example.eventplanner.repository.EventRepository;
 import com.example.eventplanner.repository.StatusRepository;
+import com.example.eventplanner.utils.types.EventFilterCriteria;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -56,7 +59,69 @@ public class EventService {
         return eventToEventDTO(event);
     }
 
-    public Page<EventDTO> getEventsByLocation(EventLocation location, Pageable pageable) {}
+    public Page<EventDTO> searchEvents(String keyword, Pageable pageable) {
+        if (keyword == null || keyword.isEmpty()) {
+            return eventRepository.findAll(pageable).map(this::eventToEventDTO);
+        }
+
+        String searchKeyword = "%" + keyword.toLowerCase() + "%";
+        Page<Event> events = eventRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(searchKeyword, searchKeyword, pageable);
+        return events.map(this::eventToEventDTO);
+    }
+
+    public Page<EventDTO> filterEvents(EventFilterCriteria criteria, Pageable pageable) {
+
+        Specification<Event> spec = Specification.where(null);
+
+        if (criteria.getKeyword() != null && !criteria.getKeyword().isBlank()) {
+            String kw = "%" + criteria.getKeyword().toLowerCase() + "%";
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(cb.lower(root.get("name")), kw),
+                            cb.like(cb.lower(root.get("description")), kw)
+                    )
+            );
+        }
+
+        if (criteria.getEventTypeIds() != null && !criteria.getEventTypeIds().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.get("eventType").get("id").in(criteria.getEventTypeIds())
+            );
+        }
+
+//        if (criteria.getCity() != null && !criteria.getCity().isBlank()) {
+//            spec = spec.and((root, query, cb) ->
+//                    cb.equal(root.get("location").get("city"), criteria.getCity())
+//            );
+//        }
+
+        if (criteria.getDateBefore() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("startTime"), criteria.getDateBefore())
+            );
+        }
+
+        if (criteria.getDateAfter() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("startTime"), criteria.getDateAfter())
+            );
+        }
+
+        if (criteria.getMinGuestsNum() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("maxNumGuests"), criteria.getMinGuestsNum())
+            );
+        }
+
+        if (criteria.getMaxGuestsNum() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("maxNumGuests"), criteria.getMaxGuestsNum())
+            );
+        }
+
+        return eventRepository.findAll(spec, pageable)
+                .map(this::eventToEventDTO);
+    }
 
     //Helper
     public EventDTO eventToEventDTO(Event event) {
@@ -83,11 +148,45 @@ public class EventService {
         dto.setEventType(eventTypeDTO);
         dto.setStatus(event.getStatus().getName());
         dto.setLocation(event.getLocation());
-        dto.setImages(photos);
+        dto.setPhotoUrls(photos);
         dto.setRating(event.getRating());
         dto.setLikesCount(event.getLikesCount());
 
         return dto;
+    }
+
+    public EventFilterCriteria getFilterOptions() {
+
+        LocalDateTime minDate = eventRepository.findAll()
+                .stream()
+                .map(Event::getStartTime)
+                .min(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now());
+
+        LocalDateTime maxDate = eventRepository.findAll()
+                .stream()
+                .map(Event::getEndTime)
+                .max(LocalDateTime::compareTo)
+                .orElse(LocalDateTime.now().plusYears(1));
+
+        Integer minGuests = eventRepository.findAll()
+                .stream()
+                .map(Event::getMaxNumGuests)
+                .min(Integer::compareTo)
+                .orElse(0);
+
+        Integer maxGuests = eventRepository.findAll()
+                .stream()
+                .map(Event::getMaxNumGuests)
+                .max(Integer::compareTo)
+                .orElse(1000000);
+
+        return EventFilterCriteria.builder()
+                .dateAfter(minDate)
+                .dateBefore(maxDate)
+                .minGuestsNum(minGuests)
+                .maxGuestsNum(maxGuests)
+                .build();
     }
 
 }
