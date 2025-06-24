@@ -249,6 +249,15 @@ CREATE TABLE event_photos (
     url VARCHAR(255) NOT NULL
 );
 
+CREATE TABLE invite_list (
+    id BIGSERIAL PRIMARY KEY,
+    version INTEGER,
+    user_id BIGINT NOT NULL,
+    event_id BIGINT NOT NULL,
+    status_id BIGINT NOT NULL,
+    sent_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
+);
+
 BEGIN;
 
 ALTER TABLE users
@@ -346,5 +355,10 @@ ALTER TABLE user_favorite_event
 
 ALTER TABLE event_photos
     ADD CONSTRAINT fk_event_photos_event FOREIGN KEY(event_id) REFERENCES event(id);
+
+ALTER TABLE invite_list
+    ADD CONSTRAINT fk_invite_user FOREIGN KEY(user_id) REFERENCES users(id),
+    ADD CONSTRAINT fk_invite_event FOREIGN KEY(event_id) REFERENCES event(id),
+    ADD CONSTRAINT fk_invite_status FOREIGN KEY(status_id) REFERENCES status(id);
 
 COMMIT;

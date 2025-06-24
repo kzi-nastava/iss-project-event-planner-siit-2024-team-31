@@ -2,6 +2,7 @@ package com.example.eventplanner.model.user;
 
 import com.example.eventplanner.model.*;
 import com.example.eventplanner.model.event.Event;
+import com.example.eventplanner.model.event.Invite;
 import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.model.service.ProvidedService;
 import jakarta.persistence.*;
@@ -92,6 +93,9 @@ public class User extends EntityBase implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private Set<Event> favoriteEvents = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> invites = new ArrayList<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() { return List.of(new SimpleGrantedAuthority("ROLE_" + role.getName())); }
