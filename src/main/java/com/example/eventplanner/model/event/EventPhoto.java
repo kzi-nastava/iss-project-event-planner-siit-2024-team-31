@@ -16,6 +16,6 @@ public class EventPhoto extends EntityBase {
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
-    private Event eventId;
+    private Event event;
 
 }
