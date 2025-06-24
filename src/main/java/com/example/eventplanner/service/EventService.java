@@ -49,6 +49,13 @@ public class EventService {
                 .map(this::eventToEventDTO);
     }
 
+    public EventDTO getEventById(Long id) {
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + id));
+
+        return eventToEventDTO(event);
+    }
+
     //Helper
     public EventDTO eventToEventDTO(Event event) {
         EventDTO dto = new EventDTO();

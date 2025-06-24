@@ -21,8 +21,8 @@ public class EventController {
 
     @GetMapping("/public/{eventId}")
     public ResponseEntity<EventDTO> getEventById(@PathVariable Long eventId) {
-        //TODO: Implement the logic to retrieve the event by ID
-        return null;
+        EventDTO eventDTO = eventService.getEventById(eventId);
+        return new ResponseEntity<>(eventDTO, HttpStatus.OK);
     }
 
     @GetMapping("/public/search")
