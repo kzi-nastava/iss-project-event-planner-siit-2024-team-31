@@ -56,6 +56,8 @@ public class EventService {
         return eventToEventDTO(event);
     }
 
+    public Page<EventDTO> getEventsByLocation(EventLocation location, Pageable pageable) {}
+
     //Helper
     public EventDTO eventToEventDTO(Event event) {
         EventDTO dto = new EventDTO();
@@ -82,6 +84,8 @@ public class EventService {
         dto.setStatus(event.getStatus().getName());
         dto.setLocation(event.getLocation());
         dto.setImages(photos);
+        dto.setRating(event.getRating());
+        dto.setLikesCount(event.getLikesCount());
 
         return dto;
     }

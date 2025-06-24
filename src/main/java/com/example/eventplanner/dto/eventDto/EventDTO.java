@@ -28,5 +28,7 @@ public class EventDTO {
     private EventTypeDTO eventTypeDTO;
     private EventLocation location;
     private List<String> images;
+    private Double rating;
+    private Long likesCount;
 
 }
