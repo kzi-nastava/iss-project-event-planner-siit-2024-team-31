@@ -68,4 +68,11 @@ public class EventController {
         return null;
     }
 
+    @PostMapping("/{eventId}/send-invite")
+    @PreAuthorize("hasRole('OD')")
+    public ResponseEntity<CommonMessageDTO> sendInvite(@PathVariable Long eventId, @RequestParam String email) {
+        //TODO: Implement the logic to send an invite to a user for the specified event
+        return null;
+    }
+
 }
