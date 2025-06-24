@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,6 +27,6 @@ public class EventDTO {
     private String status;
     private EventTypeDTO eventTypeDTO;
     private EventLocation location;
-    private String[] images;
+    private List<String> images;
 
 }
