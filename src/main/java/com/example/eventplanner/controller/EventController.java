@@ -32,9 +32,9 @@ public class EventController {
     }
 
     @GetMapping("/public/top-5")
-    public ResponseEntity<Page<EventDTO>> getTop5Events(Pageable pageable) {
-        //TODO: Implement the logic to retrieve the top 5 events
-        return null;
+    public ResponseEntity<Page<EventDTO>> getTop5Events() {
+        Page<EventDTO> events = eventService.getTop5Events();
+        return new ResponseEntity<>(events, HttpStatus.OK);
     }
 
     @GetMapping("/public/filter-search")

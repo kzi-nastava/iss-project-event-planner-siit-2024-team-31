@@ -17,4 +17,7 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
 
     Page<Event> findAllByOrganizerAndStatus(User organizer, Status status, Pageable pageable);
+
+    Page<Event> findAllByOrderByLikesCountDesc(Pageable pageable);
+
 }
