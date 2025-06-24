@@ -1,34 +1,29 @@
 package com.example.eventplanner.dto.eventDto;
 
-import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
+import com.example.eventplanner.dto.eventDto.agenda.AgendaItemDTO;
+import com.example.eventplanner.dto.eventDto.budget.BudgetItemDTO;
 import com.example.eventplanner.model.EventLocation;
-import com.example.eventplanner.model.Status;
-import com.example.eventplanner.model.event.EventType;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Getter
 @Setter
-public class EventDTO {
+public class CreateEventRequestDTO {
 
-    private Long id;
     private String name;
     private String description;
     private Integer maxNumGuests;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private boolean isPrivate;
-    private Long organizer_id;
-    private EventTypeDTO eventType;
-    private String status;
+    private Long eventTypeId;
     private EventLocation location;
-    private List<String> photoUrls;
-    private Double rating;
-    private Long likesCount;
+    private List<BudgetItemDTO> budgetItems;
+    private List<MultipartFile> photos;
+    private List<AgendaItemDTO> agendaItems;
 
 }
