@@ -67,13 +67,17 @@ public class EventService {
         }
 
         String searchKeyword = "%" + keyword.toLowerCase() + "%";
-        Page<Event> events = eventRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(searchKeyword, searchKeyword, pageable);
+        Page<Event> events = eventRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndPrivate(searchKeyword, searchKeyword, pageable, false);
         return events.map(this::eventToEventDTO);
     }
 
     public Page<EventDTO> filterEvents(EventFilterCriteria criteria, Pageable pageable) {
 
         Specification<Event> spec = Specification.where(null);
+
+        spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("private"), false)
+        );
 
         if (criteria.getKeyword() != null && !criteria.getKeyword().isBlank()) {
             String kw = "%" + criteria.getKeyword().toLowerCase() + "%";

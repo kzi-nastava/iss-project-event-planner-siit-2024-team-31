@@ -20,5 +20,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     Page<Event> findAllByOrderByLikesCountDesc(Pageable pageable);
 
-    Page<Event> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String searchKeyword, String searchKeyword1, Pageable pageable);
+    Page<Event> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndPrivate(String name, String description, Pageable pageable, boolean isPrivate);
 }
