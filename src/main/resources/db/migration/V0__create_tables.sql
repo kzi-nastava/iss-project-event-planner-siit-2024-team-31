@@ -60,8 +60,11 @@ CREATE TABLE event_types (
 );
 
 CREATE TABLE event_locations (
-                                 id      BIGSERIAL PRIMARY KEY,
-                                 version INTEGER
+                         id      BIGSERIAL PRIMARY KEY,
+                         version INTEGER,
+                         lat     DOUBLE PRECISION,
+                         lng     DOUBLE PRECISION,
+                         address VARCHAR(255)
 );
 
 CREATE TABLE event (
