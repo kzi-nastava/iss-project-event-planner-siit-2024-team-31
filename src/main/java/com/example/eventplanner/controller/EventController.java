@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -46,8 +47,8 @@ public class EventController {
     public ResponseEntity<Page<EventDTO>> filterEvents(
             @RequestParam(required = false) List<Long> eventTypeIds,
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) LocalDateTime dateBefore,
-            @RequestParam(required = false) LocalDateTime dateAfter,
+            @RequestParam(required = false) Instant dateBefore,
+            @RequestParam(required = false) Instant dateAfter,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Integer minGuestNum,
             @RequestParam(required = false) Integer maxGuestNum,

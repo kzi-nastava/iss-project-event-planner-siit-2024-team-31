@@ -20,7 +20,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -157,17 +159,17 @@ public class EventService {
 
     public EventFilterCriteria getFilterOptions() {
 
-        LocalDateTime minDate = eventRepository.findAll()
+        Instant minDate = eventRepository.findAll()
                 .stream()
                 .map(Event::getStartTime)
-                .min(LocalDateTime::compareTo)
-                .orElse(LocalDateTime.now());
+                .min(Instant::compareTo)
+                .orElse(Instant.now());
 
-        LocalDateTime maxDate = eventRepository.findAll()
+        Instant maxDate = eventRepository.findAll()
                 .stream()
                 .map(Event::getEndTime)
-                .max(LocalDateTime::compareTo)
-                .orElse(LocalDateTime.now().plusYears(1));
+                .max(Instant::compareTo)
+                .orElse(Instant.now().plus(1, ChronoUnit.YEARS));
 
         Integer minGuests = eventRepository.findAll()
                 .stream()

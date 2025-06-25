@@ -72,8 +72,8 @@ CREATE TABLE event (
                        version          INTEGER,
                        name             VARCHAR(255),
                        description      VARCHAR(255),
-                       start_time       TIMESTAMP(6),
-                       end_time         TIMESTAMP(6),
+                       start_time       TIMESTAMP(6) WITH TIME ZONE,
+                       end_time         TIMESTAMP(6) WITH TIME ZONE,
                        max_num_guests   INTEGER,
                        is_private       BOOLEAN,
                        event_type_id    BIGINT    NOT NULL,
@@ -182,8 +182,8 @@ CREATE TABLE reservation_list (
                                   id              BIGSERIAL PRIMARY KEY,
                                   version         INTEGER,
                                   count           INTEGER,
-                                  start_time      TIMESTAMP(6),
-                                  end_time        TIMESTAMP(6),
+                                  start_time      TIMESTAMP(6) WITH TIME ZONE,
+                                  end_time        TIMESTAMP(6) WITH TIME ZONE,
                                   service_id      BIGINT,
                                   budget_item_id  BIGINT,
                                   status_id       BIGINT
@@ -200,8 +200,8 @@ CREATE TABLE agenda_items (
                               title       VARCHAR(255),
                               description VARCHAR(255),
                               location    VARCHAR(255),
-                              start_time  TIMESTAMP(6),
-                              end_time    TIMESTAMP(6),
+                              start_time  TIMESTAMP(6) WITH TIME ZONE,
+                              end_time    TIMESTAMP(6) WITH TIME ZONE,
                               event_id    BIGINT    NOT NULL
 );
 
