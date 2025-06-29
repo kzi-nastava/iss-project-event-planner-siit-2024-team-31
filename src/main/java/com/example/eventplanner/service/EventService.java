@@ -26,10 +26,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +46,7 @@ public class EventService {
     private final UserRepository userRepository;
 
     private final PhotoService photoService;
+    private final UserService userService;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
@@ -264,6 +268,26 @@ public class EventService {
 
         return new CommonMessageDTO("Event created successfully", null);
     }
+
+    public List<EventDTO> getMyGuestEventsByYearMonth(int year, int month, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("User with email=" + userEmail + " not found"));
+
+        YearMonth ym = YearMonth.of(year, month);
+        Instant startOfMonth = ym.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant endOfMonth = ym.plusMonths(1)
+                .atDay(1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+
+        List<Event> events = eventRepository
+                .findAllByInvites_UserAndStartTimeBetween(user, startOfMonth, endOfMonth);
+
+        return events.stream()
+                .map(this::eventToEventDTO)
+                .collect(Collectors.toList());
+    }
+
 
     //Helper
     public EventDTO eventToEventDTO(Event event) {

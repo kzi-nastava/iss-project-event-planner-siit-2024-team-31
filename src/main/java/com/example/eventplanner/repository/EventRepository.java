@@ -11,6 +11,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -24,4 +26,7 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     Page<Event> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndPrivate(String name, String description, Pageable pageable, boolean isPrivate);
 
     Page<Event> findAllByOrganizer(User user, Pageable pageable);
+
+    List<Event> findAllByInvites_UserAndStartTimeBetween(User user, Instant start, Instant end);
+
 }

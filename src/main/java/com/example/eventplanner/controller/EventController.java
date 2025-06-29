@@ -107,6 +107,14 @@ public class EventController {
         return new ResponseEntity<>(myGuestEvents, HttpStatus.OK);
     }
 
+    @GetMapping("/calendar/{year}/{month}")
+    @PreAuthorize("hasAnyRole('USER', 'OD', 'ADMIN', 'PUP')")
+    public ResponseEntity<List<EventDTO>> getEventsByMonth(@PathVariable int year, @PathVariable int month, HttpServletRequest request) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        List<EventDTO> events = eventService.getMyGuestEventsByYearMonth(year, month, userEmail);
+        return new ResponseEntity<>(events, HttpStatus.OK);
+    }
+
     @PutMapping("/{eventId}")
     @PreAuthorize("hasRole('OD')")
     public ResponseEntity<CommonMessageDTO> updateEvent(@PathVariable Long eventId, @RequestBody EventDTO eventDTO,
