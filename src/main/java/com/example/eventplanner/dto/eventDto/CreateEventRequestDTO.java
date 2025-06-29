@@ -21,7 +21,7 @@ public class CreateEventRequestDTO {
     private Instant startTime;
     private Instant endTime;
     private boolean isPrivate;
-    private Long eventTypeId;
+    private String eventTypeName;
     private EventLocation location;
     private List<BudgetItemDTO> budgetItems;
     private List<MultipartFile> photos;
