@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "agenda_items")
@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 @Setter
 public class AgendaItem extends EntityBase {
     @Column(name = "start_time")
-    private LocalDateTime startDate;
+    private Instant startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endDate;
+    private Instant endTime;
 
     @Column(name = "title")
     private String title;

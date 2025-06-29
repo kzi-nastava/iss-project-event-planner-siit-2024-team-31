@@ -60,8 +60,11 @@ CREATE TABLE event_types (
 );
 
 CREATE TABLE event_locations (
-                                 id      BIGSERIAL PRIMARY KEY,
-                                 version INTEGER
+                         id      BIGSERIAL PRIMARY KEY,
+                         version INTEGER,
+                         lat     DOUBLE PRECISION,
+                         lng     DOUBLE PRECISION,
+                         address VARCHAR(255)
 );
 
 CREATE TABLE event (
@@ -69,14 +72,16 @@ CREATE TABLE event (
                        version          INTEGER,
                        name             VARCHAR(255),
                        description      VARCHAR(255),
-                       start_time       TIMESTAMP(6),
-                       end_time         TIMESTAMP(6),
+                       start_time       TIMESTAMP(6) WITH TIME ZONE,
+                       end_time         TIMESTAMP(6) WITH TIME ZONE,
                        max_num_guests   INTEGER,
                        is_private       BOOLEAN,
                        event_type_id    BIGINT    NOT NULL,
                        location_id      BIGINT,
                        organizer_id     BIGINT    NOT NULL,
-                       status_id        BIGINT    NOT NULL
+                       status_id        BIGINT    NOT NULL,
+                       likes_count      BIGINT DEFAULT 0,
+                       rating           DOUBLE PRECISION DEFAULT 0.0
 );
 
 CREATE TABLE product_category (
@@ -177,8 +182,8 @@ CREATE TABLE reservation_list (
                                   id              BIGSERIAL PRIMARY KEY,
                                   version         INTEGER,
                                   count           INTEGER,
-                                  start_time      TIMESTAMP(6),
-                                  end_time        TIMESTAMP(6),
+                                  start_time      TIMESTAMP(6) WITH TIME ZONE,
+                                  end_time        TIMESTAMP(6) WITH TIME ZONE,
                                   service_id      BIGINT,
                                   budget_item_id  BIGINT,
                                   status_id       BIGINT
@@ -195,8 +200,8 @@ CREATE TABLE agenda_items (
                               title       VARCHAR(255),
                               description VARCHAR(255),
                               location    VARCHAR(255),
-                              start_time  TIMESTAMP(6),
-                              end_time    TIMESTAMP(6),
+                              start_time  TIMESTAMP(6) WITH TIME ZONE,
+                              end_time    TIMESTAMP(6) WITH TIME ZONE,
                               event_id    BIGINT    NOT NULL
 );
 
@@ -240,6 +245,22 @@ CREATE TABLE user_favorite_event (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
     event_id BIGINT NOT NULL
+);
+
+CREATE TABLE event_photos (
+    id BIGSERIAL PRIMARY KEY,
+    version INTEGER,
+    event_id BIGINT NOT NULL,
+    url VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE invite_list (
+    id BIGSERIAL PRIMARY KEY,
+    version INTEGER,
+    user_id BIGINT NOT NULL,
+    event_id BIGINT NOT NULL,
+    status_id BIGINT NOT NULL,
+    sent_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
 BEGIN;
@@ -336,5 +357,13 @@ ALTER TABLE user_favorite_product
 ALTER TABLE user_favorite_event
     ADD CONSTRAINT fk_user_event FOREIGN KEY(user_id) REFERENCES users(id),
     ADD CONSTRAINT fk_event_event FOREIGN KEY(event_id) REFERENCES event(id);
+
+ALTER TABLE event_photos
+    ADD CONSTRAINT fk_event_photos_event FOREIGN KEY(event_id) REFERENCES event(id);
+
+ALTER TABLE invite_list
+    ADD CONSTRAINT fk_invite_user FOREIGN KEY(user_id) REFERENCES users(id),
+    ADD CONSTRAINT fk_invite_event FOREIGN KEY(event_id) REFERENCES event(id),
+    ADD CONSTRAINT fk_invite_status FOREIGN KEY(status_id) REFERENCES status(id);
 
 COMMIT;

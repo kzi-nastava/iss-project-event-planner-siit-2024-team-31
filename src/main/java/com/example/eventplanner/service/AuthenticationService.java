@@ -58,7 +58,7 @@ public class AuthenticationService {
 
     public void signup(UserRegisterRequestDTO input) {
 
-        if (userRepository.findByEmail().isPresent()) {
+        if (userRepository.findByEmail(input.getEmail()).isPresent()) {
             throw new EmailAlreadyUsedException("Email already used. Please choose another email.");
         }
 

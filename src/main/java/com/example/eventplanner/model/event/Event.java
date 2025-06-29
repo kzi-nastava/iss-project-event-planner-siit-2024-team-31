@@ -11,8 +11,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +34,10 @@ public class Event extends EntityBase {
     private Integer maxNumGuests;
 
     @Column(name = "start_time")
-    private LocalDateTime startTime;
+    private Instant startTime;
 
     @Column(name = "end_time")
-    private LocalDateTime endTime;
+    private Instant endTime;
 
     @Column(name = "is_private")
     private boolean isPrivate;
@@ -56,7 +56,7 @@ public class Event extends EntityBase {
 
     @ManyToOne
     @JoinColumn(name = "organizer_id")
-    User organizer;
+    private User organizer;
 
     @OneToMany(
             mappedBy = "event",
@@ -71,6 +71,18 @@ public class Event extends EntityBase {
             orphanRemoval = true
     )
     private List<BudgetItem> budgetItems = new ArrayList<>();
+
+    @Column(name = "likes_count")
+    private Long likesCount = 0L;
+
+    @Column(name = "rating")
+    private Double rating = 0.0;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventPhoto> images = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invite> invites = new ArrayList<>();
 
 
 }

@@ -1,15 +1,12 @@
 package com.example.eventplanner.utils.types;
 
 import jakarta.annotation.Nullable;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
+@Getter
 public class SMTPEmailDetails {
 
     @Nullable
