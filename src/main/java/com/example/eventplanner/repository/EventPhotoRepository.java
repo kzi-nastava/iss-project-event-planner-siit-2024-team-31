@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface EventPhotoRepository extends JpaRepository<EventPhoto, Long> {
 
-    List<EventPhoto> findAllByEvent(Event event);
+    Optional<List<EventPhoto>> findAllByEvent(Event event);
 
 }

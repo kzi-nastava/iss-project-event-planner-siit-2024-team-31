@@ -11,7 +11,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import java.util.Optional;
+
 
 @Repository
 public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
@@ -21,4 +22,6 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     Page<Event> findAllByOrderByLikesCountDesc(Pageable pageable);
 
     Page<Event> findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndPrivate(String name, String description, Pageable pageable, boolean isPrivate);
+
+    Page<Event> findAllByOrganizer(User user, Pageable pageable);
 }
