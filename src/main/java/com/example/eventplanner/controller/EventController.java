@@ -4,12 +4,14 @@ import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.eventDto.CreateEventRequestDTO;
 import com.example.eventplanner.dto.eventDto.EventDTO;
 import com.example.eventplanner.service.EventService;
+import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.utils.types.EventFilterCriteria;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,7 @@ import java.util.List;
 public class EventController {
 
     private final EventService eventService;
+    private final JwtService jwtService;
 
     @GetMapping("/public/{eventId}")
     public ResponseEntity<EventDTO> getEventById(@PathVariable Long eventId) {
@@ -74,8 +77,34 @@ public class EventController {
 
     @PostMapping()
     @PreAuthorize("hasRole('OD')")
-    public ResponseEntity<CommonMessageDTO> createEvent(@RequestBody CreateEventRequestDTO createEventRequestDTO, HttpServletRequest request) {
-        return new ResponseEntity<>(new CommonMessageDTO("Event created successfully", null), HttpStatus.CREATED);
+    public ResponseEntity<CommonMessageDTO> createEvent(@ModelAttribute CreateEventRequestDTO createEventRequestDTO, HttpServletRequest request) {
+        String organizerEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        CommonMessageDTO response = eventService.createEvent(createEventRequestDTO, organizerEmail);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{eventId}")
+    @PreAuthorize("hasRole('OD') or hasRole('USER')")
+    public ResponseEntity<EventDTO> getEventById(@PathVariable Long eventId, HttpServletRequest request) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        EventDTO eventDTO = eventService.getEventById(eventId, userEmail);
+        return new ResponseEntity<>(eventDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("/my-events/organizer")
+    @PreAuthorize("hasRole('OD')")
+    public ResponseEntity<Page<EventDTO>> getMyEvents(HttpServletRequest request, Pageable pageable) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        Page<EventDTO> myEvents = eventService.getMyEvents(userEmail, pageable);
+        return new ResponseEntity<>(myEvents, HttpStatus.OK);
+    }
+
+    @GetMapping("/my-events/guest")
+    @PreAuthorize("hasAnyRole('USER', 'OD', 'ADMIN', 'PUP')")
+    public ResponseEntity<Page<EventDTO>> getMyGuestEvents(HttpServletRequest request, Pageable pageable) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        Page<EventDTO> myGuestEvents = eventService.getMyGuestEvents(userEmail, pageable);
+        return new ResponseEntity<>(myGuestEvents, HttpStatus.OK);
     }
 
     @PutMapping("/{eventId}")
