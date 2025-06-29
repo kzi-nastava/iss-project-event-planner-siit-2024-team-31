@@ -7,4 +7,13 @@ INSERT INTO roles (name) VALUES
 INSERT INTO status (name, description) VALUES
     ('ACTIVE', ''),
     ('INACTIVE', ''),
-    ('PENDING', '');
+    ('PENDING', ''),
+    ('CANCELED', ''),
+    ('COMPLETED', ''),
+    ('ARCHIVED', ''),
+    ('CREATED', ''),
+    ('DELETED', ''),
+    ('REJECTED', ''),
+    ('APPROVED', ''),
+    ('EXPIRED', ''),
+    ('SUSPENDED', '');

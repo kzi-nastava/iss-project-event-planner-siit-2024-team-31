@@ -31,7 +31,7 @@ SELECT
     (gs % 2 = 0),
     (SELECT id FROM event_types ORDER BY random() LIMIT 1),
     1 + ((gs - 1) % 3),
-    (SELECT id FROM users       ORDER BY random() LIMIT 1),
+    (SELECT id FROM users       WHERE email = 'od'),
     (SELECT id FROM status      ORDER BY random() LIMIT 1),
     floor(random() * 500),
     round((random() * 5)::numeric, 1)
