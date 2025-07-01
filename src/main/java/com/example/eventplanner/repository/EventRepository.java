@@ -29,4 +29,5 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     List<Event> findAllByInvites_UserAndStartTimeBetween(User user, Instant start, Instant end);
 
+    List<Event> findAllByOrganizerAndStartTimeBetween(User organizer, Instant startOfMonth, Instant endOfMonth);
 }

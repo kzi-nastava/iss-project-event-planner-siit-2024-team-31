@@ -4,7 +4,9 @@ import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
 import com.example.eventplanner.dto.eventDto.CreateEventRequestDTO;
 import com.example.eventplanner.dto.eventDto.EventDTO;
+import com.example.eventplanner.dto.eventDto.budget.BudgetItemDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
+import com.example.eventplanner.dto.service.ProvidedServiceDTO;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EventLocation;
 import com.example.eventplanner.model.Status;
@@ -12,6 +14,7 @@ import com.example.eventplanner.model.event.Event;
 import com.example.eventplanner.model.event.EventPhoto;
 import com.example.eventplanner.model.event.EventType;
 import com.example.eventplanner.model.event.agenda.AgendaItem;
+import com.example.eventplanner.model.event.budget.BudgetItem;
 import com.example.eventplanner.model.user.User;
 import com.example.eventplanner.repository.*;
 import com.example.eventplanner.utils.types.EventFilterCriteria;
@@ -44,6 +47,10 @@ public class EventService {
     private final EventTypesRepository eventTypesRepository;
     private final EventLocationRepository eventLocationRepository;
     private final UserRepository userRepository;
+
+    private final ProvidedServiceService providedServiceService;
+    private final ProductService productService;
+    private final BudgetItemRepository budgetItemRepository;
 
     private final PhotoService photoService;
     private final UserService userService;
@@ -288,6 +295,51 @@ public class EventService {
                 .collect(Collectors.toList());
     }
 
+    public List<BudgetItemDTO> getEventBudget(Long eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
+
+        List<BudgetItem> budgetItems = event.getBudgetItems();
+
+        return budgetItems.stream().map(this::budgetItemToBudgetItemDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventDTO> getServiceProductBusynessForEventsByMonth(int year, int month, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("User with email=" + userEmail + " not found"));
+
+        YearMonth ym = YearMonth.of(year, month);
+        Instant startOfMonth = ym.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant endOfMonth = ym.plusMonths(1)
+                .atDay(1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+
+        List<Event> events = budgetItemRepository.findEventsWithPupItemsBetween(user, startOfMonth, endOfMonth);
+
+        return events.stream().map(this::eventToEventDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<EventDTO> getOrganizerEventsByYearMonth(int year, int month, String userEmail) {
+        User organizer = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new UserNotFoundException("User with email=" + userEmail + " not found"));
+
+        YearMonth ym = YearMonth.of(year, month);
+        Instant startOfMonth = ym.atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant endOfMonth = ym.plusMonths(1)
+                .atDay(1)
+                .atStartOfDay(ZoneOffset.UTC)
+                .toInstant();
+
+        List<Event> events = eventRepository
+                .findAllByOrganizerAndStartTimeBetween(organizer, startOfMonth, endOfMonth);
+
+        return events.stream()
+                .map(this::eventToEventDTO)
+                .collect(Collectors.toList());
+    }
 
     //Helper
     public EventDTO eventToEventDTO(Event event) {
@@ -360,6 +412,24 @@ public class EventService {
                 .minGuestsNum(minGuests)
                 .maxGuestsNum(maxGuests)
                 .build();
+    }
+
+    private BudgetItemDTO budgetItemToBudgetItemDTO(BudgetItem budgetItem) {
+        BudgetItemDTO dto = new BudgetItemDTO();
+        dto.setId(budgetItem.getId());
+        dto.setStatus(budgetItem.getStatus());
+
+        if (budgetItem.getService() != null) {
+            dto.setService(providedServiceService.providedServiceToProvidedServiceDTO(budgetItem.getService()));
+            dto.setService_start_time(budgetItem.getService_start_time());
+            dto.setService_end_time(budgetItem.getService_end_time());
+        } else if (budgetItem.getProduct() != null) {
+            dto.setProduct(productService.productToProductDTO(budgetItem.getProduct()));
+            dto.setProduct_count(budgetItem.getProduct_count());
+        }
+
+        dto.setTotal_price(budgetItem.getTotal_price());
+        return dto;
     }
 
 }
