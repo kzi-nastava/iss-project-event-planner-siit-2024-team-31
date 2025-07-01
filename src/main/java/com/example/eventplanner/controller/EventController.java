@@ -3,6 +3,7 @@ package com.example.eventplanner.controller;
 import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.eventDto.CreateEventRequestDTO;
 import com.example.eventplanner.dto.eventDto.EventDTO;
+import com.example.eventplanner.dto.eventDto.budget.BudgetItemDTO;
 import com.example.eventplanner.service.EventService;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.utils.types.EventFilterCriteria;
@@ -105,6 +106,36 @@ public class EventController {
         String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
         Page<EventDTO> myGuestEvents = eventService.getMyGuestEvents(userEmail, pageable);
         return new ResponseEntity<>(myGuestEvents, HttpStatus.OK);
+    }
+
+    @GetMapping("/calendar/{year}/{month}")
+    @PreAuthorize("hasAnyRole('USER', 'OD', 'ADMIN', 'PUP')")
+    public ResponseEntity<List<EventDTO>> getEventsByMonth(@PathVariable int year, @PathVariable int month, HttpServletRequest request) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        List<EventDTO> events = eventService.getMyGuestEventsByYearMonth(year, month, userEmail);
+        return new ResponseEntity<>(events, HttpStatus.OK);
+    }
+
+    @GetMapping("/public/{eventId}/budget")
+    public ResponseEntity<List<BudgetItemDTO>> getEventBudget(@PathVariable Long eventId) {
+        List<BudgetItemDTO> budgetItems = eventService.getEventBudget(eventId);
+        return new ResponseEntity<>(budgetItems, HttpStatus.OK);
+    }
+
+    @GetMapping("/service-product-calendar/{year}/{month}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<List<EventDTO>> getServiceProductBusynessForEventsByMonth(@PathVariable int year, @PathVariable int month, HttpServletRequest request) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        List<EventDTO> events = eventService.getServiceProductBusynessForEventsByMonth(year, month, userEmail);
+        return new ResponseEntity<>(events, HttpStatus.OK);
+    }
+
+    @GetMapping("/organizer-calendar/{year}/{month}")
+    @PreAuthorize("hasRole('OD')")
+    public ResponseEntity<List<EventDTO>> getOrganizerEventsByMonth(@PathVariable int year, @PathVariable int month, HttpServletRequest request) {
+        String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        List<EventDTO> events = eventService.getOrganizerEventsByYearMonth(year, month, userEmail);
+        return new ResponseEntity<>(events, HttpStatus.OK);
     }
 
     @PutMapping("/{eventId}")

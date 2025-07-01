@@ -171,11 +171,16 @@ CREATE TABLE item_photo (
 );
 
 CREATE TABLE budget_items (
-                              id             BIGSERIAL PRIMARY KEY,
-                              version        INTEGER,
-                              price          DOUBLE PRECISION,
-                              event_id       BIGINT    NOT NULL,
-                              reservation_id BIGINT
+                              id                   BIGSERIAL PRIMARY KEY,
+                              version              INTEGER,
+                              event_id             BIGINT    NOT NULL,
+                              status_id            BIGINT    NOT NULL,
+                              service_id           BIGINT,
+                              product_id           BIGINT,
+                              product_count        INTEGER   NOT NULL DEFAULT 1,
+                              service_start_time   TIMESTAMP(6) WITH TIME ZONE,
+                              service_end_time     TIMESTAMP(6) WITH TIME ZONE,
+                              total_price          DOUBLE PRECISION NOT NULL
 );
 
 CREATE TABLE reservation_list (
@@ -325,8 +330,27 @@ ALTER TABLE item_photo
         );
 
 ALTER TABLE budget_items
-    ADD CONSTRAINT fk_bi_event      FOREIGN KEY(event_id)       REFERENCES event(id),
-    ADD CONSTRAINT fk_bi_reservation FOREIGN KEY(reservation_id) REFERENCES reservation_list(id);
+    ADD CONSTRAINT fk_bi_event        FOREIGN KEY (event_id)   REFERENCES event(id),
+    ADD CONSTRAINT fk_bi_status       FOREIGN KEY (status_id)  REFERENCES status(id),
+    ADD CONSTRAINT fk_bi_service      FOREIGN KEY (service_id) REFERENCES service(id),
+    ADD CONSTRAINT fk_bi_product      FOREIGN KEY (product_id) REFERENCES product(id),
+    ADD CONSTRAINT chk_bi_one_fk CHECK (
+        (service_id IS NOT NULL AND product_id IS NULL)
+            OR (service_id IS NULL     AND product_id IS NOT NULL)
+        ),
+    ADD CONSTRAINT chk_bi_product_count CHECK (
+        product_id IS NOT NULL AND product_count > 0
+            OR product_id IS NULL     AND product_count = 0
+        ),
+    ADD CONSTRAINT chk_bi_service_time CHECK (
+        service_id IS NOT NULL
+            AND service_start_time IS NOT NULL
+            AND service_end_time   IS NOT NULL
+            AND service_end_time > service_start_time
+            OR service_id IS NULL
+            AND service_start_time IS NULL
+            AND service_end_time   IS NULL
+        );
 
 ALTER TABLE reservation_list
     ADD CONSTRAINT fk_rl_service     FOREIGN KEY(service_id)     REFERENCES service(id),
