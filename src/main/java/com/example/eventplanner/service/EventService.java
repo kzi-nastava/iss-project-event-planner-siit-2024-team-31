@@ -4,6 +4,7 @@ import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
 import com.example.eventplanner.dto.eventDto.CreateEventRequestDTO;
 import com.example.eventplanner.dto.eventDto.EventDTO;
+import com.example.eventplanner.dto.eventDto.agenda.AgendaItemDTO;
 import com.example.eventplanner.dto.eventDto.budget.BudgetItemDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
@@ -339,6 +340,28 @@ public class EventService {
         return events.stream()
                 .map(this::eventToEventDTO)
                 .collect(Collectors.toList());
+    }
+
+    public List<AgendaItemDTO> getEventAgenda(Long eventId) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found with id: " + eventId));
+
+        List<AgendaItem> agendaItems = event.getAgendaItems();
+
+        return agendaItems.stream().map(
+                agendaItem -> {
+                    AgendaItemDTO dto = new AgendaItemDTO();
+                    dto.setId(agendaItem.getId());
+                    dto.setTitle(agendaItem.getTitle());
+                    dto.setDescription(agendaItem.getDescription());
+                    dto.setStartTime(agendaItem.getStartTime());
+                    dto.setEndTime(agendaItem.getEndTime());
+                    dto.setLocation(agendaItem.getLocation());
+                    return dto;
+                }
+        ).collect(Collectors.toList());
+
     }
 
     //Helper

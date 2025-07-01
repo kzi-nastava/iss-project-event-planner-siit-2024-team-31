@@ -10,6 +10,7 @@ import java.time.Instant;
 @Setter
 public class AgendaItemDTO {
 
+    private Long id;
     private Instant startTime;
     private Instant endTime;
     private String title;
