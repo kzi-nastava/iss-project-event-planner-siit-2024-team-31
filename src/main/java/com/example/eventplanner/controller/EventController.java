@@ -3,6 +3,7 @@ package com.example.eventplanner.controller;
 import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.eventDto.CreateEventRequestDTO;
 import com.example.eventplanner.dto.eventDto.EventDTO;
+import com.example.eventplanner.dto.eventDto.agenda.AgendaItemDTO;
 import com.example.eventplanner.dto.eventDto.budget.BudgetItemDTO;
 import com.example.eventplanner.service.EventService;
 import com.example.eventplanner.service.JwtService;
@@ -136,6 +137,12 @@ public class EventController {
         String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
         List<EventDTO> events = eventService.getOrganizerEventsByYearMonth(year, month, userEmail);
         return new ResponseEntity<>(events, HttpStatus.OK);
+    }
+
+    @GetMapping("/public/{eventId}/agenda")
+    public ResponseEntity<List<AgendaItemDTO>> getEventAgenda(@PathVariable Long eventId) {
+        List<AgendaItemDTO> agenda = eventService.getEventAgenda(eventId);
+        return new ResponseEntity<>(agenda, HttpStatus.OK);
     }
 
     @PutMapping("/{eventId}")
