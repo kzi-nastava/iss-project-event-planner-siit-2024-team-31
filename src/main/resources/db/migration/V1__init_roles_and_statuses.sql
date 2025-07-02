@@ -16,4 +16,16 @@ INSERT INTO status (name, description) VALUES
     ('REJECTED', ''),
     ('APPROVED', ''),
     ('EXPIRED', ''),
-    ('SUSPENDED', '');
+    ('SUSPENDED', ''),
+    ('FAILED', ''),
+    ('PROCESSING', ''),
+    ('QUEUED', ''),
+    ('IN_PROGRESS', ''),
+    ('ON_HOLD', ''),
+    ('RESOLVED', ''),
+    ('ESCALATED', ''),
+    ('CLOSED', ''),
+    ('OPEN', ''),
+    ('NEW', ''),
+    ('ASSIGNED', ''),
+    ('UNASSIGNED', '');
