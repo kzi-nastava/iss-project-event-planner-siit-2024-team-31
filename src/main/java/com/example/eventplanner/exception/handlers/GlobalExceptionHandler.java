@@ -6,6 +6,7 @@ import com.example.eventplanner.exception.exceptions.general.ForbiddenException;
 import com.example.eventplanner.exception.exceptions.general.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,6 +28,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<CommonMessageDTO> handleUnauthorizedException(UnauthorizedException ex) {
         return new ResponseEntity<>(new CommonMessageDTO(null, ex.getMessage()), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<CommonMessageDTO> handleAuthenticationException(AuthenticationException ex) {
+        CommonMessageDTO commonMessageDTO = new CommonMessageDTO();
+        commonMessageDTO.setMessage("Authentication failed. Please check your credentials.");
+        commonMessageDTO.setError(ex.getMessage());
+        return new ResponseEntity<>(commonMessageDTO, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)
