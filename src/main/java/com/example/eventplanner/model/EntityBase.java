@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.time.Instant;
 import java.util.Collection;
 
 @Getter
@@ -20,5 +21,8 @@ public abstract class EntityBase {
         @Version
         @Column(name = "version")
         private Integer version;
+
+        @Column(name = "created_at", nullable = false, updatable = false)
+        private Instant createdAt = Instant.now();
 
 }

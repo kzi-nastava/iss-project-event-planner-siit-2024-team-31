@@ -13,8 +13,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 @Entity
@@ -96,6 +98,12 @@ public class User extends EntityBase implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invite> invites = new ArrayList<>();
+
+    @Column(name = "birth_date", nullable = true)
+    private LocalDate birthDate;
+
+    @Column(name = "gender", nullable = true)
+    private String gender = "";
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() { return List.of(new SimpleGrantedAuthority("ROLE_" + role.getName())); }
