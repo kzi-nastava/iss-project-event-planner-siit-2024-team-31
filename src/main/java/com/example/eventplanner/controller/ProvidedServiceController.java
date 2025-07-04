@@ -29,11 +29,9 @@ public class ProvidedServiceController {
 
     @PostMapping()
     @PreAuthorize("hasRole('PUP')")
-    public ResponseEntity<CommonMessageDTO> createProduct(@ModelAttribute CreateServiceRequestDTO createServiceRequestDTO, HttpServletRequest request) {
+    public ResponseEntity<CommonMessageDTO> createProvidedSerivce(@ModelAttribute CreateServiceRequestDTO createServiceRequestDTO, HttpServletRequest request) {
         CommonMessageDTO response = new CommonMessageDTO();
-
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-
         providedServiceService.create(createServiceRequestDTO, pupEmail);
         response.setMessage("Service created successfully");
         return new ResponseEntity<>(response, HttpStatus.CREATED);

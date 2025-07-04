@@ -33,10 +33,8 @@ public class ProductController {
     @PreAuthorize("hasRole('PUP')")
     public ResponseEntity<CreateProductResponseDTO> createProduct(@ModelAttribute CreateProductRequestDTO productDto, HttpServletRequest request) {
         CreateProductResponseDTO response = new CreateProductResponseDTO();
-
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-
-//        productService.create(productDto, pupEmail);
+        productService.create(productDto, pupEmail);
         response.setMessage("Product created successfully");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
