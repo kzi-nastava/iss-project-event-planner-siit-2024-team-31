@@ -13,7 +13,8 @@ INSERT INTO product (
     is_visible,
     is_available,
     is_deleted,
-    rating
+    rating,
+    status_id
 )
 SELECT
     1,
@@ -34,7 +35,8 @@ SELECT
     TRUE,
     FALSE,
     -- round(random() * 5 to 1 decimal
-    round((random() * 5)::numeric, 1)::double precision
+    round((random() * 5)::numeric, 1)::double precision,
+    (SELECT id FROM status WHERE name = 'ACTIVE')
 FROM generate_series(1,20) AS gs;
 
 -- 2) Insert 20 mock services with random rating
@@ -55,7 +57,8 @@ INSERT INTO service (
     service_duration_max_minutes,
     booking_confirmation,
     booking_decline_deadline_hours,
-    rating
+    rating,
+    status_id
 )
 SELECT
     1,
@@ -81,7 +84,8 @@ SELECT
     TRUE,
     24,
     -- round(random() * 5 to 1 decimal
-    round((random() * 5)::numeric, 1)::double precision
+    round((random() * 5)::numeric, 1)::double precision,
+    (SELECT id FROM status WHERE name = 'ACTIVE')
 FROM generate_series(1,20) AS gs;
 
 COMMIT;
