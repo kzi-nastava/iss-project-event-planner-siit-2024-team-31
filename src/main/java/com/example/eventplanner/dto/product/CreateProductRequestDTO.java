@@ -23,15 +23,4 @@ public class CreateProductRequestDTO {
     Boolean isVisible;
     Boolean isAvailable;
 
-    //in minutes
-    Integer serviceDurationMin;
-    Integer serviceDurationMax;
-
-    //in hours
-    Integer bookingDeclineDeadline;
-
-    Boolean noTimeSelectionRequired;
-    Boolean manualTimeSelection;
-    String bookingConfirmation;
-
 }
