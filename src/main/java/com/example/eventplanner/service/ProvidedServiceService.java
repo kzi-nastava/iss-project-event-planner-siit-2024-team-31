@@ -112,6 +112,12 @@ public class ProvidedServiceService {
         return providedServiceRepository.save(newService);
     }
 
+    public void update(Long serviceId, CreateServiceRequestDTO dto, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
+        //TODO: implement update logic
+    }
+
     public List<ProvidedServiceDTO> getTop5Services() {
         return providedServiceRepository
                 .findTop5ByOrderByRatingDesc()

@@ -37,6 +37,16 @@ public class ProvidedServiceController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{serviceId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CommonMessageDTO> updateProvidedService(@PathVariable Long serviceId, @ModelAttribute CreateServiceRequestDTO createServiceRequestDTO, HttpServletRequest request) {
+        CommonMessageDTO response = new CommonMessageDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        providedServiceService.update(serviceId, createServiceRequestDTO, pupEmail);
+        response.setMessage("Service updated successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/public/top-5")
     public ResponseEntity<List<ProvidedServiceDTO>> getTop5Services(HttpServletRequest request) {
         List<ProvidedServiceDTO> topServices = providedServiceService.getTop5Services();

@@ -39,6 +39,16 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CreateProductResponseDTO> updateProduct(@PathVariable Long productId, @ModelAttribute CreateProductRequestDTO productDto, HttpServletRequest request) {
+        CreateProductResponseDTO response = new CreateProductResponseDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        productService.update(productId, productDto, pupEmail);
+        response.setMessage("Product updated successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/my")
     @PreAuthorize("hasRole('PUP')")
     public ResponseEntity<Page<ProductDTO>> searchMyProducts(HttpServletRequest request, Pageable pageable) {

@@ -58,6 +58,12 @@ public class ProductService {
         }
     }
 
+    public void update(Long productId, CreateProductRequestDTO productDto, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("PUP not found with email: " + pupEmail));
+        //TODO: Implement update logic
+    }
+
     public Page<ProductDTO> filterSearchProducts(
             ProductFilterCriteria c,
             Pageable pageable) {
