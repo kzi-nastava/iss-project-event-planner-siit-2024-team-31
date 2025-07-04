@@ -3,6 +3,7 @@ package com.example.eventplanner.model.service;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.ItemPhoto;
 import com.example.eventplanner.model.Reservation;
+import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.event.EventType;
 import com.example.eventplanner.model.user.User;
 import jakarta.annotation.Nullable;
@@ -31,6 +32,10 @@ public class ProvidedService extends EntityBase {
 
     @Column(name = "name")
     private String name;
+
+    @OneToOne
+    @JoinColumn(name = "status_id", nullable = false)
+    private Status status;
 
     @Column(name = "description")
     private String description;

@@ -128,7 +128,8 @@ CREATE TABLE product (
                          is_visible   BOOLEAN,
                          is_available BOOLEAN,
                          is_deleted   BOOLEAN,
-                         rating       DOUBLE PRECISION
+                         rating       DOUBLE PRECISION,
+                         status_id    BIGINT NOT NULL DEFAULT 1
 );
 
 CREATE TABLE service (
@@ -150,7 +151,8 @@ CREATE TABLE service (
                          service_duration_max_minutes   INTEGER,
                          booking_confirmation           BOOLEAN,
                          booking_decline_deadline_hours INTEGER,
-                         rating                         DOUBLE PRECISION
+                         rating                         DOUBLE PRECISION,
+                         status_id                      BIGINT NOT NULL DEFAULT 1
 );
 
 CREATE TABLE item_photo (
@@ -369,10 +371,12 @@ ALTER TABLE product_category ADD CONSTRAINT fk_pcat_status          FOREIGN KEY(
 ALTER TABLE service_category ADD CONSTRAINT fk_scat_status          FOREIGN KEY(status_id)     REFERENCES status(id);
 
 ALTER TABLE product          ADD CONSTRAINT fk_product_pup         FOREIGN KEY(pup_id)        REFERENCES users(id),
-                             ADD CONSTRAINT fk_product_category    FOREIGN KEY(category_id)   REFERENCES product_category(id);
+                             ADD CONSTRAINT fk_product_category    FOREIGN KEY(category_id)   REFERENCES product_category(id),
+                             ADD CONSTRAINT fk_product_status      FOREIGN KEY(status_id)     REFERENCES status(id);
 
 ALTER TABLE service          ADD CONSTRAINT fk_service_pup         FOREIGN KEY(pup_id)        REFERENCES users(id),
-                             ADD CONSTRAINT fk_service_category    FOREIGN KEY(category_id)   REFERENCES service_category(id);
+                             ADD CONSTRAINT fk_service_category    FOREIGN KEY(category_id)   REFERENCES service_category(id),
+                             ADD CONSTRAINT fk_service_status      FOREIGN KEY(status_id)     REFERENCES status(id);
 
 ALTER TABLE item_photo       ADD CONSTRAINT fk_ip_service          FOREIGN KEY(service_id)    REFERENCES service(id),
                              ADD CONSTRAINT fk_ip_product          FOREIGN KEY(product_id)    REFERENCES product(id);

@@ -38,6 +38,10 @@ public class Product extends EntityBase {
     @Column(name = "price")
     private Double price;
 
+    @OneToOne
+    @JoinColumn(name = "status_id", nullable = false)
+    private Status status;
+
     @Column(name = "discount")
     private Double discount;
 
@@ -65,4 +69,7 @@ public class Product extends EntityBase {
 
     @Column(name = "rating")
     private double rating = 0.0;
+
+    //TODO: for future create PURCHASE_LIST for Product like RESERVATION_LIST for ProvidedService
+
 }
