@@ -1,20 +1,28 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.ProductDTO;
+import com.example.eventplanner.exception.exceptions.eventType.EventTypeNotFoundException;
+import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.ItemPhoto;
+import com.example.eventplanner.model.Status;
+import com.example.eventplanner.model.UserPhoto;
 import com.example.eventplanner.model.product.Product;
-import com.example.eventplanner.repository.ProductRepository;
-import com.example.eventplanner.repository.UserRepository;
+import com.example.eventplanner.model.product.ProductCategory;
+import com.example.eventplanner.repository.*;
 import com.example.eventplanner.utils.types.ProductFilterCriteria;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,8 +30,14 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductCategoryRepository productCategoryRepository;
     private final UserRepository userRepository;
-    private final JwtService jwtService;
+    private final StatusRepository statusRepository;
+    private final PhotoService photoService;
+    private final EventTypesRepository eventTypesRepository;
+
+    @Value("${aws.s3.bucket-name}")
+    private String userBucketName;
 
     public List<ProductDTO> getTop5Products() {
         return productRepository
@@ -138,6 +152,68 @@ public class ProductService {
 
         return productRepository.findAllByPup(pup, pageable)
                 .map(this::productToProductDTO);
+    }
+
+    public void create(CreateProductRequestDTO productDto, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("PUP not found with email: " + pupEmail));
+
+        Product newProduct = new Product();
+
+        //Category
+        var category = productDto.getCategory();
+        if (category == null || category.isBlank()) {
+            throw new IllegalArgumentException("Product category cannot be null or empty");
+        }
+
+        Optional<ProductCategory> productCategory = productCategoryRepository.findByName(category);
+
+        if (productCategory.isEmpty()) {
+            ProductCategory newProductCategory = new ProductCategory();
+            newProductCategory.setName(category);
+            newProductCategory.setDescription("Default description for " + category);
+            Status pendingStatus = statusRepository.findByName("PENDING");
+            newProductCategory.setStatus(pendingStatus);
+            newProduct.setCategory(newProductCategory);
+            newProduct.setStatus(pendingStatus);
+        }
+        else {
+           newProduct.setCategory(productCategory.get());
+           newProduct.setStatus(statusRepository.findByName("ACTIVE"));
+        }
+
+        newProduct.setPup(pup);
+        newProduct.setName(productDto.getName());
+        newProduct.setDescription(productDto.getDescription());
+        newProduct.setPeculiarities(productDto.getPeculiarities());
+        newProduct.setPrice(productDto.getPrice());
+        newProduct.setDiscount(productDto.getDiscount());
+        newProduct.setVisible(productDto.getIsVisible());
+        newProduct.setAvailable(productDto.getIsAvailable());
+
+        // Set photos
+        List<MultipartFile> photos = productDto.getPhotos();
+        if (photos != null && !photos.isEmpty()) {
+            String photosPrefix = "product-photos";
+            List<String> photoUrls = photoService.uploadPhotos(photos, userBucketName, photosPrefix);
+
+            for (String url : photoUrls) {
+                ItemPhoto itemPhoto = new ItemPhoto();
+                itemPhoto.setPhotoUrl(url);
+                itemPhoto.setProduct(newProduct);
+                newProduct.getPhotos().add(itemPhoto);
+            }
+        }
+
+        // Set suitable event types
+        newProduct.setSuitableEventTypes(
+                productDto.getSuitableEventTypes().stream()
+                        .map(id -> eventTypesRepository.findById(id)
+                                .orElseThrow(() -> new EventTypeNotFoundException("Event type not found with id: " + id)))
+                        .collect(Collectors.toList())
+        );
+
+        productRepository.save(newProduct);
     }
 
     // Helper methods for creating products, getting user email, etc. can be added here

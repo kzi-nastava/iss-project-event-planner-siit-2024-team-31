@@ -2,6 +2,7 @@ package com.example.eventplanner.service;
 
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
+import com.example.eventplanner.exception.exceptions.eventType.EventTypeNotFoundException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.ItemPhoto;
@@ -21,6 +22,7 @@ import jakarta.persistence.criteria.Predicate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,72 +39,77 @@ public class ProvidedServiceService {
     private String bucketName;
 
     public ProvidedService create(CreateServiceRequestDTO dto, String pupEmail) throws UserNotFoundException {
-        Status pending = statusRepository.findByName("PENDING");
+
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
 
-        ProvidedService svc = new ProvidedService();
-        svc.setPup(pup);
-        svc.setName(dto.getName());
-        svc.setDescription(dto.getDescription());
-        svc.setPeculiarities(dto.getPeculiarities());
-        svc.setPrice(dto.getPrice());
-        svc.setDiscount(dto.getDiscount());
+        ProvidedService newService = new ProvidedService();
 
-        // категория
+        //Category
         Optional<ProvidedServiceCategory> catOpt = providedServiceRepository.findByName(dto.getCategory());
-        ProvidedServiceCategory cat = catOpt
-                .orElseGet(() -> {
-                    ProvidedServiceCategory c = new ProvidedServiceCategory();
-                    c.setName(dto.getCategory());
-                    c.setDescription("");
-                    c.setStatus(pending);
-                    return providedServiceCategoryRepository.saveAndFlush(c);
-                });
-        svc.setCategory(cat);
-        svc.setAvailable(Boolean.TRUE.equals(dto.getIsAvailable()));
-        svc.setVisible(Boolean.TRUE.equals(dto.getIsVisible()));
 
-        // время
-        if (Boolean.TRUE.equals(dto.getNoTimeSelectionRequired())) {
-            svc.setTimeManagement(false);
-            svc.setServiceDurationMinMinutes(null);
-            svc.setServiceDurationMaxMinutes(null);
-        } else if (Boolean.TRUE.equals(dto.getManualTimeSelection())) {
-            svc.setTimeManagement(true);
-            svc.setServiceDurationMinMinutes(dto.getServiceDurationMin());
-            svc.setServiceDurationMaxMinutes(dto.getServiceDurationMax());
-        } else {
-            svc.setTimeManagement(false);
-            svc.setServiceDurationMinMinutes(dto.getServiceDurationMin());
-            svc.setServiceDurationMaxMinutes(null);
+        if (catOpt.isEmpty()) {
+            Status pending = statusRepository.findByName("PENDING");
+            ProvidedServiceCategory cat = new ProvidedServiceCategory();
+            cat.setName(dto.getCategory());
+            cat.setDescription("");
+            cat.setStatus(pending);
+            newService.setStatus(pending);
+        }
+        else {
+            newService.setCategory(catOpt.get());
+            newService.setStatus(statusRepository.findByName("ACTIVE"));
         }
 
-        svc.setBookingConfirmation("manual".equalsIgnoreCase(dto.getBookingConfirmation()));
-        svc.setBookingDeclineDeadlineHours(dto.getBookingDeclineDeadline());
+        newService.setPup(pup);
+        newService.setName(dto.getName());
+        newService.setDescription(dto.getDescription());
+        newService.setPeculiarities(dto.getPeculiarities());
+        newService.setPrice(dto.getPrice());
+        newService.setDiscount(dto.getDiscount());
 
-        // связь с EventTypes
-        eventTypesRepository.findAllById(dto.getSuitableEventTypes()).forEach(et -> {
-            var rec = et.getRecommendedProvidedServiceCategories();
-            if (!rec.contains(cat)) {
-                rec.add(cat);
-                et.setRecommendedProvidedServiceCategories(rec);
-                eventTypesRepository.saveAndFlush(et);
-            }
-        });
 
-        // фото
+        newService.setAvailable(dto.getIsAvailable());
+        newService.setVisible(dto.getIsVisible());
+
+        //Timings
+        if (Boolean.TRUE.equals(dto.getNoTimeSelectionRequired())) {
+            newService.setTimeManagement(false);
+            newService.setServiceDurationMinMinutes(null);
+            newService.setServiceDurationMaxMinutes(null);
+        } else if (Boolean.TRUE.equals(dto.getManualTimeSelection())) {
+            newService.setTimeManagement(true);
+            newService.setServiceDurationMinMinutes(dto.getServiceDurationMin());
+            newService.setServiceDurationMaxMinutes(dto.getServiceDurationMax());
+        } else {
+            newService.setTimeManagement(false);
+            newService.setServiceDurationMinMinutes(dto.getServiceDurationMin());
+            newService.setServiceDurationMaxMinutes(null);
+        }
+
+        newService.setBookingConfirmation("manual".equalsIgnoreCase(dto.getBookingConfirmation()));
+        newService.setBookingDeclineDeadlineHours(dto.getBookingDeclineDeadline());
+
+        //Event types
+        newService.setSuitableEventTypes(
+                dto.getSuitableEventTypes().stream()
+                        .map(id -> eventTypesRepository.findById(id)
+                                .orElseThrow(() -> new EventTypeNotFoundException("Event type with id " + id + " not found")))
+                        .collect(Collectors.toList())
+        );
+
+        //Photos
         if (dto.getPhotos() != null) {
             List<String> urls = photoService.uploadPhotos(dto.getPhotos(), bucketName, "service-photos");
             urls.forEach(url -> {
                 ItemPhoto p = new ItemPhoto();
                 p.setPhotoUrl(url);
-                p.setService(svc);
-                svc.getPhotos().add(p);
+                p.setService(newService);
+                newService.getPhotos().add(p);
             });
         }
 
-        return providedServiceRepository.save(svc);
+        return providedServiceRepository.save(newService);
     }
 
     public List<ProvidedServiceDTO> getTop5Services() {
