@@ -1,7 +1,11 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
+import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
+import com.example.eventplanner.dto.service.UpdateProvidedServiceRequestDTO;
+import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
 import com.example.eventplanner.exception.exceptions.eventType.EventTypeNotFoundException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EntityBase;
@@ -19,6 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.criteria.Predicate;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -110,6 +116,99 @@ public class ProvidedServiceService {
         }
 
         return providedServiceRepository.save(newService);
+    }
+
+    public void update(Long serviceId, UpdateProvidedServiceRequestDTO dto, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
+
+        var service = providedServiceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Service with id " + serviceId + " not found"));
+
+        if (!service.getPup().getId().equals(pup.getId())) {
+            throw new UserNotFoundException("Service with id " + serviceId + " does not belong to user " + pupEmail);
+        }
+
+        //TODO STUDENT 2: For add check if service is reserved
+        //and if so, throw exception or store previous version of service
+        //until reservation is completed or cancelled
+
+        service.setVersion(service.getVersion() + 1);
+        service.setName(dto.getName());
+        service.setDescription(dto.getDescription());
+        service.setPeculiarities(dto.getPeculiarities());
+        service.setPrice(dto.getPrice());
+        service.setDiscount(dto.getDiscount());
+        service.setAvailable(dto.getIsAvailable());
+        service.setVisible(dto.getIsVisible());
+
+        service.setBookingDeclineDeadlineHours(dto.getBookingDeclineDeadlineHours());
+        service.setServiceDurationMaxMinutes(dto.getServiceDurationMaxMinutes());
+        service.setServiceDurationMinMinutes(dto.getServiceDurationMinMinutes());
+
+        //Photos
+        if (dto.getPhotos() != null) {
+            List<String> urls = photoService.uploadPhotos(dto.getPhotos(), bucketName, "service-photos");
+            urls.forEach(url -> {
+                ItemPhoto p = new ItemPhoto();
+                p.setPhotoUrl(url);
+                p.setService(service);
+                service.getPhotos().add(p);
+            });
+        }
+
+        if (dto.getDeletedPhotosIds() != null) {
+            dto.getDeletedPhotosIds().forEach(photoId -> {
+                ItemPhoto photo = service.getPhotos().stream()
+                        .filter(p -> p.getId().equals(photoId))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Photo with id " + photoId + " not found"));
+                photoService.deletePhotoByKey(photo.getPhotoUrl(), bucketName);
+                service.getPhotos().remove(photo);
+            });
+        }
+
+        //Suitable event types
+        if (dto.getSuitableEventTypes() != null) {
+            service.setSuitableEventTypes(
+                    dto.getSuitableEventTypes().stream()
+                            .map(id -> eventTypesRepository.findById(id)
+                                    .orElseThrow(() -> new EventTypeNotFoundException("Event type with id " + id + " not found")))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        providedServiceRepository.save(service);
+
+    }
+
+    public void delete(Long serviceId, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
+
+        ProvidedService service = providedServiceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Service with id " + serviceId + " not found"));
+
+        if (!service.getPup().getId().equals(pup.getId())) {
+            throw new UserNotFoundException("Service with id " + serviceId + " does not belong to user " + pupEmail);
+        }
+
+        service.setDeleted(true);
+        providedServiceRepository.save(service);
+    }
+
+    public ProvidedServiceDTO getProvidedServiceDataForProviderById(Long serviceId, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
+
+        ProvidedService service = providedServiceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Service with id " + serviceId + " not found"));
+
+        if (!service.getPup().getId().equals(pup.getId())) {
+            throw new UserNotFoundException("Service with id " + serviceId + " does not belong to user " + pupEmail);
+        }
+
+        return providedServiceToProvidedServiceDTO(service);
     }
 
     public List<ProvidedServiceDTO> getTop5Services() {
@@ -233,16 +332,31 @@ public class ProvidedServiceService {
                 .build();
     }
 
-    public Page<ProvidedServiceDTO> searchMyServices(String pupEmail, Pageable pageable) {
+    public Page<ProvidedServiceDTO> searchMyServices(String pupEmail, Pageable pageable, String keyword) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
-        return providedServiceRepository
-                .findAllByPup(pup, pageable)
-                .map(this::providedServiceToProvidedServiceDTO);
+        if (keyword != null && !keyword.isBlank()) {
+            return providedServiceRepository
+                    .findByPupAndNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(pup, keyword, keyword, pageable)
+                    .map(this::providedServiceToProvidedServiceDTO);
+        }
+        else {
+            return providedServiceRepository
+                    .findAllByPup(pup, pageable)
+                    .map(this::providedServiceToProvidedServiceDTO);
+        }
     }
 
     public ProvidedServiceDTO providedServiceToProvidedServiceDTO(ProvidedService svc) {
         ProvidedServiceDTO d = new ProvidedServiceDTO();
+
+        ProvidedServiceCategoryDTO catDto = new ProvidedServiceCategoryDTO();
+        catDto.setId(svc.getCategory().getId());
+        catDto.setName(svc.getCategory().getName());
+        catDto.setDescription(svc.getCategory().getDescription());
+        catDto.setStatus(svc.getCategory().getStatus().getName());
+
+        d.setCategory(catDto);
         d.setId(svc.getId());
         d.setPupId(svc.getPup().getId());
         d.setName(svc.getName());
@@ -250,10 +364,14 @@ public class ProvidedServiceService {
         d.setPeculiarities(svc.getPeculiarities());
         d.setPrice(svc.getPrice());
         d.setDiscount(svc.getDiscount());
-        d.setPhotos(svc.getPhotos().stream()
-                .map(ItemPhoto::getPhotoUrl).toList());
-        d.setSuitableEventTypes(svc.getSuitableEventTypes()
-                .stream().map(EntityBase::getId).toList());
+        d.setSuitableEventTypes(svc.getSuitableEventTypes().stream()
+        .map(et -> {
+                    EventTypeDTO etDto = new EventTypeDTO();
+                    etDto.setId(et.getId());
+                    etDto.setName(et.getName());
+                    etDto.setDescription(et.getDescription());
+                    return etDto;
+                }).collect(Collectors.toList()));
         d.setVisible(svc.isVisible());
         d.setAvailable(svc.isAvailable());
         d.setRating(svc.getRating());
@@ -262,6 +380,20 @@ public class ProvidedServiceService {
         d.setTimeManagement(svc.getTimeManagement());
         d.setServiceDurationMinMinutes(svc.getServiceDurationMinMinutes());
         d.setServiceDurationMaxMinutes(svc.getServiceDurationMaxMinutes());
+        d.setStatus(svc.getStatus());
+
+        List<ItemPhoto> photoUrls = svc.getPhotos();
+        if (photoUrls != null && !photoUrls.isEmpty()) {
+            List<TempPhotoUrlAndIdDTO> tempPhotoUrlAndIdDTOList = new ArrayList<>();
+            for (ItemPhoto photo : photoUrls) {
+                TempPhotoUrlAndIdDTO tempPhotoUrlAndIdDTO = new TempPhotoUrlAndIdDTO();
+                tempPhotoUrlAndIdDTO.setTempPhotoUrl(photoService.generatePresignedUrl(photo.getPhotoUrl(), bucketName));
+                tempPhotoUrlAndIdDTO.setPhotoId(photo.getId());
+                tempPhotoUrlAndIdDTOList.add(tempPhotoUrlAndIdDTO);
+            }
+            d.setPhotos(tempPhotoUrlAndIdDTOList);
+        }
+
         return d;
     }
 

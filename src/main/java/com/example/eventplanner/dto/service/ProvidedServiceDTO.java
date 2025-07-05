@@ -1,5 +1,9 @@
 package com.example.eventplanner.dto.service;
 
+import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
+import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
+import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
+import com.example.eventplanner.model.Status;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,14 +15,14 @@ public class ProvidedServiceDTO {
 
     private Long id;
     private Long pupId;
-    private Long categoryId;
+    private ProvidedServiceCategoryDTO category;
     private String name;
     private String description;
     private String peculiarities;
     private Double price;
     private Double discount;
-    private List<String> photos;
-    private List<Long> suitableEventTypes;
+    private List<TempPhotoUrlAndIdDTO> photos;
+    private List<EventTypeDTO> suitableEventTypes;
     private boolean isVisible;
     private boolean isAvailable;
     private boolean timeManagement;
@@ -27,5 +31,5 @@ public class ProvidedServiceDTO {
     private Boolean bookingConfirmation;
     private Integer bookingDeclineDeadlineHours;
     private Double rating;
-
+    private Status status;
 }

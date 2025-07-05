@@ -3,6 +3,7 @@ package com.example.eventplanner.controller;
 import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
+import com.example.eventplanner.dto.service.UpdateProvidedServiceRequestDTO;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.ProvidedServiceService;
 import com.example.eventplanner.utils.types.ProvidedServiceFilterCriteria;
@@ -35,6 +36,38 @@ public class ProvidedServiceController {
         providedServiceService.create(createServiceRequestDTO, pupEmail);
         response.setMessage("Service created successfully");
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{serviceId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CommonMessageDTO> updateProvidedService(
+            @PathVariable Long serviceId,
+            @ModelAttribute UpdateProvidedServiceRequestDTO updateProvidedServiceRequestDTO,
+            HttpServletRequest request
+    ) {
+        CommonMessageDTO response = new CommonMessageDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        providedServiceService.update(serviceId, updateProvidedServiceRequestDTO, pupEmail);
+        response.setMessage("Service updated successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{serviceId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CommonMessageDTO> deleteProvidedService(@PathVariable Long serviceId, HttpServletRequest request) {
+        CommonMessageDTO response = new CommonMessageDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        providedServiceService.delete(serviceId, pupEmail);
+        response.setMessage("Service deleted successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{serviceId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<ProvidedServiceDTO> getProvidedServiceDataForProviderById(@PathVariable Long serviceId, HttpServletRequest request) {
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        ProvidedServiceDTO service = providedServiceService.getProvidedServiceDataForProviderById(serviceId, pupEmail);
+        return new ResponseEntity<>(service, HttpStatus.OK);
     }
 
     @GetMapping("/public/top-5")
@@ -89,9 +122,9 @@ public class ProvidedServiceController {
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('PUP')")
-    public ResponseEntity<Page<ProvidedServiceDTO>> searchMyServices(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Page<ProvidedServiceDTO>> searchMyServices(@RequestParam(required = false) String keyword, HttpServletRequest request, Pageable pageable) {
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        Page<ProvidedServiceDTO> services = providedServiceService.searchMyServices(pupEmail, pageable);
+        Page<ProvidedServiceDTO> services = providedServiceService.searchMyServices(pupEmail, pageable, keyword);
         return new ResponseEntity<>(services, HttpStatus.OK);
     }
 

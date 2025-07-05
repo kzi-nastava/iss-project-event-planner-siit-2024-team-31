@@ -3,6 +3,7 @@ package com.example.eventplanner.controller;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.CreateProductResponseDTO;
 import com.example.eventplanner.dto.product.ProductDTO;
+import com.example.eventplanner.dto.product.UpdateProductRequestDTO;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.ProductService;
 import com.example.eventplanner.utils.types.ProductFilterCriteria;
@@ -39,11 +40,43 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PutMapping("/{productId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CreateProductResponseDTO> updateProduct(
+            @PathVariable Long productId,
+            @ModelAttribute UpdateProductRequestDTO updateProductRequestDTO,
+            HttpServletRequest request
+    ) {
+        CreateProductResponseDTO response = new CreateProductResponseDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        productService.update(productId, updateProductRequestDTO, pupEmail);
+        response.setMessage("Product updated successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{productId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CreateProductResponseDTO> deleteProduct(@PathVariable Long productId, HttpServletRequest request) {
+        CreateProductResponseDTO response = new CreateProductResponseDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        productService.delete(productId, pupEmail);
+        response.setMessage("Product deleted successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{productId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<ProductDTO> getProductDataForProviderById(@PathVariable Long productId, HttpServletRequest request) {
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        ProductDTO product = productService.getProductDataForProviderById(productId, pupEmail);
+        return new ResponseEntity<>(product, HttpStatus.OK);
+    }
+
     @GetMapping("/my")
     @PreAuthorize("hasRole('PUP')")
-    public ResponseEntity<Page<ProductDTO>> searchMyProducts(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Page<ProductDTO>> searchMyProducts(@RequestParam(required = false) String keyword, HttpServletRequest request, Pageable pageable) {
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        Page<ProductDTO> products = productService.searchMyProducts(pupEmail, pageable);
+        Page<ProductDTO> products = productService.searchMyProducts(pupEmail, pageable, keyword);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
