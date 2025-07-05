@@ -1,6 +1,9 @@
 package com.example.eventplanner.dto.product;
 
+import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
+import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.product_category.ProductCategoryDTO;
+import com.example.eventplanner.model.Status;
 import com.example.eventplanner.model.product.ProductCategory;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,11 +22,12 @@ public class ProductDTO {
     private ProductCategoryDTO category;
     private Double price;
     private Double discount;
-    private List<String> photos;
-    private List<Long> suitableEventTypes;
+    private List<TempPhotoUrlAndIdDTO> photos;
+    private List<EventTypeDTO> suitableEventTypes;
     private boolean isVisible;
     private boolean isAvailable;
     private double rating;
+    private Status status;
 
 }
 
