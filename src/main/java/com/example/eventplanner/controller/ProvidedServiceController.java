@@ -122,9 +122,9 @@ public class ProvidedServiceController {
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('PUP')")
-    public ResponseEntity<Page<ProvidedServiceDTO>> searchMyServices(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Page<ProvidedServiceDTO>> searchMyServices(@RequestParam(required = false) String keyword, HttpServletRequest request, Pageable pageable) {
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        Page<ProvidedServiceDTO> services = providedServiceService.searchMyServices(pupEmail, pageable);
+        Page<ProvidedServiceDTO> services = providedServiceService.searchMyServices(pupEmail, pageable, keyword);
         return new ResponseEntity<>(services, HttpStatus.OK);
     }
 

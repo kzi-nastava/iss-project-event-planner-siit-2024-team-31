@@ -23,4 +23,5 @@ public interface ProvidedServiceRepository extends JpaRepository<ProvidedService
 
     Page<ProvidedService> findAllByPup(User pup, Pageable pageable);
 
+    Page<ProvidedService> findByPupAndNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(User pup, String keyword, String keyword1, Pageable pageable);
 }

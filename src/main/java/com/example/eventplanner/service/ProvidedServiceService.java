@@ -332,12 +332,19 @@ public class ProvidedServiceService {
                 .build();
     }
 
-    public Page<ProvidedServiceDTO> searchMyServices(String pupEmail, Pageable pageable) {
+    public Page<ProvidedServiceDTO> searchMyServices(String pupEmail, Pageable pageable, String keyword) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
-        return providedServiceRepository
-                .findAllByPup(pup, pageable)
-                .map(this::providedServiceToProvidedServiceDTO);
+        if (keyword != null && !keyword.isBlank()) {
+            return providedServiceRepository
+                    .findByPupAndNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(pup, keyword, keyword, pageable)
+                    .map(this::providedServiceToProvidedServiceDTO);
+        }
+        else {
+            return providedServiceRepository
+                    .findAllByPup(pup, pageable)
+                    .map(this::providedServiceToProvidedServiceDTO);
+        }
     }
 
     public ProvidedServiceDTO providedServiceToProvidedServiceDTO(ProvidedService svc) {
