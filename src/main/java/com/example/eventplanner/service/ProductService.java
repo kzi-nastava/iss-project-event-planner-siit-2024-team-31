@@ -118,6 +118,25 @@ public class ProductService {
         productRepository.save(product);
     }
 
+    public void delete(Long productId, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("PUP not found with email: " + pupEmail));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + productId));
+
+        if (!product.getPup().getId().equals(pup.getId())) {
+            throw new IllegalArgumentException("Product does not belong to the PUP with email: " + pupEmail);
+        }
+
+        //TODO STUDENT 2: For add check if product is reserved
+        //and if so, throw exception or store previous version of product
+        //until reservation is completed or cancelled
+
+        product.setDeleted(true);
+        productRepository.save(product);
+    }
+
     public ProductDTO getProductDataForProviderById(Long productId, String pupEmail) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("PUP not found with email: " + pupEmail));

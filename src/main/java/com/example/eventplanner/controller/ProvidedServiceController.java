@@ -52,6 +52,16 @@ public class ProvidedServiceController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{serviceId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CommonMessageDTO> deleteProvidedService(@PathVariable Long serviceId, HttpServletRequest request) {
+        CommonMessageDTO response = new CommonMessageDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        providedServiceService.delete(serviceId, pupEmail);
+        response.setMessage("Service deleted successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/{serviceId}")
     @PreAuthorize("hasRole('PUP')")
     public ResponseEntity<ProvidedServiceDTO> getProvidedServiceDataForProviderById(@PathVariable Long serviceId, HttpServletRequest request) {

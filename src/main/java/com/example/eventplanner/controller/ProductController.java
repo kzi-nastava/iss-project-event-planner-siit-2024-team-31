@@ -54,6 +54,16 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{productId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<CreateProductResponseDTO> deleteProduct(@PathVariable Long productId, HttpServletRequest request) {
+        CreateProductResponseDTO response = new CreateProductResponseDTO();
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        productService.delete(productId, pupEmail);
+        response.setMessage("Product deleted successfully");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/{productId}")
     @PreAuthorize("hasRole('PUP')")
     public ResponseEntity<ProductDTO> getProductDataForProviderById(@PathVariable Long productId, HttpServletRequest request) {

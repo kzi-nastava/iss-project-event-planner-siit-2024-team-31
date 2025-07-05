@@ -179,6 +179,21 @@ public class ProvidedServiceService {
 
     }
 
+    public void delete(Long serviceId, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
+
+        ProvidedService service = providedServiceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Service with id " + serviceId + " not found"));
+
+        if (!service.getPup().getId().equals(pup.getId())) {
+            throw new UserNotFoundException("Service with id " + serviceId + " does not belong to user " + pupEmail);
+        }
+
+        service.setDeleted(true);
+        providedServiceRepository.save(service);
+    }
+
     public ProvidedServiceDTO getProvidedServiceDataForProviderById(Long serviceId, String pupEmail) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
