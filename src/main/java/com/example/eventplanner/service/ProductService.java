@@ -90,7 +90,13 @@ public class ProductService {
         //Photos
         List<MultipartFile> photos = dto.getPhotos();
         if (photos != null && !photos.isEmpty()) {
-            photoService.uploadPhotos(photos, bucketName, "product-photos");
+            List<String> urls = photoService.uploadPhotos(photos, bucketName, "product-photos");
+            urls.forEach(url -> {
+                ItemPhoto itemPhoto = new ItemPhoto();
+                itemPhoto.setPhotoUrl(url);
+                itemPhoto.setProduct(product);
+                product.getPhotos().add(itemPhoto);
+            });
         }
 
         List<Long> deletedPhotosIds = dto.getDeletedPhotosIds();

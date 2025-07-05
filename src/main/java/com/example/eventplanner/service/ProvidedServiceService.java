@@ -1,5 +1,6 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
@@ -22,6 +23,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import jakarta.persistence.criteria.Predicate;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -371,6 +374,19 @@ public class ProvidedServiceService {
         d.setServiceDurationMinMinutes(svc.getServiceDurationMinMinutes());
         d.setServiceDurationMaxMinutes(svc.getServiceDurationMaxMinutes());
         d.setStatus(svc.getStatus());
+
+        List<ItemPhoto> photoUrls = svc.getPhotos();
+        if (photoUrls != null && !photoUrls.isEmpty()) {
+            List<TempPhotoUrlAndIdDTO> tempPhotoUrlAndIdDTOList = new ArrayList<>();
+            for (ItemPhoto photo : photoUrls) {
+                TempPhotoUrlAndIdDTO tempPhotoUrlAndIdDTO = new TempPhotoUrlAndIdDTO();
+                tempPhotoUrlAndIdDTO.setTempPhotoUrl(photoService.generatePresignedUrl(photo.getPhotoUrl(), bucketName));
+                tempPhotoUrlAndIdDTO.setPhotoId(photo.getId());
+                tempPhotoUrlAndIdDTOList.add(tempPhotoUrlAndIdDTO);
+            }
+            d.setPhotos(tempPhotoUrlAndIdDTOList);
+        }
+
         return d;
     }
 
