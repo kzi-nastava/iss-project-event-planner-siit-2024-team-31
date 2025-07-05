@@ -17,6 +17,7 @@ public class UpdateProvidedServiceRequestDTO {
     private Double discount;
     private Long categoryId;
     private Boolean isAvailable;
+    private Boolean isVisible;
     private Integer serviceDurationMinMinutes;
     private Integer serviceDurationMaxMinutes;
     private Integer bookingDeclineDeadlineHours;
