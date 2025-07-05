@@ -1,13 +1,16 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.TempPhotoUrlAndIdDTO;
+import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.ProductDTO;
+import com.example.eventplanner.dto.product.UpdateProductRequestDTO;
+import com.example.eventplanner.dto.product_category.ProductCategoryDTO;
 import com.example.eventplanner.exception.exceptions.eventType.EventTypeNotFoundException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EntityBase;
 import com.example.eventplanner.model.ItemPhoto;
 import com.example.eventplanner.model.Status;
-import com.example.eventplanner.model.UserPhoto;
 import com.example.eventplanner.model.product.Product;
 import com.example.eventplanner.model.product.ProductCategory;
 import com.example.eventplanner.repository.*;
@@ -20,6 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +41,7 @@ public class ProductService {
     private final EventTypesRepository eventTypesRepository;
 
     @Value("${aws.s3.bucket-name}")
-    private String userBucketName;
+    private String bucketName;
 
     public List<ProductDTO> getTop5Products() {
         return productRepository
@@ -58,10 +62,24 @@ public class ProductService {
         }
     }
 
-    public void update(Long productId, CreateProductRequestDTO productDto, String pupEmail) {
+    public void update(Long productId, UpdateProductRequestDTO dto, String pupEmail) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("PUP not found with email: " + pupEmail));
         //TODO: Implement update logic
+    }
+
+    public ProductDTO getProductDataForProviderById(Long productId, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("PUP not found with email: " + pupEmail));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + productId));
+
+        if (!product.getPup().getId().equals(pup.getId())) {
+            throw new IllegalArgumentException("Product does not belong to the PUP with email: " + pupEmail);
+        }
+
+        return productToProductDTO(product);
     }
 
     public Page<ProductDTO> filterSearchProducts(
@@ -201,7 +219,7 @@ public class ProductService {
         List<MultipartFile> photos = productDto.getPhotos();
         if (photos != null && !photos.isEmpty()) {
             String photosPrefix = "product-photos";
-            List<String> photoUrls = photoService.uploadPhotos(photos, userBucketName, photosPrefix);
+            List<String> photoUrls = photoService.uploadPhotos(photos, bucketName, photosPrefix);
 
             for (String url : photoUrls) {
                 ItemPhoto itemPhoto = new ItemPhoto();
@@ -225,6 +243,14 @@ public class ProductService {
     // Helper methods for creating products, getting user email, etc. can be added here
     public ProductDTO productToProductDTO(com.example.eventplanner.model.product.Product product) {
         ProductDTO productDTO = new ProductDTO();
+
+        ProductCategoryDTO categoryDTO = new ProductCategoryDTO();
+        categoryDTO.setId(product.getCategory().getId());
+        categoryDTO.setName(product.getCategory().getName());
+        categoryDTO.setDescription(product.getCategory().getDescription());
+        categoryDTO.setStatus(product.getCategory().getStatus());
+
+        productDTO.setCategory(categoryDTO);
         productDTO.setId(product.getId());
         productDTO.setPupId(product.getPup().getId());
         productDTO.setName(product.getName());
@@ -232,11 +258,34 @@ public class ProductService {
         productDTO.setPeculiarities(product.getPeculiarities());
         productDTO.setPrice(product.getPrice());
         productDTO.setDiscount(product.getDiscount());
-        productDTO.setPhotos(product.getPhotos().stream().map(ItemPhoto::getPhotoUrl).toList());
-        productDTO.setSuitableEventTypes(product.getSuitableEventTypes().stream().map(EntityBase::getId).toList());
+        productDTO.setSuitableEventTypes(
+                product.getSuitableEventTypes().stream()
+                        .map(eventType -> {
+                            EventTypeDTO eventTypeDTO = new EventTypeDTO();
+                            eventTypeDTO.setId(eventType.getId());
+                            eventTypeDTO.setName(eventType.getName());
+                            eventTypeDTO.setDescription(eventType.getDescription());
+                            return eventTypeDTO;
+                        })
+                        .collect(Collectors.toList())
+        );
         productDTO.setVisible(product.isVisible());
         productDTO.setAvailable(product.isAvailable());
         productDTO.setRating(product.getRating());
+        productDTO.setStatus(product.getStatus());
+
+        List<ItemPhoto> photoUrls = product.getPhotos();
+        if (photoUrls != null && !photoUrls.isEmpty()) {
+            List<TempPhotoUrlAndIdDTO> tempPhotoUrlAndIdDTOList = new ArrayList<>();
+            for (ItemPhoto photo : photoUrls) {
+                TempPhotoUrlAndIdDTO tempPhotoUrlAndIdDTO = new TempPhotoUrlAndIdDTO();
+                tempPhotoUrlAndIdDTO.setTempPhotoUrl(photoService.generatePresignedUrl(photo.getPhotoUrl(), bucketName));
+                tempPhotoUrlAndIdDTO.setPhotoId(photo.getId());
+                tempPhotoUrlAndIdDTOList.add(tempPhotoUrlAndIdDTO);
+            }
+            productDTO.setPhotos(tempPhotoUrlAndIdDTOList);
+        }
+
         return productDTO;
     }
 

@@ -1,7 +1,10 @@
 package com.example.eventplanner.service;
 
+import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
+import com.example.eventplanner.dto.service.UpdateProvidedServiceRequestDTO;
+import com.example.eventplanner.dto.service_category.ProvidedServiceCategoryDTO;
 import com.example.eventplanner.exception.exceptions.eventType.EventTypeNotFoundException;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EntityBase;
@@ -112,10 +115,24 @@ public class ProvidedServiceService {
         return providedServiceRepository.save(newService);
     }
 
-    public void update(Long serviceId, CreateServiceRequestDTO dto, String pupEmail) {
+    public void update(Long serviceId, UpdateProvidedServiceRequestDTO dto, String pupEmail) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
         //TODO: implement update logic
+    }
+
+    public ProvidedServiceDTO getProvidedServiceDataForProviderById(Long serviceId, String pupEmail) {
+        var pup = userRepository.findByEmail(pupEmail)
+                .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
+
+        ProvidedService service = providedServiceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Service with id " + serviceId + " not found"));
+
+        if (!service.getPup().getId().equals(pup.getId())) {
+            throw new UserNotFoundException("Service with id " + serviceId + " does not belong to user " + pupEmail);
+        }
+
+        return providedServiceToProvidedServiceDTO(service);
     }
 
     public List<ProvidedServiceDTO> getTop5Services() {
@@ -249,6 +266,14 @@ public class ProvidedServiceService {
 
     public ProvidedServiceDTO providedServiceToProvidedServiceDTO(ProvidedService svc) {
         ProvidedServiceDTO d = new ProvidedServiceDTO();
+
+        ProvidedServiceCategoryDTO catDto = new ProvidedServiceCategoryDTO();
+        catDto.setId(svc.getCategory().getId());
+        catDto.setName(svc.getCategory().getName());
+        catDto.setDescription(svc.getCategory().getDescription());
+        catDto.setStatus(svc.getCategory().getStatus().getName());
+
+        d.setCategory(catDto);
         d.setId(svc.getId());
         d.setPupId(svc.getPup().getId());
         d.setName(svc.getName());
@@ -256,10 +281,14 @@ public class ProvidedServiceService {
         d.setPeculiarities(svc.getPeculiarities());
         d.setPrice(svc.getPrice());
         d.setDiscount(svc.getDiscount());
-        d.setPhotos(svc.getPhotos().stream()
-                .map(ItemPhoto::getPhotoUrl).toList());
-        d.setSuitableEventTypes(svc.getSuitableEventTypes()
-                .stream().map(EntityBase::getId).toList());
+        d.setSuitableEventTypes(svc.getSuitableEventTypes().stream()
+        .map(et -> {
+                    EventTypeDTO etDto = new EventTypeDTO();
+                    etDto.setId(et.getId());
+                    etDto.setName(et.getName());
+                    etDto.setDescription(et.getDescription());
+                    return etDto;
+                }).collect(Collectors.toList()));
         d.setVisible(svc.isVisible());
         d.setAvailable(svc.isAvailable());
         d.setRating(svc.getRating());
@@ -268,6 +297,7 @@ public class ProvidedServiceService {
         d.setTimeManagement(svc.getTimeManagement());
         d.setServiceDurationMinMinutes(svc.getServiceDurationMinMinutes());
         d.setServiceDurationMaxMinutes(svc.getServiceDurationMaxMinutes());
+        d.setStatus(svc.getStatus());
         return d;
     }
 
