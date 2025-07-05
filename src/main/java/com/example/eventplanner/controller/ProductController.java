@@ -74,9 +74,9 @@ public class ProductController {
 
     @GetMapping("/my")
     @PreAuthorize("hasRole('PUP')")
-    public ResponseEntity<Page<ProductDTO>> searchMyProducts(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Page<ProductDTO>> searchMyProducts(@RequestParam(required = false) String keyword, HttpServletRequest request, Pageable pageable) {
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        Page<ProductDTO> products = productService.searchMyProducts(pupEmail, pageable);
+        Page<ProductDTO> products = productService.searchMyProducts(pupEmail, pageable, keyword);
         return new ResponseEntity<>(products, HttpStatus.OK);
     }
 

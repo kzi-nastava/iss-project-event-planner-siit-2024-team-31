@@ -19,4 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
                                                                                      Pageable pageable);
 
     Page<Product> findAllByPup(User pup, Pageable pageable);
+
+    Page<Product> findAllByPupAndNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(User pup, String name,
+                                                                                          String description,
+                                                                                          Pageable pageable);
 }

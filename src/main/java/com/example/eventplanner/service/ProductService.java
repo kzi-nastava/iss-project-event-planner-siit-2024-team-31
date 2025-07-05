@@ -245,12 +245,18 @@ public class ProductService {
                 .build();
     }
 
-    public Page<ProductDTO> searchMyProducts(String pupEmail, Pageable pageable) {
+    public Page<ProductDTO> searchMyProducts(String pupEmail, Pageable pageable, String keyword) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new IllegalArgumentException("PUP not found with email: " + pupEmail));
 
-        return productRepository.findAllByPup(pup, pageable)
-                .map(this::productToProductDTO);
+        if (keyword == null || keyword.isBlank()) {
+            return productRepository.findAllByPup(pup, pageable)
+                    .map(this::productToProductDTO);
+        }
+        else {
+            return productRepository.findAllByPupAndNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(pup, keyword, keyword, pageable)
+                    .map(this::productToProductDTO);
+        }
     }
 
     public void create(CreateProductRequestDTO productDto, String pupEmail) {
