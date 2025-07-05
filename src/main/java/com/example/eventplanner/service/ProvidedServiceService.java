@@ -118,7 +118,65 @@ public class ProvidedServiceService {
     public void update(Long serviceId, UpdateProvidedServiceRequestDTO dto, String pupEmail) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("User " + pupEmail + " not found"));
-        //TODO: implement update logic
+
+        var service = providedServiceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Service with id " + serviceId + " not found"));
+
+        if (!service.getPup().getId().equals(pup.getId())) {
+            throw new UserNotFoundException("Service with id " + serviceId + " does not belong to user " + pupEmail);
+        }
+
+        //TODO STUDENT 2: For add check if service is reserved
+        //and if so, throw exception or store previous version of service
+        //until reservation is completed or cancelled
+
+        service.setVersion(service.getVersion() + 1);
+        service.setName(dto.getName());
+        service.setDescription(dto.getDescription());
+        service.setPeculiarities(dto.getPeculiarities());
+        service.setPrice(dto.getPrice());
+        service.setDiscount(dto.getDiscount());
+        service.setAvailable(dto.getIsAvailable());
+        service.setVisible(dto.getIsVisible());
+
+        service.setBookingDeclineDeadlineHours(dto.getBookingDeclineDeadlineHours());
+        service.setServiceDurationMaxMinutes(dto.getServiceDurationMaxMinutes());
+        service.setServiceDurationMinMinutes(dto.getServiceDurationMinMinutes());
+
+        //Photos
+        if (dto.getPhotos() != null) {
+            List<String> urls = photoService.uploadPhotos(dto.getPhotos(), bucketName, "service-photos");
+            urls.forEach(url -> {
+                ItemPhoto p = new ItemPhoto();
+                p.setPhotoUrl(url);
+                p.setService(service);
+                service.getPhotos().add(p);
+            });
+        }
+
+        if (dto.getDeletedPhotosIds() != null) {
+            dto.getDeletedPhotosIds().forEach(photoId -> {
+                ItemPhoto photo = service.getPhotos().stream()
+                        .filter(p -> p.getId().equals(photoId))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Photo with id " + photoId + " not found"));
+                photoService.deletePhotoByKey(photo.getPhotoUrl(), bucketName);
+                service.getPhotos().remove(photo);
+            });
+        }
+
+        //Suitable event types
+        if (dto.getSuitableEventTypes() != null) {
+            service.setSuitableEventTypes(
+                    dto.getSuitableEventTypes().stream()
+                            .map(id -> eventTypesRepository.findById(id)
+                                    .orElseThrow(() -> new EventTypeNotFoundException("Event type with id " + id + " not found")))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        providedServiceRepository.save(service);
+
     }
 
     public ProvidedServiceDTO getProvidedServiceDataForProviderById(Long serviceId, String pupEmail) {

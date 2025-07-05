@@ -65,7 +65,57 @@ public class ProductService {
     public void update(Long productId, UpdateProductRequestDTO dto, String pupEmail) {
         var pup = userRepository.findByEmail(pupEmail)
                 .orElseThrow(() -> new UserNotFoundException("PUP not found with email: " + pupEmail));
-        //TODO: Implement update logic
+
+        var product = productRepository.findById(productId)
+                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + productId));
+
+        if (!product.getPup().getId().equals(pup.getId())) {
+            throw new IllegalArgumentException("Product does not belong to the PUP with email: " + pupEmail);
+        }
+
+        //TODO STUDENT 2: For add check if product is reserved
+        //and if so, throw exception or store previous version of product
+        //until reservation is completed or cancelled
+
+        // Update product details
+        product.setVersion(product.getVersion() + 1);
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPeculiarities(dto.getPeculiarities());
+        product.setPrice(dto.getPrice());
+        product.setDiscount(dto.getDiscount());
+        product.setAvailable(dto.getIsAvailable());
+        product.setVisible(dto.getIsVisible());
+
+        //Photos
+        List<MultipartFile> photos = dto.getPhotos();
+        if (photos != null && !photos.isEmpty()) {
+            photoService.uploadPhotos(photos, bucketName, "product-photos");
+        }
+
+        List<Long> deletedPhotosIds = dto.getDeletedPhotosIds();
+        if (deletedPhotosIds != null && !deletedPhotosIds.isEmpty()) {
+            for (Long photoId : deletedPhotosIds) {
+                ItemPhoto photo = product.getPhotos().stream()
+                        .filter(p -> p.getId().equals(photoId))
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalArgumentException("Photo not found with id: " + photoId));
+                photoService.deletePhotoByKey(photo.getPhotoUrl(), bucketName);
+                product.getPhotos().remove(photo);
+            }
+        }
+
+        //Suitable event types
+        if (dto.getSuitableEventTypes() != null && !dto.getSuitableEventTypes().isEmpty()) {
+            product.setSuitableEventTypes(
+                    dto.getSuitableEventTypes().stream()
+                            .map(id -> eventTypesRepository.findById(id)
+                                    .orElseThrow(() -> new EventTypeNotFoundException("Event type not found with id: " + id)))
+                            .collect(Collectors.toList())
+            );
+        }
+
+        productRepository.save(product);
     }
 
     public ProductDTO getProductDataForProviderById(Long productId, String pupEmail) {
