@@ -3,6 +3,7 @@ package com.example.eventplanner.controller;
 import com.example.eventplanner.dto.CommonMessageDTO;
 import com.example.eventplanner.dto.service.CreateServiceRequestDTO;
 import com.example.eventplanner.dto.service.ProvidedServiceDTO;
+import com.example.eventplanner.dto.service.UpdateProvidedServiceRequestDTO;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.ProvidedServiceService;
 import com.example.eventplanner.utils.types.ProvidedServiceFilterCriteria;
@@ -39,12 +40,24 @@ public class ProvidedServiceController {
 
     @PutMapping("/{serviceId}")
     @PreAuthorize("hasRole('PUP')")
-    public ResponseEntity<CommonMessageDTO> updateProvidedService(@PathVariable Long serviceId, @ModelAttribute CreateServiceRequestDTO createServiceRequestDTO, HttpServletRequest request) {
+    public ResponseEntity<CommonMessageDTO> updateProvidedService(
+            @PathVariable Long serviceId,
+            @ModelAttribute UpdateProvidedServiceRequestDTO updateProvidedServiceRequestDTO,
+            HttpServletRequest request
+    ) {
         CommonMessageDTO response = new CommonMessageDTO();
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        providedServiceService.update(serviceId, createServiceRequestDTO, pupEmail);
+        providedServiceService.update(serviceId, updateProvidedServiceRequestDTO, pupEmail);
         response.setMessage("Service updated successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{serviceId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<ProvidedServiceDTO> getProvidedServiceDataForProviderById(@PathVariable Long serviceId, HttpServletRequest request) {
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        ProvidedServiceDTO service = providedServiceService.getProvidedServiceDataForProviderById(serviceId, pupEmail);
+        return new ResponseEntity<>(service, HttpStatus.OK);
     }
 
     @GetMapping("/public/top-5")

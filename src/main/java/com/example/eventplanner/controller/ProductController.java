@@ -3,6 +3,7 @@ package com.example.eventplanner.controller;
 import com.example.eventplanner.dto.product.CreateProductRequestDTO;
 import com.example.eventplanner.dto.product.CreateProductResponseDTO;
 import com.example.eventplanner.dto.product.ProductDTO;
+import com.example.eventplanner.dto.product.UpdateProductRequestDTO;
 import com.example.eventplanner.service.JwtService;
 import com.example.eventplanner.service.ProductService;
 import com.example.eventplanner.utils.types.ProductFilterCriteria;
@@ -41,12 +42,24 @@ public class ProductController {
 
     @PutMapping("/{productId}")
     @PreAuthorize("hasRole('PUP')")
-    public ResponseEntity<CreateProductResponseDTO> updateProduct(@PathVariable Long productId, @ModelAttribute CreateProductRequestDTO productDto, HttpServletRequest request) {
+    public ResponseEntity<CreateProductResponseDTO> updateProduct(
+            @PathVariable Long productId,
+            @ModelAttribute UpdateProductRequestDTO updateProductRequestDTO,
+            HttpServletRequest request
+    ) {
         CreateProductResponseDTO response = new CreateProductResponseDTO();
         String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
-        productService.update(productId, productDto, pupEmail);
+        productService.update(productId, updateProductRequestDTO, pupEmail);
         response.setMessage("Product updated successfully");
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{productId}")
+    @PreAuthorize("hasRole('PUP')")
+    public ResponseEntity<ProductDTO> getProductDataForProviderById(@PathVariable Long productId, HttpServletRequest request) {
+        String pupEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
+        ProductDTO product = productService.getProductDataForProviderById(productId, pupEmail);
+        return new ResponseEntity<>(product, HttpStatus.OK);
     }
 
     @GetMapping("/my")
