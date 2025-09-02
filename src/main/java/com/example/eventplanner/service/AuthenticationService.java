@@ -93,8 +93,8 @@ public class AuthenticationService {
 
         userRepository.saveAndFlush(user);
 
-//        emailService.sendTestEmail(new SMTPEmailDetails(null, user.getEmail(), "Registration confirmation EventPlant", "Hello, <br> someone used this email for registration. If it was you, please use this link" +
-//                "to confirm <a href='http://localhost:" + springPort  + "/auth/activate?id=" + user.getId() + "' >click</a> <br> Otherwise please ignore this email." + " redirection", null));
+        emailService.sendTestEmail(new SMTPEmailDetails(null, user.getEmail(), "Registration confirmation EventPlanner", "Hello, <br> someone used this email for registration. If it was you, please use this link " +
+                "to confirm <a href='http://localhost:" + springPort  + "/api/auth/activate?id=" + user.getId() + "' >click</a> <br> Otherwise please ignore this email.", null));
 
     }
 
