@@ -7,7 +7,6 @@ import com.example.eventplanner.dto.eventDto.EventDTO;
 import com.example.eventplanner.dto.eventDto.agenda.AgendaItemDTO;
 import com.example.eventplanner.dto.eventDto.budget.BudgetItemDTO;
 import com.example.eventplanner.dto.eventDto.eventType.EventTypeDTO;
-import com.example.eventplanner.dto.service.ProvidedServiceDTO;
 import com.example.eventplanner.exception.exceptions.user.UserNotFoundException;
 import com.example.eventplanner.model.EventLocation;
 import com.example.eventplanner.model.Status;
@@ -119,7 +118,7 @@ public class EventService {
         }
 
         String searchKeyword = "%" + keyword.toLowerCase() + "%";
-        Page<Event> events = eventRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndPrivate(searchKeyword, searchKeyword, pageable, false);
+        Page<Event> events = eventRepository.findAllByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCaseAndIsPrivate(searchKeyword, searchKeyword, pageable, false);
         return events.map(this::eventToEventDTO);
     }
 
@@ -415,7 +414,7 @@ public class EventService {
                 .stream()
                 .map(Event::getEndTime)
                 .max(Instant::compareTo)
-                .orElse(Instant.now().plus(1, ChronoUnit.YEARS));
+                .orElse(Instant.now().plus(365, ChronoUnit.DAYS));
 
         Integer minGuests = eventRepository.findAll()
                 .stream()

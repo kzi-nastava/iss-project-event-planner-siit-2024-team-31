@@ -112,6 +112,11 @@ public class EventController {
     @GetMapping("/calendar/{year}/{month}")
     @PreAuthorize("hasAnyRole('USER', 'OD', 'ADMIN', 'PUP')")
     public ResponseEntity<List<EventDTO>> getEventsByMonth(@PathVariable int year, @PathVariable int month, HttpServletRequest request) {
+        // Validate month parameter
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Month must be between 1 and 12, but was: " + month);
+        }
+
         String userEmail = jwtService.extractUserEmailFromAuthorizationRequest(request);
         List<EventDTO> events = eventService.getMyGuestEventsByYearMonth(year, month, userEmail);
         return new ResponseEntity<>(events, HttpStatus.OK);
