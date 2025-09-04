@@ -414,7 +414,7 @@ public class EventService {
                 .stream()
                 .map(Event::getEndTime)
                 .max(Instant::compareTo)
-                .orElse(Instant.now().plus(1, ChronoUnit.YEARS));
+                .orElse(Instant.now().plus(365, ChronoUnit.DAYS));
 
         Integer minGuests = eventRepository.findAll()
                 .stream()
