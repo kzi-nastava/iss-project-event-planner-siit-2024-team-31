@@ -6,11 +6,13 @@ import com.example.eventplanner.exception.exceptions.general.ForbiddenException;
 import com.example.eventplanner.exception.exceptions.general.UnauthorizedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -36,6 +38,30 @@ public class GlobalExceptionHandler {
         commonMessageDTO.setMessage("Authentication failed. Please check your credentials.");
         commonMessageDTO.setError(ex.getMessage());
         return new ResponseEntity<>(commonMessageDTO, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<CommonMessageDTO> handleAuthorizationDeniedException(AuthorizationDeniedException ex) {
+        CommonMessageDTO commonMessageDTO = new CommonMessageDTO();
+        commonMessageDTO.setMessage("Access denied. Insufficient permissions.");
+        commonMessageDTO.setError(ex.getMessage());
+        return new ResponseEntity<>(commonMessageDTO, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<CommonMessageDTO> handleIllegalArgumentException(IllegalArgumentException ex) {
+        CommonMessageDTO commonMessageDTO = new CommonMessageDTO();
+        commonMessageDTO.setMessage("Invalid request parameters.");
+        commonMessageDTO.setError(ex.getMessage());
+        return new ResponseEntity<>(commonMessageDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<CommonMessageDTO> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        CommonMessageDTO commonMessageDTO = new CommonMessageDTO();
+        commonMessageDTO.setMessage("Invalid parameter format.");
+        commonMessageDTO.setError(ex.getMessage());
+        return new ResponseEntity<>(commonMessageDTO, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
